@@ -149,37 +149,56 @@ def fetch_crossref(journal: dict, cutoff: datetime,
         print(f"  [WARN] CrossRef '{journal['name']}': {exc}", file=sys.stderr)
         return []
 
+    # CrossRef re-indexes old articles when publishers update metadata.
+    # Reject anything published more than 14 days before the cutoff so that
+    # a 1997 article with freshly updated metadata does not appear in the digest.
+    pub_date_floor = cutoff - timedelta(days=14)
+
     articles = []
     for item in data.get("message", {}).get("items", []):
+        # ── Indexed-date filter ───────────────────────────────────────────────
         idx_str = item.get("indexed", {}).get("date-time", "")
         try:
             indexed_dt = datetime.fromisoformat(idx_str.replace("Z", "+00:00"))
         except Exception:
-            indexed_dt = datetime.now(timezone.utc)
+            indexed_dt = cutoff  # unknown → treat as borderline, let pub-date decide
         if indexed_dt < cutoff:
             continue
+
+        # ── Publication-date filter (guards against re-indexed legacy articles) ─
+        dp = item.get("published", {}).get("date-parts", [[]])
+        pub_str = ""
+        if dp and dp[0]:
+            parts_list = dp[0]
+            year  = parts_list[0] if len(parts_list) > 0 else None
+            month = parts_list[1] if len(parts_list) > 1 else 1
+            day   = parts_list[2] if len(parts_list) > 2 else 1
+            if year:
+                try:
+                    pub_dt = datetime(year, month, day, tzinfo=timezone.utc)
+                    if pub_dt < pub_date_floor:
+                        continue          # published too long ago — skip
+                except Exception:
+                    pass
+            pub_str = "-".join(str(p).zfill(2) for p in parts_list)
+        if not pub_str:
+            pub_str = indexed_dt.strftime("%Y-%m-%d")
 
         title_list = item.get("title", [])
         title = title_list[0] if title_list else "(no title)"
 
         authors_raw = item.get("author", [])
-        parts = [
+        author_parts = [
             f"{a.get('family', '')} {(a.get('given') or '')[:1]}".strip()
             for a in authors_raw[:4]
         ]
-        authors = ", ".join(p for p in parts if p)
+        authors = ", ".join(p for p in author_parts if p)
         if len(authors_raw) > 4:
             authors += " et al."
 
         abstract = _clean_html(item.get("abstract", ""))[:600]
         doi = item.get("DOI", "")
         url = item.get("URL", f"https://doi.org/{doi}" if doi else "")
-
-        dp = item.get("published", {}).get("date-parts", [[]])
-        if dp and dp[0]:
-            pub_str = "-".join(str(p).zfill(2) for p in dp[0])
-        else:
-            pub_str = indexed_dt.strftime("%Y-%m-%d")
 
         articles.append({
             "journal":   journal["name"],
