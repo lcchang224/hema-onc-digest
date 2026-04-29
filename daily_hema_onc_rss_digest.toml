@@ -1,0 +1,155 @@
+# Daily Hematology / Oncology Digest — Configuration
+#
+# Fetch strategy:
+#   RSS   → Nature / Springer / PubMed (no Cloudflare protection)
+#   CrossRef API → everything published by ASCO / ASH / Wiley / OUP /
+#                  Elsevier / EHA / ISTH (Cloudflare-protected publishers)
+#
+# The CrossRef polite pool gives higher rate limits; keep polite_email set.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# RSS feeds  (Nature / Springer — safe to fetch directly)
+# ─────────────────────────────────────────────────────────────────────────────
+[rss]
+
+  [[rss.feeds]]
+  name = "Nature Medicine"
+  url  = "https://www.nature.com/nm/articles.rss"
+
+  [[rss.feeds]]
+  name = "Nature Cancer"
+  url  = "https://www.nature.com/natcancer/articles.rss"
+
+  [[rss.feeds]]
+  name = "Leukemia (Nature)"
+  url  = "https://www.nature.com/leu.rss"
+
+  [[rss.feeds]]
+  name = "Blood Cancer Journal (Nature)"
+  url  = "https://www.nature.com/bcj.rss"
+
+  [[rss.feeds]]
+  name = "Bone Marrow Transplantation (Nature)"
+  url  = "https://www.nature.com/bmt.rss"
+
+  [[rss.feeds]]
+  name = "npj Precision Oncology (Nature)"
+  url  = "https://www.nature.com/npjprecisiononcology/articles.rss"
+
+  [[rss.feeds]]
+  name = "Annals of Hematology (Springer)"
+  url  = "https://link.springer.com/search.rss?facet-journal-id=277&channel-name=Annals+of+Hematology"
+
+  [[rss.feeds]]
+  name = "International Journal of Hematology (Springer)"
+  url  = "https://link.springer.com/search.rss?facet-journal-id=12185&channel-name=International+Journal+of+Hematology"
+
+  [[rss.feeds]]
+  name = "Journal of Hematology & Oncology (BMC)"
+  url  = "https://jhoonline.biomedcentral.com/articles/most-recent/rss.xml"
+
+  [[rss.feeds]]
+  name = "NEJM Hematology-Oncology"
+  url  = "https://onesearch-rss.nejm.org/api/specialty/rss?context=nejm&specialty=hematology-oncology"
+
+  # Uncomment to include a PubMed custom-search feed
+  # [[rss.feeds]]
+  # name = "PubMed Custom Search"
+  # url  = "https://pubmed.ncbi.nlm.nih.gov/rss/search/1L5AT7N6rGvBm3-KX3KlG8UZrXSOhP8AGNCuYYH-ucz8SijUCJ/?limit=50&utm_campaign=pubmed-2&fc=20240727041330"
+
+  [rss.content_rules]
+  filter_window_hours = 28   # slightly wider than 24 h to avoid missing articles
+                             # published just before yesterday's run
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CrossRef API  (bypasses Cloudflare — fetches by ISSN)
+# Docs: https://api.crossref.org/swagger-ui/index.html
+# ─────────────────────────────────────────────────────────────────────────────
+[crossref]
+polite_email = "lcchang224@gmail.com"
+rows         = 25      # max articles per journal per run
+sort         = "indexed"
+order        = "desc"
+
+# ── ASH ──────────────────────────────────────────────────────────────────────
+[[crossref.journals]]
+name = "Blood"
+issn = "0006-4971"
+
+[[crossref.journals]]
+name = "Blood Advances"
+issn = "2473-9529"
+
+[[crossref.journals]]
+name = "Blood Cancer Discovery"
+issn = "2643-3249"
+
+# ── ASCO ─────────────────────────────────────────────────────────────────────
+[[crossref.journals]]
+name = "Journal of Clinical Oncology"
+issn = "0732-183X"
+
+# ── NEJM Group ───────────────────────────────────────────────────────────────
+[[crossref.journals]]
+name = "New England Journal of Medicine"
+issn = "0028-4793"
+
+[[crossref.journals]]
+name = "NEJM Evidence"
+issn = "2766-5526"
+
+# ── Lancet / Elsevier ────────────────────────────────────────────────────────
+[[crossref.journals]]
+name = "Lancet Haematology"
+issn = "2352-3026"
+
+[[crossref.journals]]
+name = "Lancet Oncology"
+issn = "1470-2045"
+
+[[crossref.journals]]
+name = "Blood Reviews"
+issn = "0268-960X"
+
+[[crossref.journals]]
+name = "Clinical Lymphoma Myeloma & Leukemia"
+issn = "2152-2650"
+
+[[crossref.journals]]
+name = "Annals of Oncology"
+issn = "0923-7534"
+
+# ── Wiley ─────────────────────────────────────────────────────────────────────
+[[crossref.journals]]
+name = "British Journal of Haematology"
+issn = "1365-2141"
+
+[[crossref.journals]]
+name = "American Journal of Hematology"
+issn = "1096-8652"
+
+[[crossref.journals]]
+name = "European Journal of Haematology"
+issn = "0902-4441"
+
+[[crossref.journals]]
+name = "Journal of Thrombosis and Haemostasis"
+issn = "1538-7836"
+
+[[crossref.journals]]
+name = "Thrombosis and Haemostasis"
+issn = "0340-6245"
+
+# ── EHA ──────────────────────────────────────────────────────────────────────
+[[crossref.journals]]
+name = "Haematologica"
+issn = "1592-8721"
+
+[[crossref.journals]]
+name = "HemaSphere"
+issn = "2572-9241"
+
+# ── ASTCT ────────────────────────────────────────────────────────────────────
+[[crossref.journals]]
+name = "Transplantation and Cellular Therapy"
+issn = "2666-6367"

@@ -1,0 +1,43 @@
+name: Daily Heme/Onc Digest
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # midnight UTC = 08:00 Taipei (UTC+8)
+  workflow_dispatch:        # "Run workflow" button in GitHub Actions tab
+
+jobs:
+  generate-digest:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write       # needed to commit the report back to the repo
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install httpx feedparser anthropic
+
+      - name: Generate digest & send email
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: |
+          python generate_digest.py \
+            --output ./reports \
+            --email-to lcchang224@gmail.com
+
+      - name: Commit report to repo
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports/
+          git diff --cached --quiet || git commit -m "digest: $(date -u '+%Y-%m-%d')"
+          git push
