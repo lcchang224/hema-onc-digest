@@ -59,12 +59,6 @@ try:
 except ImportError:
     sys.exit("feedparser is not installed.\nRun: pip install feedparser")
 
-# ── Anthropic (optional – graceful fallback if absent / no key) ──────────────
-try:
-    import anthropic  # type: ignore
-    HAS_ANTHROPIC = True
-except ImportError:
-    HAS_ANTHROPIC = False
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -79,8 +73,9 @@ DEMO_HOURS      = 72          # wider window so demo has plenty of articles
 CROSSREF_BASE   = "https://api.crossref.org/works"
 RSS_TIMEOUT     = 20
 CROSSREF_TIMEOUT= 30
-CLAUDE_MODEL    = "claude-sonnet-4-6"   # fast + capable for batch summarisation
-CHUNK_SIZE      = 30                    # articles per Claude call
+GEMINI_MODEL    = "gemini-1.5-flash"
+GEMINI_BASE     = "https://generativelanguage.googleapis.com/v1beta/models"
+CHUNK_SIZE      = 30                    # articles per Gemini call
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -138,7 +133,7 @@ def fetch_crossref(journal: dict, cutoff: datetime,
         "sort":    "indexed",
         "order":   "desc",
         "mailto":  email,
-        "select":  "DOI,title,author,published,abstract,URL,indexed",
+        "select":  "DOI,title,author,published,abstract,URL,indexed,type",
     }
     try:
         with httpx.Client(timeout=CROSSREF_TIMEOUT) as client:
@@ -150,9 +145,10 @@ def fetch_crossref(journal: dict, cutoff: datetime,
         return []
 
     # CrossRef re-indexes old articles when publishers update metadata.
-    # Reject anything published more than 14 days before the cutoff so that
-    # a 1997 article with freshly updated metadata does not appear in the digest.
-    pub_date_floor = cutoff - timedelta(days=14)
+    # Use 90 days as the floor — wide enough to handle articles where CrossRef
+    # only knows year+month (which default to the 1st and could otherwise be
+    # wrongly excluded), but still blocks decade-old re-indexed articles.
+    pub_date_floor = cutoff - timedelta(days=90)
 
     articles = []
     for item in data.get("message", {}).get("items", []):
@@ -163,6 +159,10 @@ def fetch_crossref(journal: dict, cutoff: datetime,
         except Exception:
             indexed_dt = cutoff  # unknown → treat as borderline, let pub-date decide
         if indexed_dt < cutoff:
+            continue
+
+        # ── Type filter (skip journal-issue, book-chapter, etc.) ──────────────
+        if item.get("type", "journal-article") != "journal-article":
             continue
 
         # ── Publication-date filter (guards against re-indexed legacy articles) ─
@@ -234,10 +234,11 @@ Rules:
 - Strictly valid JSON."""
 
 
-def ai_summarize(articles: list[dict], client) -> dict[int, dict]:
-    """Return {global_idx: {summary, hehe, nohehe}} for all articles."""
+def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
+    """Return {global_idx: {summary, hehe, nohehe}} using Gemini REST API."""
     results: dict[int, dict] = {}
     chunks = [articles[i:i + CHUNK_SIZE] for i in range(0, len(articles), CHUNK_SIZE)]
+    url = f"{GEMINI_BASE}/{GEMINI_MODEL}:generateContent?key={api_key}"
 
     for chunk_no, chunk in enumerate(chunks):
         base = chunk_no * CHUNK_SIZE
@@ -248,14 +249,16 @@ def ai_summarize(articles: list[dict], client) -> dict[int, dict]:
             if a.get("abstract"):
                 lines.append(f"    Abstract: {a['abstract'][:350]}")
 
+        payload = {
+            "system_instruction": {"parts": [{"text": _SUMMARY_SYSTEM}]},
+            "contents": [{"parts": [{"text": "\n".join(lines)}]}],
+            "generationConfig": {"maxOutputTokens": 8192, "temperature": 0.7},
+        }
         try:
-            msg = client.messages.create(
-                model=CLAUDE_MODEL,
-                max_tokens=4096,
-                system=_SUMMARY_SYSTEM,
-                messages=[{"role": "user", "content": "\n".join(lines)}],
-            )
-            raw = msg.content[0].text.strip()
+            with httpx.Client(timeout=60) as client:
+                resp = client.post(url, json=payload)
+                resp.raise_for_status()
+            raw = resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
             raw = re.sub(r"^```[a-z]*\n?", "", raw)
             raw = re.sub(r"\n?```$", "", raw)
             parsed = json.loads(raw)
@@ -263,6 +266,7 @@ def ai_summarize(articles: list[dict], client) -> dict[int, dict]:
                 results[entry["idx"]] = entry
         except Exception as exc:
             print(f"  [WARN] AI summary chunk {chunk_no}: {exc}", file=sys.stderr)
+        time.sleep(1)   # stay within free-tier rate limit (15 RPM)
 
     return results
 
@@ -619,7 +623,7 @@ def render_html(articles: list[dict], summaries: dict[int, dict],
              + str(hours) + ' hours.</div>'
     )
 
-    ai_note = " · AI summaries by Claude" if has_ai else " · (no AI summaries)"
+    ai_note = " · AI summaries by Gemini" if has_ai else " · (no AI summaries)"
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -745,8 +749,6 @@ def main() -> None:
                         help="Skip Claude AI summaries")
     parser.add_argument("--demo",    action="store_true",
                         help=f"Use {DEMO_HOURS}h window to ensure articles for demo")
-    parser.add_argument("--model",    default=CLAUDE_MODEL,
-                        help=f"Claude model (default: {CLAUDE_MODEL})")
     parser.add_argument("--email-to", default="",
                         help="Send the HTML digest to this email address via Gmail SMTP. "
                              "Requires GMAIL_USER and GMAIL_APP_PASSWORD env vars.")
@@ -817,17 +819,13 @@ def main() -> None:
     # ── AI summaries ──────────────────────────────────────────────────────────
     summaries: dict[int, dict] = {}
     if not args.no_ai and all_articles:
-        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-        if not api_key:
-            print("\n[INFO] ANTHROPIC_API_KEY not set — skipping AI summaries.")
-            print("       Set the env var to enable 嘻嘻/不嘻嘻 commentary.")
-        elif not HAS_ANTHROPIC:
-            print("\n[INFO] anthropic package not installed — skipping AI summaries.")
-            print("       Run: pip install anthropic")
+        gemini_key = os.environ.get("GEMINI_API_KEY", "")
+        if not gemini_key:
+            print("\n[INFO] GEMINI_API_KEY not set — skipping AI summaries.")
+            print("       Get a free key at aistudio.google.com and add it as a GitHub secret.")
         else:
-            print(f"\n── AI summaries (model: {args.model}) ──────────────────")
-            client = anthropic.Anthropic(api_key=api_key)
-            summaries = ai_summarize(all_articles, client)
+            print(f"\n── AI summaries (Gemini {GEMINI_MODEL}) ────────────────")
+            summaries = ai_summarize(all_articles, gemini_key)
             print(f"  Summarised {len(summaries)}/{len(all_articles)} articles")
 
     # ── Render & save ─────────────────────────────────────────────────────────
