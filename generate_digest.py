@@ -73,9 +73,8 @@ DEMO_HOURS      = 72          # wider window so demo has plenty of articles
 CROSSREF_BASE   = "https://api.crossref.org/works"
 RSS_TIMEOUT     = 20
 CROSSREF_TIMEOUT= 30
-GEMINI_MODEL    = "gemini-1.5-flash"
-GEMINI_BASE     = "https://generativelanguage.googleapis.com/v1beta/models"
-CHUNK_SIZE      = 30                    # articles per Gemini call
+GEMINI_MODEL    = "gemini-2.0-flash-lite"   # free tier; change to gemini-2.0-flash if needed
+CHUNK_SIZE      = 30                        # articles per Gemini call
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -244,10 +243,23 @@ Rules:
 
 
 def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
-    """Return {global_idx: {summary, hehe, nohehe}} using Gemini REST API."""
+    """Return {global_idx: {summary, hehe, nohehe}} using google-generativeai SDK."""
+    try:
+        import google.generativeai as genai  # type: ignore
+    except ImportError:
+        print("  [WARN] google-generativeai not installed — skipping AI summaries.",
+              file=sys.stderr)
+        return {}
+
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel(
+        model_name=GEMINI_MODEL,
+        system_instruction=_SUMMARY_SYSTEM,
+        generation_config={"max_output_tokens": 8192, "temperature": 0.7},
+    )
+
     results: dict[int, dict] = {}
     chunks = [articles[i:i + CHUNK_SIZE] for i in range(0, len(articles), CHUNK_SIZE)]
-    url = f"{GEMINI_BASE}/{GEMINI_MODEL}:generateContent?key={api_key}"
 
     for chunk_no, chunk in enumerate(chunks):
         base = chunk_no * CHUNK_SIZE
@@ -257,17 +269,9 @@ def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
             lines.append(f"[{gidx}] {a['journal']} — {a['title']}")
             if a.get("abstract"):
                 lines.append(f"    Abstract: {a['abstract'][:350]}")
-
-        payload = {
-            "system_instruction": {"parts": [{"text": _SUMMARY_SYSTEM}]},
-            "contents": [{"parts": [{"text": "\n".join(lines)}]}],
-            "generationConfig": {"maxOutputTokens": 8192, "temperature": 0.7},
-        }
         try:
-            with httpx.Client(timeout=60) as client:
-                resp = client.post(url, json=payload)
-                resp.raise_for_status()
-            raw = resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+            resp = model.generate_content("\n".join(lines))
+            raw = resp.text.strip()
             raw = re.sub(r"^```[a-z]*\n?", "", raw)
             raw = re.sub(r"\n?```$", "", raw)
             parsed = json.loads(raw)
