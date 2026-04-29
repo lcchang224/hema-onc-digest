@@ -269,17 +269,26 @@ def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
             lines.append(f"[{gidx}] {a['journal']} — {a['title']}")
             if a.get("abstract"):
                 lines.append(f"    Abstract: {a['abstract'][:350]}")
-        try:
-            resp = model.generate_content("\n".join(lines))
-            raw = resp.text.strip()
-            raw = re.sub(r"^```[a-z]*\n?", "", raw)
-            raw = re.sub(r"\n?```$", "", raw)
-            parsed = json.loads(raw)
-            for entry in parsed:
-                results[entry["idx"]] = entry
-        except Exception as exc:
-            print(f"  [WARN] AI summary chunk {chunk_no}: {exc}", file=sys.stderr)
-        time.sleep(1)   # stay within free-tier rate limit (15 RPM)
+        for attempt in range(3):
+            try:
+                resp = model.generate_content("\n".join(lines))
+                raw = resp.text.strip()
+                raw = re.sub(r"^```[a-z]*\n?", "", raw)
+                raw = re.sub(r"\n?```$", "", raw)
+                parsed = json.loads(raw)
+                for entry in parsed:
+                    results[entry["idx"]] = entry
+                break
+            except Exception as exc:
+                if "429" in str(exc) or "quota" in str(exc).lower() or "resource" in str(exc).lower():
+                    wait = 60 * (attempt + 1)
+                    print(f"  [WARN] Rate limited (chunk {chunk_no}), retrying in {wait}s…",
+                          file=sys.stderr)
+                    time.sleep(wait)
+                else:
+                    print(f"  [WARN] AI summary chunk {chunk_no}: {exc}", file=sys.stderr)
+                    break
+        time.sleep(5)   # 5s between chunks → max 12 RPM, within free-tier limit
 
     return results
 
