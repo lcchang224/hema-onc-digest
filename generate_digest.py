@@ -145,10 +145,10 @@ def fetch_crossref(journal: dict, cutoff: datetime,
         return []
 
     # CrossRef re-indexes old articles when publishers update metadata.
-    # Use 90 days as the floor — wide enough to handle articles where CrossRef
-    # only knows year+month (which default to the 1st and could otherwise be
-    # wrongly excluded), but still blocks decade-old re-indexed articles.
-    pub_date_floor = cutoff - timedelta(days=90)
+    # 30-day floor blocks decade-old re-indexed articles while still allowing
+    # genuinely recent papers. For partial dates (year+month only) we use the
+    # last day of that month so April articles aren't wrongly excluded.
+    pub_date_floor = cutoff - timedelta(days=30)
 
     articles = []
     for item in data.get("message", {}).get("items", []):
@@ -175,9 +175,16 @@ def fetch_crossref(journal: dict, cutoff: datetime,
             day   = parts_list[2] if len(parts_list) > 2 else 1
             if year:
                 try:
-                    pub_dt = datetime(year, month, day, tzinfo=timezone.utc)
+                    if len(parts_list) >= 3:
+                        pub_dt = datetime(year, month, day, tzinfo=timezone.utc)
+                    else:
+                        # Year+month only: assume end of that month so current-month
+                        # articles aren't wrongly excluded by the floor check.
+                        next_m = month % 12 + 1
+                        next_y = year + (1 if month == 12 else 0)
+                        pub_dt = datetime(next_y, next_m, 1, tzinfo=timezone.utc) - timedelta(days=1)
                     if pub_dt < pub_date_floor:
-                        continue          # published too long ago — skip
+                        continue
                 except Exception:
                     pass
             pub_str = "-".join(str(p).zfill(2) for p in parts_list)
@@ -185,7 +192,9 @@ def fetch_crossref(journal: dict, cutoff: datetime,
             pub_str = indexed_dt.strftime("%Y-%m-%d")
 
         title_list = item.get("title", [])
-        title = title_list[0] if title_list else "(no title)"
+        title = title_list[0] if title_list else ""
+        if not title:
+            continue   # issue/volume entries have no title
 
         authors_raw = item.get("author", [])
         author_parts = [
