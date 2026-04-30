@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-04-30</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --border: #dde2ec;
+  --accent: #1a56db;
+  --accent2: #2563eb;
+  --accent-light: #eef2ff;
+  --text: #111827;
+  --muted: #6b7280;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #e9edf7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1017;
+    --surface: #161c2c;
+    --border: #252e44;
+    --accent: #6ea8fe;
+    --accent2: #5b8dee;
+    --accent-light: #0f1a30;
+    --text: #e2e8f0;
+    --muted: #8b95a8;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #1e2637;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #1a56db 0%, #2563eb 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(26,86,219,.35);
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-04-30 01:46 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>31</b> articles</span>
+  <span>📚 <b>8</b> journals</span>
+  <span>⏱ Past <b>24h</b></span>
+  
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-blood-advances">Blood Advances <span style="opacity:.6">(5)</span></a><a href="#j-blood-cancer-discovery">Blood Cancer Discovery <span style="opacity:.6">(1)</span></a><a href="#j-clinical-lymphoma-myeloma-leukemia">Clinical Lymphoma Myeloma &amp; Leukemia <span style="opacity:.6">(1)</span></a><a href="#j-hemasphere">HemaSphere <span style="opacity:.6">(3)</span></a><a href="#j-leukemia-nature">Leukemia (Nature) <span style="opacity:.6">(1)</span></a><a href="#j-nejm-evidence">NEJM Evidence <span style="opacity:.6">(12)</span></a><a href="#j-nejm-hematology-oncology">NEJM Hematology-Oncology <span style="opacity:.6">(7)</span></a><a href="#j-new-england-journal-of-medicine">New England Journal of Medicine <span style="opacity:.6">(1)</span></a></div>
+</div>
+<div class="journal-section" id="j-blood-advances">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Advances</span>
+    <span class="journal-count">5</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026019726" target="_blank" rel="noopener">Finding the genes that fit CPX-351</a>
+  </div>
+  <p class="article-authors">Hanamshet A, Othman J</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026019727" target="_blank" rel="noopener">Investigative reporting on factor VIII whereabouts</a>
+  </div>
+  <p class="article-authors">Pratt K</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025017672" target="_blank" rel="noopener">Factor VIII originates primarily from anatomically distinct subsets of liver sinusoidal endothelial cells</a>
+  </div>
+  <p class="article-authors">Severeid P, Kapelanski-Lamoureux A, Lebeaupin C, Metrakos P et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025019301" target="_blank" rel="noopener">PNH extravascular hemolysis: exploring clinical significance</a>
+  </div>
+  <p class="article-authors">Notaro R, Risitano A</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025019378" target="_blank" rel="noopener">CPX-351 selectively benefits patients with AML and myelodysplasia-related mutations in the pivotal randomized trial</a>
+  </div>
+  <p class="article-authors">Shimony S, Murdock H, Keating J, Tsai H et al.</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-blood-cancer-discovery">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Cancer Discovery</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-17</span><span class="badge">DOI: 10.1158/2643-3230.bcd-</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1158/2643-3230.bcd-25-0323" target="_blank" rel="noopener">A Phase 2, Open-Label, Multicenter Study of the Safety and Efficacy of TAK-007 in Adult Patients with Relapsed/Refractory B-cell Non-Hodgkin Lymphoma</a>
+  </div>
+  <p class="article-authors">Darrah J, Varadarajan I, Mehta A, Saultz J et al.</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-clinical-lymphoma-myeloma-leukemia">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Clinical Lymphoma Myeloma &amp; Leukemia</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-03</span><span class="badge">DOI: 10.1016/j.clml.2025.11</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2025.11.005" target="_blank" rel="noopener">An Update of Evidence that the Herbicide Glyphosate (Roundup) is a Cause of Non-Hodgkin Lymphoma</a>
+  </div>
+  <p class="article-authors">Weisenburger D</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-hemasphere">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">HemaSphere</span>
+    <span class="journal-count">3</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1002/hem3.70378</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/hem3.70378" target="_blank" rel="noopener">Issue Information</a>
+  </div>
+  
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1002/hem3.70373</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/hem3.70373" target="_blank" rel="noopener">Factors associated with response to rituximab in patients with immune thrombocytopenia</a>
+  </div>
+  <p class="article-authors">Tsykunova G, Kristiansen E, Tvedt T, Frederiksen H et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1002/hem3.70359</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/hem3.70359" target="_blank" rel="noopener">A single
+                    &lt;i&gt;JAK2&lt;/i&gt;
+                    ‐V617F hematopoietic stem cell can initiate myeloproliferative neoplasm when transplanted into non‐conditioned recipient mice</a>
+  </div>
+  <p class="article-authors">Kimmerlin Q, Hilpert M, Hansen N, Guy A et al.</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-leukemia-nature">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Leukemia (Nature)</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-30</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nature.com/articles/s41375-026-02923-4" target="_blank" rel="noopener">Reduced-intensity reinduction for children and young persons with relapsed acute lymphoblastic leukemia</a>
+  </div>
+  <p class="article-authors">Angus Hodder, Avijeet Mishra, Amir Enshaei, Susan Baird, et al.</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-nejm-evidence">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">NEJM Evidence</span>
+    <span class="journal-count">12</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1056/evidex2500343</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/evidex2500343" target="_blank" rel="noopener">An Exchange about “Prehospital Aspirin Use in the CELEBRATE Trial”</a>
+  </div>
+  
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1056/evidmr2500335</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/evidmr2500335" target="_blank" rel="noopener">A 65-Year-Old Woman with Fatigue and Leg Pain</a>
+  </div>
+  <p class="article-authors">Ebrahimi N, Abdipour A, Baxi P</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1056/evide2500304</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/evide2500304" target="_blank" rel="noopener">Clonal Hematopoiesis Diversity in Aplastic Anemia — When Does It Matter Clinically?</a>
+  </div>
+  <p class="article-authors">Calado R, Vasconcelos M</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1056/evidstat260008</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/evidstat2600082" target="_blank" rel="noopener">How Platform Trials Work</a>
+  </div>
+  <p class="article-authors">Kotanidis C, Hardin C, Müller D, Twichell C et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1056/evide2600097</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/evide2600097" target="_blank" rel="noopener">Interpreting Evidence with Bayesian Meta-Analysis</a>
+  </div>
+  <p class="article-authors">Normand S</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1056/evidpha2600045</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/evidpha2600045" target="_blank" rel="noopener">Emergence of Medetomidine in New York’s Illicit Drug Supply</a>
+  </div>
+  <p class="article-authors">Angles J, Zamboni L, Sauer J, Fallico M et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1056/evide2500310</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/evide2500310" target="_blank" rel="noopener">Clonal Hematopoiesis after Immune Suppression — Adaptive Remodeling without Evolution? Early Lessons from the RACE Trial</a>
+  </div>
+  <p class="article-authors">Pagliuca S, Gurnari C</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1056/evidoa2500171</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/evidoa2500171" target="_blank" rel="noopener">Clonal Selection and Evolution after Treatment of Severe Aplastic Anemia</a>
+  </div>
+  <p class="article-authors">Gutierrez-Rodrigues F, Groarke E, Miao R, Shalhoub R et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1056/evidoa2500174</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/evidoa2500174" target="_blank" rel="noopener">Clonal Dynamics of Hematopoiesis in Aplastic Anemia after Immunosuppression and Eltrombopag</a>
+  </div>
+  <p class="article-authors">Kaya D, Cook R, Iacobelli S, Napolitani G et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1056/evidoa2500272</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/evidoa2500272" target="_blank" rel="noopener">Efficacy and Safety of Imsidolimab for Generalized Pustular Psoriasis</a>
+  </div>
+  <p class="article-authors">Smieszek S, Przychodzen B, Tyner C, Johnson C et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1056/evidoa2500264</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/evidoa2500264" target="_blank" rel="noopener">Selective Decontamination of the Digestive Tract in Adult Mechanically Ventilated Patients — An Updated Systematic Review with Bayesian Meta-Analysis</a>
+  </div>
+  <p class="article-authors">Hammond N, Devaux A, Vlok R, Adigbli D et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1056/evidra2500270</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/evidra2500270" target="_blank" rel="noopener">Exertional Heat Illness in Active Populations</a>
+  </div>
+  <p class="article-authors">Murphy C, DeGroot D, O’Connor F</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-nejm-hematology-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">NEJM Hematology-Oncology</span>
+    <span class="journal-count">7</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-30</span><span class="badge">DOI: 10.1056/NEJMoa2517384?</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2517384?rss=searchAndBrowse" target="_blank" rel="noopener">Mim8 Bispecific Antibody Prophylaxis in Hemophilia A with or without Inhibitors</a>
+  </div>
+  <p class="article-authors">Maria Elisa Mancuso, Anthony K.C. Chan, Chandrakala Shanmukhaiah, Chuhl Joo Lyu, Joanna Zdziarska, Johnny Mahlangu, Lize F.D. van Vulpen, Pratima Chowdary, Renchi Yang, Steven R. Lentz, Tadashi Matsushita, Wan Hui Ong Clausen, Ilgiz Rakhmatullin, Johannes Oldenburg, the FRONTIER2 Investigators*</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-30</span><span class="badge">DOI: 10.1056/NEJMoa2516969?</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2516969?rss=searchAndBrowse" target="_blank" rel="noopener">First-Line Zongertinib in Advanced HER2-Mutant Non–Small-Cell Lung Cancer</a>
+  </div>
+  <p class="article-authors">John V. Heymach, Noboru Yamamoto, Nicolas Girard, Gerrina Ruiter, Egbert F. Smit, David Planchard, Ernest Nadal, Yi-Long Wu, Jon Zugazagoitia, Hai-Yan Tu, Christina S. Baik, Kiyotaka Yoh, Ross A. Soo, Yanqiu Zhao, Joshua K. Sabari, Martin Wermke, Matthias Scheffler, Myung-Ju Ahn, Kristie Fernamberg, Lukas Schroeter, Behbood Sadrolhefazi, Claus Thamer, Sabina Eigenbrod-Giese, Sanjay Popat, the Beamion LUNG-1 Investigators*</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-30</span><span class="badge">DOI: 10.1056/NEJMcp2506887?</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMcp2506887?rss=searchAndBrowse" target="_blank" rel="noopener">Barrett’s Esophagus</a>
+  </div>
+  <p class="article-authors">Rebecca C. Fitzgerald</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-30</span><span class="badge">DOI: 10.1056/NEJMe2602685?r</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMe2602685?rss=searchAndBrowse" target="_blank" rel="noopener">Science behind the Study: A Second Factor VIIIa Mimetic for Hemophilia A</a>
+  </div>
+  <p class="article-authors">Alok Srivastava</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-30</span><span class="badge">DOI: 10.1056/NEJMicm2513605</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMicm2513605?rss=searchAndBrowse" target="_blank" rel="noopener">Membranoproliferative Glomerulonephritis Due to Cryoglobulinemia</a>
+  </div>
+  <p class="article-authors">Noriaki Kawano, Ikuo Kikuchi</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-30</span><span class="badge">DOI: 10.1056/NEJMe2603357?r</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMe2603357?rss=searchAndBrowse" target="_blank" rel="noopener">EGFR’s Poor Sibling</a>
+  </div>
+  <p class="article-authors">David P. Carbone</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-30</span><span class="badge">DOI: 10.1056/NEJMc2517629?r</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMc2517629?rss=searchAndBrowse" target="_blank" rel="noopener">CD19 CAR T-Cell Therapy for Treatment of Chronic Graft-versus-Host Disease</a>
+  </div>
+  <p class="article-authors">Karamjeet S. Sandhu, Jessica Cheng, Patrick W. Mellors, Heather Dainton-Smith, Pierre Lao-Sirieix, Wolfram Brugger, Mary C. Clark, Elizabeth Budde, Jerome Ritz, Saar Gill, Stephen J. Forman</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-new-england-journal-of-medicine">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">New England Journal of Medicine</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-02</span><span class="badge">DOI: 10.1056/nejmoa2513310</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/nejmoa2513310" target="_blank" rel="noopener">Left Atrial Appendage Closure or Medical Therapy in Atrial Fibrillation</a>
+  </div>
+  <p class="article-authors">Landmesser U, Skurk C, Kirchhof P, Lewalter T et al.</p>
+  
+  
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-04-30 01:46 UTC · (no AI summaries)<br>
+  Sources: Nature RSS · Springer RSS · CrossRef API
+</footer>
+</body>
+</html>
