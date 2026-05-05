@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-05-05</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --border: #dde2ec;
+  --accent: #1a56db;
+  --accent2: #2563eb;
+  --accent-light: #eef2ff;
+  --text: #111827;
+  --muted: #6b7280;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #e9edf7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1017;
+    --surface: #161c2c;
+    --border: #252e44;
+    --accent: #6ea8fe;
+    --accent2: #5b8dee;
+    --accent-light: #0f1a30;
+    --text: #e2e8f0;
+    --muted: #8b95a8;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #1e2637;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #1a56db 0%, #2563eb 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(26,86,219,.35);
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-05-05 01:29 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>41</b> articles</span>
+  <span>📚 <b>11</b> journals</span>
+  <span>⏱ Past <b>24h</b></span>
+  
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-american-journal-of-hematology">American Journal of Hematology <span style="opacity:.6">(1)</span></a><a href="#j-blood-advances">Blood Advances <span style="opacity:.6">(6)</span></a><a href="#j-blood-reviews">Blood Reviews <span style="opacity:.6">(1)</span></a><a href="#j-clinical-lymphoma-myeloma-leukemia">Clinical Lymphoma Myeloma &amp; Leukemia <span style="opacity:.6">(10)</span></a><a href="#j-european-journal-of-haematology">European Journal of Haematology <span style="opacity:.6">(1)</span></a><a href="#j-haematologica">Haematologica <span style="opacity:.6">(2)</span></a><a href="#j-hemasphere">HemaSphere <span style="opacity:.6">(5)</span></a><a href="#j-journal-of-thrombosis-and-haemostasis">Journal of Thrombosis and Haemostasis <span style="opacity:.6">(1)</span></a><a href="#j-lancet-haematology">Lancet Haematology <span style="opacity:.6">(10)</span></a><a href="#j-nejm-evidence">NEJM Evidence <span style="opacity:.6">(1)</span></a><a href="#j-transplantation-and-cellular-therapy">Transplantation and Cellular Therapy <span style="opacity:.6">(3)</span></a></div>
+</div>
+<div class="journal-section" id="j-american-journal-of-hematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">American Journal of Hematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-02</span><span class="badge">DOI: 10.1002/ajh.70333</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/ajh.70333" target="_blank" rel="noopener">Pathogenic
+                    &lt;scp&gt;PF4&lt;/scp&gt;
+                    /Polyanion
+                    &lt;scp&gt;ELISA&lt;/scp&gt;
+                    ‐Negative Antibodies in
+                    &lt;scp&gt;HIT&lt;/scp&gt;</a>
+  </div>
+  <p class="article-authors">Kanack A, Splinter N, Mauch E, Tefera L et al.</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-blood-advances">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Advances</span>
+    <span class="journal-count">6</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025018200" target="_blank" rel="noopener">An inpatient Serious Illness Care Program for older patients with hematologic malignancies: A single-arm pilot study</a>
+  </div>
+  <p class="article-authors">Locastro M, Wang Y, Baran A, Mortaz Hedjri S et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-12</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026019819" target="_blank" rel="noopener">Timing is everything: age-dependent cancer risk in RUNX1-FPD</a>
+  </div>
+  <p class="article-authors">Cantor A, Shimamura A</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-12</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026019822" target="_blank" rel="noopener">Ravulizumab in pregnancy: the case for cautious optimism</a>
+  </div>
+  <p class="article-authors">Shammo J</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-12</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026019816" target="_blank" rel="noopener">Hemoglobinopathy diagnostics: the HELIOS Action survey</a>
+  </div>
+  <p class="article-authors">Waye J, Nfonsam L</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-12</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026019817" target="_blank" rel="noopener">Halofuginone vs the elevated hepcidin hurdle</a>
+  </div>
+  <p class="article-authors">Aleman M</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-12</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025018529" target="_blank" rel="noopener">Apohemoglobin-haptoglobin complex is a therapeutic against vaso-occlusive crisis: scavenging of hemoglobin and heme</a>
+  </div>
+  <p class="article-authors">Munoz C, Pires I, Lucas D, Muller C et al.</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-blood-reviews">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Reviews</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04</span><span class="badge">DOI: 10.1016/j.blre.2026.10</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.blre.2026.101394" target="_blank" rel="noopener">Supportive strategies in thrombocytopenia: Platelet transfusion and beyond</a>
+  </div>
+  <p class="article-authors">González-López T, Kuter D, Provan D</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-clinical-lymphoma-myeloma-leukemia">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Clinical Lymphoma Myeloma &amp; Leukemia</span>
+    <span class="journal-count">10</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.clml.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.04.023" target="_blank" rel="noopener">Bispecific Antibody Therapy with Elranatamab for Refractory Waldenström Macroglobulinemia: A Case Report</a>
+  </div>
+  <p class="article-authors">Nandakumar V, Godara A, Mensah F</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04</span><span class="badge">DOI: 10.1016/j.clml.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.04.002" target="_blank" rel="noopener">SOHO State of the Art Updates and Next Questions: Is Combination Therapy Here for Myelofibrosis?</a>
+  </div>
+  <p class="article-authors">Metzger M, Hertz C, Mascarenhas J</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04</span><span class="badge">DOI: 10.1016/j.clml.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.04.003" target="_blank" rel="noopener">Pathogenic and Clinical Implications of the 2-Way Interplay Between Clonal Hematopoiesis of Indeterminate Potential and Multiple Myeloma</a>
+  </div>
+  <p class="article-authors">Scopetti M, Viviani F, Calvi E, Entizne J et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04</span><span class="badge">DOI: 10.1016/j.clml.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.04.018" target="_blank" rel="noopener">SOHO State of the Art Updates and Next Questions | Novel Therapies in T-ALL: From CAR-T to Novel Targets</a>
+  </div>
+  <p class="article-authors">Summers R, Newman H, Teachey D</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04</span><span class="badge">DOI: 10.1016/j.clml.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.04.014" target="_blank" rel="noopener">Efficacy and safety of mogamulizumab for cutaneous T-cell lymphomas: a systematic review and meta-analysis</a>
+  </div>
+  <p class="article-authors">Lawal A, Rangel A, Raja A, Akabane M et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04</span><span class="badge">DOI: 10.1016/j.clml.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.04.017" target="_blank" rel="noopener">Outcomes of Hematopoietic Cell Transplantation with Post-Transplant Cyclophosphamide-based GVHD Prophylaxis in Acute Myeloid Leukemia and Myelodysplastic Syndromes Patients Over 70 Years of Age: A Comparative Analysis by Age Group</a>
+  </div>
+  <p class="article-authors">Mushtaq M, Amin M, Kasaeian A, Patan S et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04</span><span class="badge">DOI: 10.1016/j.clml.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.04.020" target="_blank" rel="noopener">Thrombocytosis Phenotype in Prefibrotic Primary Myelofibrosis: Risk Stratification and Prognostic Significance</a>
+  </div>
+  <p class="article-authors">Lin C, Tsai C, Hsu T, Yeh C et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04</span><span class="badge">DOI: 10.1016/j.clml.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.04.016" target="_blank" rel="noopener">Use of CD38 antibodies in high-risk newly diagnosed Multiple Myeloma – A meta-analysis</a>
+  </div>
+  <p class="article-authors">Bhutani D, Liu Y, Chakraborty R, Hughes M et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04</span><span class="badge">DOI: 10.1016/j.clml.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.04.013" target="_blank" rel="noopener">Non-ICANS Neurologic Events in Patients With Relapsed/Refractory Multiple Myeloma Treated With Ciltacabtagene Autoleucel: Clinical Presentation and Management in CARTITUDE Studies</a>
+  </div>
+  <p class="article-authors">Rodríguez-Otero P, Pérez-Larraya J, Lin Y, Dietrich J et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04</span><span class="badge">DOI: 10.1016/j.clml.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.04.022" target="_blank" rel="noopener">BRIDGE (OP-107): A Phase 2 Pharmacokinetic Study of Melflufen Plus Dexamethasone in Patients with Relapsed/Refractory Multiple Myeloma and Impaired Renal Function</a>
+  </div>
+  <p class="article-authors">Pour L, Delimpasi S, Legiec W, Minarik J et al.</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-european-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">European Journal of Haematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-01</span><span class="badge">DOI: 10.1111/ejh.70205</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/ejh.70205" target="_blank" rel="noopener">Efficacy and Safety of Bendamustine Versus Fludarabine and Cyclophosphamide as Lymphodepleting Regimens for
+                    &lt;scp&gt;CAR&lt;/scp&gt;
+                    ‐T Therapy in Hematological Malignancies: A Systematic Review and Meta‐Analysis</a>
+  </div>
+  <p class="article-authors">Miyashita A, Castellanos M, Rodgers T</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-haematologica">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Haematologica</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-01</span><span class="badge">DOI: 10.3324/haematol.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.3324/haematol.2026.289405" target="_blank" rel="noopener">Mutational profiling in acute myeloid leukemia</a>
+  </div>
+  <p class="article-authors">DiNardo C</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-01</span><span class="badge">DOI: 10.3324/haematol.2025.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.3324/haematol.2025.288295" target="_blank" rel="noopener">Introduction to the Review Series. Clonal hematopoiesis review series – from biology to clinical management</a>
+  </div>
+  <p class="article-authors">Piric A, Schimmer A</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-hemasphere">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">HemaSphere</span>
+    <span class="journal-count">5</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-29</span><span class="badge">DOI: 10.1002/hem3.70328</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/hem3.70328" target="_blank" rel="noopener">In vivo CAR therapies: Turning the patient into their own CAR factory</a>
+  </div>
+  <p class="article-authors">Vilcot F, Brugère C, Fuentealba J, Houot R</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1002/hem3.70359</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/hem3.70359" target="_blank" rel="noopener">A single
+                    &lt;i&gt;JAK2&lt;/i&gt;
+                    ‐V617F hematopoietic stem cell can initiate myeloproliferative neoplasm when transplanted into non‐conditioned recipient mice</a>
+  </div>
+  <p class="article-authors">Kimmerlin Q, Hilpert M, Hansen N, Guy A et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-28</span><span class="badge">DOI: 10.1002/hem3.70373</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/hem3.70373" target="_blank" rel="noopener">Factors associated with response to rituximab in patients with immune thrombocytopenia</a>
+  </div>
+  <p class="article-authors">Tsykunova G, Kristiansen E, Tvedt T, Frederiksen H et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-29</span><span class="badge">DOI: 10.1002/hem3.70354</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/hem3.70354" target="_blank" rel="noopener">Chronic lymphocytic leukemia with
+                    &lt;i&gt;IGH&lt;/i&gt;
+                    ::
+                    &lt;i&gt;BCL3&lt;/i&gt;
+                    ‐translocation is characterized by a homogeneous and distinct genetic and epigenetic landscape</a>
+  </div>
+  <p class="article-authors">Drewes C, López C, Martinez‐Manjón J, Okeke N et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-30</span><span class="badge">DOI: 10.1002/hem3.70375</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/hem3.70375" target="_blank" rel="noopener">Dissecting minimal residual disease dynamics to improve outcome prediction in mantle cell lymphoma: Data from the Fondazione Italiana Linfomi (FIL)‐MCL0208 clinical trial</a>
+  </div>
+  <p class="article-authors">Cordero F, Ferrero S, Pernice S, Genuardi E et al.</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-journal-of-thrombosis-and-haemostasis">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Thrombosis and Haemostasis</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtha.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.04.018" target="_blank" rel="noopener">The road to Paris: ISTH 2026 Congress set to debut the latest science and innovation</a>
+  </div>
+  <p class="article-authors">Ageno W, Dignat-George F, Ay C</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-lancet-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Lancet Haematology</span>
+    <span class="journal-count">10</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00101-8" target="_blank" rel="noopener">Leveraging TikToks in clinical practice</a>
+  </div>
+  <p class="article-authors">Fingrut W</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00041-4" target="_blank" rel="noopener">Protein-losing enteropathy in marginal zone lymphoma: tissue is the issue</a>
+  </div>
+  <p class="article-authors">Becking A, Kusters P, Levenga H, Vos J</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00078-5" target="_blank" rel="noopener">From enrolment to authorship: racial and global disparities in phase 3 multiple myeloma clinical trials</a>
+  </div>
+  <p class="article-authors">Montelongo-Cepeda J, Quezada-Ramírez S, González-López G, Noyola-Pérez A et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00070-0" target="_blank" rel="noopener">Two decades of phase 1 and 2 trials in relapsed or refractory diffuse large B-cell lymphoma</a>
+  </div>
+  <p class="article-authors">Baggio D, El-Galaly T</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00044-x" target="_blank" rel="noopener">Guidelines for the management of acute porphyria: recommendations from the International Porphyria Network</a>
+  </div>
+  <p class="article-authors">Edel Y, Stein P, Kawtharany H, Aarsand A et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00043-8" target="_blank" rel="noopener">Final results of nilotinib versus nilotinib combined with pegylated interferon alfa-2a as first-line therapy in chronic phase chronic myeloid leukaemia in France (PETALs): an open-label, multicentre, randomised phase 3 trial</a>
+  </div>
+  <p class="article-authors">Nicolini F, Etienne G, Huguet F, Charbonnier A et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00005-0" target="_blank" rel="noopener">Who will watch the watchmen: unique challenges of T-cell redirecting therapies in T-cell malignancies</a>
+  </div>
+  <p class="article-authors">Elliott J, Ritchie D, Koldej R, Khot A</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00015-3" target="_blank" rel="noopener">An otherwise smouldering multiple myeloma with a solitary osteolytic lesion and soft-tissue mass</a>
+  </div>
+  <p class="article-authors">Piperidou A, Rondogianni P, Zorbala A, Korkolopoulou P et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00103-1" target="_blank" rel="noopener">Mental health at the heart of haematology</a>
+  </div>
+  <p class="article-authors">The Lancet Haematology</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00037-2" target="_blank" rel="noopener">Safety and activity of pirtobrutinib in patients with relapsed or refractory Waldenström macroglobulinaemia: 5-year follow-up of the open-label, multicentre, phase 1/2 BRUIN trial</a>
+  </div>
+  <p class="article-authors">Palomba M, Patel M, Eyre T, Jurczak W et al.</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-nejm-evidence">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">NEJM Evidence</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-30</span><span class="badge">DOI: 10.1056/evidpha2600079</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/evidpha2600079" target="_blank" rel="noopener">Detection of a Single Measles Infection Using Untargeted Ultra-Deep Metagenomic Sequencing of Wastewater in Cook County, Illinois</a>
+  </div>
+  <p class="article-authors">Poretsky R, Dhiman V, Hendricks D, Lin C et al.</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-transplantation-and-cellular-therapy">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Transplantation and Cellular Therapy</span>
+    <span class="journal-count">3</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.04.008" target="_blank" rel="noopener">Valemetostat is efficacious against recurrent adult T-cell leukemia/lymphoma skin lesions and cutaneous GVHD</a>
+  </div>
+  <p class="article-authors">Matsuoka Y, Fuji S, Hosoya M, Amemiya Y et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04</span><span class="badge">DOI: 10.1016/j.jtct.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.04.007" target="_blank" rel="noopener">Survival Trends in Young Adults With Acute Leukaemia After AHSCT in Germany: Comparisons With Younger and Older Patients</a>
+  </div>
+  <p class="article-authors">Frietsch J, Flossdorf S, Ahmadian A, Beier R et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.04.048" target="_blank" rel="noopener">Baseline patient characteristics and transplant-related factors predicting post-transplant spirometry decline and recovery in allogeneic hematopoietic stem cell transplant recipients.</a>
+  </div>
+  <p class="article-authors">Thompson C, Byth K, Hogg M, Middleton P et al.</p>
+  
+  
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-05-05 01:29 UTC · (no AI summaries)<br>
+  Sources: Nature RSS · Springer RSS · CrossRef API
+</footer>
+</body>
+</html>
