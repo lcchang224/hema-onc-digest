@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-04-22</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --border: #dde2ec;
+  --accent: #1a56db;
+  --accent2: #2563eb;
+  --accent-light: #eef2ff;
+  --text: #111827;
+  --muted: #6b7280;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #e9edf7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1017;
+    --surface: #161c2c;
+    --border: #252e44;
+    --accent: #6ea8fe;
+    --accent2: #5b8dee;
+    --accent-light: #0f1a30;
+    --text: #e2e8f0;
+    --muted: #8b95a8;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #1e2637;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #1a56db 0%, #2563eb 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(26,86,219,.35);
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-04-22 07:45 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>16</b> articles</span>
+  <span>📚 <b>5</b> journals</span>
+  <span>⏱ Past <b>72h</b></span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-blood">Blood <span style="opacity:.6">(4)</span></a><a href="#j-blood-advances">Blood Advances <span style="opacity:.6">(4)</span></a><a href="#j-blood-cancer-journal-nature">Blood Cancer Journal (Nature) <span style="opacity:.6">(2)</span></a><a href="#j-leukemia-nature">Leukemia (Nature) <span style="opacity:.6">(3)</span></a><a href="#j-nejm">NEJM <span style="opacity:.6">(3)</span></a></div>
+</div>
+<div class="journal-section" id="j-blood">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood</span>
+    <span class="journal-count">4</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-16</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://ashpublications.org/blood" target="_blank" rel="noopener">Anti-CD2 CAR T-cells for T-cell neoplasms</a>
+  </div>
+  <p class="article-authors">Shah NN, Fry TJ, Mackall CL et al.</p>
+  <p class="article-summary">Anti-CD2 CAR T cells show early efficacy against CD2-positive T-cell malignancies including T-ALL and T-cell lymphomas, with a manufacturing strategy that avoids self-elimination (fratricide) by selecting CD2-negative T cells.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>T-cell惡性腫瘤的CAR-T終於來了！選出不含CD2的T細胞做載體，這個設計真的很聰明！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>用T-cell去打T-cell腫瘤，繞過fratricide這關就靠選品管控……感覺像是在出貨前先挑掉同夥。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-16</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://ashpublications.org/blood" target="_blank" rel="noopener">MRD assessment in t(11;14) multiple myeloma: prognostic impact and implications for venetoclax-based therapy</a>
+  </div>
+  <p class="article-authors">Avet-Loiseau H, Landgren O, San Miguel J et al.</p>
+  <p class="article-summary">MRD negativity by next-generation flow cytometry is an independent prognostic factor in t(11;14) myeloma and may guide venetoclax-based treatment—suggesting that achieving deep remission should be a treatment goal in this BCL-2-overexpressing subset.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>t(11;14)骨髓瘤加上MRD引導治療，精準醫療的路越走越清晰，venetoclax族群真的越來越有希望！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>MRD陰性代表預後好這件事大家早就懷疑了，現在只是出了一篇paper確認。我知道了，謝謝。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-16</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://ashpublications.org/blood" target="_blank" rel="noopener">A GRK5 missense variant underlies inherited thrombotic disease through impaired platelet desensitisation</a>
+  </div>
+  <p class="article-authors">Ye S, Lordkipanidzé M, Watson SP et al.</p>
+  <p class="article-summary">A rare gain-of-function GRK5 variant impairs platelet receptor desensitisation, causing platelet hyperactivation and inherited thrombosis, establishing GRK5 as a new genetic risk locus for thromboembolic disease.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>又解鎖血栓遺傳學新關卡！GRK5這個名字要記起來，搞不好以後panel會加進去！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又一個超罕見基因變異導致血栓……等到臨床上真的常規篩查，大概要再等二十年吧。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-16</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://ashpublications.org/blood" target="_blank" rel="noopener">Inflammatory landscape in clonal hematopoiesis: single-cell resolution of cytokine crosstalk</a>
+  </div>
+  <p class="article-authors">Steensma DP, Jaiswal S, Bhatt DL et al.</p>
+  <p class="article-summary">Single-cell multi-omics reveals that clonal haematopoiesis mutant clones drive heightened IL-6 and IL-1β inflammatory signalling in surrounding cells, providing a mechanistic basis for the cardiovascular risk associated with CH.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>CHIP的發炎機制終於被單細胞解析清楚了！了解這個才能設計出真正對症的介入！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>CHIP會增加心血管風險大家都知道，現在只是找到了更多IL-6跟IL-1β——感覺像在說「火災的原因是有火」。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-blood-advances">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Advances</span>
+    <span class="journal-count">4</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-14</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://ashpublications.org/bloodadvances" target="_blank" rel="noopener">Ibrutinib vs non-BTK inhibitor therapy in relapsed/refractory Waldenström macroglobulinemia: a real-world comparison</a>
+  </div>
+  <p class="article-authors">Castillo JJ, Treon SP, Meid K et al.</p>
+  <p class="article-summary">In a real-world registry study of relapsed/refractory Waldenström macroglobulinemia, ibrutinib-based regimens outperformed non-BTK inhibitor salvage therapies in progression-free survival, reinforcing BTK inhibition as the preferred option after first-line therapy.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>WM的治療有了真實世界數據支持！靠，這種罕見病的研究真的很珍貴，每篇都要好好珍惜！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>Waldenström的研究永遠小族群、回顧性設計、選擇偏差一堆，但沒辦法，就這樣了。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-14</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://ashpublications.org/bloodadvances" target="_blank" rel="noopener">Vestibular symptoms after talquetamab therapy in multiple myeloma: incidence, characterisation, and management</a>
+  </div>
+  <p class="article-authors">Rodriguez-Otero P, Bahlis N, van de Donk N et al.</p>
+  <p class="article-summary">Vestibular toxicities from talquetamab (GPRC5D bispecific) in myeloma—dizziness, balance issues—occur in ~20% of patients, often alongside dysgeusia and skin changes, but mostly resolve with dose reduction, calling for prospective monitoring protocols.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>能系統描述talquetamab的前庭副作用就能更好地監測和處理，這種research對臨床超有幫助！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>Talquetamab讓病人嘴嚐不到味道、頭暈、皮膚脫皮……這藥的副作用根本是「全方位體驗套餐」。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-14</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://ashpublications.org/bloodadvances" target="_blank" rel="noopener">Blinatumomab in paediatric B-lymphoblastic lymphoma: efficacy and safety from a multicentre retrospective study</a>
+  </div>
+  <p class="article-authors">Teachey DT, Hunger SP, Gore L et al.</p>
+  <p class="article-summary">Blinatumomab achieved &gt;70% overall response in paediatric B-lymphoblastic lymphoma in a retrospective multicentre series, extending its established B-ALL efficacy to the less common lymphomatous form in children.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>Blinatumomab在兒科B-LBL也有效！小病患有了多一個選擇，太令人開心了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>Blinatumomab連續靜脈滴注28天這件事，對小病患家屬來說根本是酷刑，期待有更友善的給藥方式。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-14</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://ashpublications.org/bloodadvances" target="_blank" rel="noopener">Allogeneic haematopoietic cell transplantation for severe aplastic anaemia: outcomes in the modern era of eltrombopag and refined conditioning</a>
+  </div>
+  <p class="article-authors">Scheinberg P, Marsh JCW, DeZern AE et al.</p>
+  <p class="article-summary">In the eltrombopag era with refined reduced-intensity conditioning, allogeneic HCT for severe aplastic anaemia achieves 3-year overall survival &gt;85%, with marked reductions in graft failure and non-relapse mortality compared to historical cohorts.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>再障的異體移植成績在現代時代越來越好了！整體存活率85%+，這個數字真的很鼓舞人心！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>回顧性分析、不同中心、不同時代的歷史對照……統計學家表示這個比較讓他頭很痛。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-blood-cancer-journal-nature">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Cancer Journal (Nature)</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-18</span><span class="badge">DOI: 10.1038/s41408-026-014</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nature.com/articles/s41408-026-01494-y" target="_blank" rel="noopener">Functionally high-risk disease is associated with poor outcomes after late-line CAR T-cell therapy for multiple myeloma</a>
+  </div>
+  <p class="article-authors">Kumar S, Moreau P, Dimopoulos M et al.</p>
+  <p class="article-summary">Functional high-risk features—extramedullary disease, rapid prior relapse, poor performance status—independently predict worse outcomes after late-line BCMA CAR T-cell therapy in myeloma, highlighting the need for better patient selection and pre-treatment optimisation.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>有了這些預後因子，以後選擇CAR-T時機可以更精準，幫病人爭取最好的結果，太重要了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>簡單說就是：最難治的病人，CAR-T效果最差。大家其實……都猜到了吧？只是現在有data了。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-10</span><span class="badge">DOI: 10.1038/s41408-026-014</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nature.com/articles/s41408-026-01493-z" target="_blank" rel="noopener">Aberrant glycosylation in hematologic malignancies: mechanisms, immune evasion, and therapeutic targeting</a>
+  </div>
+  <p class="article-authors">Lau KS, Bhatt DL, Zhao Y et al.</p>
+  <p class="article-summary">Aberrant glycosylation—altered sialylation, fucosylation, and O-glycan truncation—lets blood cancer cells hide from immune attack; this review maps the mechanisms and suggests glycan-targeted CAR T designs to break through this sugar shield.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>腫瘤細胞用糖基化偽裝自己、逃避免疫攻擊，這個隱藏buff終於被我們看穿了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又是一篇review說糖基化「很重要、潛力無窮」，那臨床試驗在哪？慢慢等吧，反正不急。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-leukemia-nature">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Leukemia (Nature)</span>
+    <span class="journal-count">3</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-21</span><span class="badge">DOI: 10.1038/s41392-026-026</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nature.com/articles/s41392-026-02697-2" target="_blank" rel="noopener">Surface CD81 supports leukemia stem cell function and reveals a therapeutic vulnerability in acute myeloid leukemia</a>
+  </div>
+  <p class="article-authors">Wang L, Chen X, Zhang Y et al.</p>
+  <p class="article-summary">Surface CD81 maintains leukemia stem cell function in AML; its targeted depletion selectively impairs AML progenitors while sparing normal blood cells, positioning CD81 as a promising new therapeutic target.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>又發現一個打AML的新靶點！CD81就這樣安靜地待在白血病幹細胞表面等我們去打，真是太貼心了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又是「therapeutic vulnerability」……上次說這個的那個靶點現在到哪去了？大家猜猜看。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-17</span><span class="badge">DOI: 10.1038/s41375-026-029</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nature.com/articles/s41375-026-02949-8" target="_blank" rel="noopener">Intracellular IL-23R is necessary for mitotic spindle formation and viability in AML</a>
+  </div>
+  <p class="article-authors">Meyers S, Patel K, Obata M et al.</p>
+  <p class="article-summary">IL-23R, classically an immune cytokine receptor, moonlights inside AML cells as a regulator of mitotic spindle formation—knocking it out stalls cell division and cripples AML stem/progenitor function.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>哇！免疫受體跑去管細胞分裂紡錘絲，AML就是這麼愛搞跨界，科學真的永遠出人意料！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>IL-23R在腸道搞發炎、在AML裡管分裂……這是受體還是斜槓青年？有點累了。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-19</span><span class="badge">DOI: 10.1038/s41375-026-029</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nature.com/articles/s41375-026-02933-2" target="_blank" rel="noopener">Pharmacokinetics of CAR T cells in multiple myeloma – the good, the bad, and the ugly</a>
+  </div>
+  <p class="article-authors">Cohen AD, Stadtmauer EA, June CH et al.</p>
+  <p class="article-summary">A detailed pharmacokinetic review of CAR T cells in myeloma dissects the drivers of expansion and persistence, revealing why some patients achieve durable remission while others relapse early—key factors include T-cell fitness, tumour burden, and manufacturing nuances.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有人系統整理CAR-T在骨髓瘤的藥物動力學了！這種review太值得放在書桌上反覆看！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>The good、the bad、the ugly——其實翻譯過來就是「有些人有效、有些人沒效、有些人更慘」，謝謝這篇review。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-nejm">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">NEJM</span>
+    <span class="journal-count">3</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-01</span><span class="badge">DOI: 10.1056/NEJMoa2504835</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2504835" target="_blank" rel="noopener">Base Editing of HBG1 and HBG2 Promoters for Sickle Cell Disease</a>
+  </div>
+  <p class="article-authors">Frangoul H, Bobruff Y, Cappellini MD et al.</p>
+  <p class="article-summary">A base-editing approach targeting BCL11A-binding sites in HBG1/HBG2 promoters reactivates fetal haemoglobin in sickle cell disease, achieving haemoglobin levels above sickling threshold and transfusion independence in early follow-up.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>鐮刀型細胞貧血症的基因編輯又有新突破！患者離真正治癒越來越近了，超級感動！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>Base editing、CRISPR-Cas9、Cas12a……鐮刀型貧血症到底被幾種工具編輯過了？這個病真的很受「歡迎」。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-02</span><span class="badge">DOI: 10.1056/NEJMoa2415550</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2415550" target="_blank" rel="noopener">CRISPR-Cas12a Gene Editing of HBG1 and HBG2 Promoters to Treat Sickle Cell Disease</a>
+  </div>
+  <p class="article-authors">Sharma A, Kwiatkowski JL, Esrick EB et al.</p>
+  <p class="article-summary">CRISPR-Cas12a editing of HBG1/HBG2 promoters induces durable fetal haemoglobin expression in sickle cell disease haematopoietic stem cells, with sustained engraftment and a clean off-target safety profile in Phase I/II.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>CRISPR-Cas12a也來了！多一種工具就多一種選擇，未來SCD病人有得挑了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>NEJM同一個月發了兩篇不同基因編輯工具做同一件事的SCD paper……是在比賽嗎？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04-16</span><span class="badge">DOI: 10.1056/NEJMc2518316</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMc2518316" target="_blank" rel="noopener">Hepatic Pseudoprogression after Treatment with Nectin-4–Targeted Antibody–Drug Conjugate</a>
+  </div>
+  <p class="article-authors">Takahashi S, Doi T, Iwasa S et al.</p>
+  <p class="article-summary">Hepatic lesions appearing or enlarging on imaging after enfortumab vedotin (Nectin-4 ADC) treatment can represent pseudoprogression rather than true disease advancement—a pitfall that could prompt premature treatment discontinuation.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>ADC時代的偽進展警告！這種case report提醒我們不要太快判斷治療失敗，耐心等一等！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>腫瘤影像看起來變大其實是藥在起效……放射科與腫瘤科又有得爭了，謝謝ADC。</div></div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-04-22 07:45 UTC · AI summaries by Claude<br>
+  Sources: Nature RSS · Springer RSS · CrossRef API
+</footer>
+</body>
+</html>

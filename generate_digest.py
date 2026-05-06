@@ -73,8 +73,8 @@ DEMO_HOURS      = 72          # wider window so demo has plenty of articles
 CROSSREF_BASE   = "https://api.crossref.org/works"
 RSS_TIMEOUT     = 20
 CROSSREF_TIMEOUT= 30
-GEMINI_MODEL    = "gemini-2.0-flash-lite"   # free tier; change to gemini-2.0-flash if needed
-CHUNK_SIZE      = 30                        # articles per Gemini call
+CLAUDE_MODEL    = "claude-haiku-4-5-20251001"
+CHUNK_SIZE      = 30                        # articles per Claude call
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -147,7 +147,7 @@ def fetch_crossref(journal: dict, cutoff: datetime,
     # 30-day floor blocks decade-old re-indexed articles while still allowing
     # genuinely recent papers. For partial dates (year+month only) we use the
     # last day of that month so April articles aren't wrongly excluded.
-    pub_date_floor = cutoff - timedelta(days=30)
+    pub_date_floor = cutoff - timedelta(days=14)
 
     articles = []
     for item in data.get("message", {}).get("items", []):
@@ -191,7 +191,7 @@ def fetch_crossref(journal: dict, cutoff: datetime,
             pub_str = indexed_dt.strftime("%Y-%m-%d")
 
         title_list = item.get("title", [])
-        title = title_list[0] if title_list else ""
+        title = _clean_html(title_list[0]) if title_list else ""
         if not title:
             continue   # issue/volume entries have no title
 
@@ -243,36 +243,36 @@ Rules:
 
 
 def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
-    """Return {global_idx: {summary, hehe, nohehe}} using google-generativeai SDK."""
+    """Return {global_idx: {summary, hehe, nohehe}} using Anthropic Claude Haiku.
+    Articles without abstracts are skipped entirely."""
     try:
-        import google.generativeai as genai  # type: ignore
+        import anthropic  # type: ignore
     except ImportError:
-        print("  [WARN] google-generativeai not installed — skipping AI summaries.",
-              file=sys.stderr)
+        print("  [WARN] anthropic package not installed — skipping AI summaries.\n"
+              "         Run: pip install anthropic", file=sys.stderr)
         return {}
 
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel(
-        model_name=GEMINI_MODEL,
-        system_instruction=_SUMMARY_SYSTEM,
-        generation_config={"max_output_tokens": 8192, "temperature": 0.7},
-    )
-
+    client = anthropic.Anthropic(api_key=api_key)
     results: dict[int, dict] = {}
-    chunks = [articles[i:i + CHUNK_SIZE] for i in range(0, len(articles), CHUNK_SIZE)]
+
+    # Only articles with abstracts get summarised
+    indexed = [(gidx, a) for gidx, a in enumerate(articles) if a.get("abstract")]
+    chunks = [indexed[i:i + CHUNK_SIZE] for i in range(0, len(indexed), CHUNK_SIZE)]
 
     for chunk_no, chunk in enumerate(chunks):
-        base = chunk_no * CHUNK_SIZE
         lines = []
-        for local_i, a in enumerate(chunk):
-            gidx = base + local_i
+        for gidx, a in chunk:
             lines.append(f"[{gidx}] {a['journal']} — {a['title']}")
-            if a.get("abstract"):
-                lines.append(f"    Abstract: {a['abstract'][:350]}")
+            lines.append(f"    Abstract: {a['abstract'][:350]}")
         for attempt in range(3):
             try:
-                resp = model.generate_content("\n".join(lines))
-                raw = resp.text.strip()
+                resp = client.messages.create(
+                    model=CLAUDE_MODEL,
+                    max_tokens=8192,
+                    system=_SUMMARY_SYSTEM,
+                    messages=[{"role": "user", "content": "\n".join(lines)}],
+                )
+                raw = resp.content[0].text.strip()
                 raw = re.sub(r"^```[a-z]*\n?", "", raw)
                 raw = re.sub(r"\n?```$", "", raw)
                 parsed = json.loads(raw)
@@ -280,7 +280,7 @@ def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
                     results[entry["idx"]] = entry
                 break
             except Exception as exc:
-                if "429" in str(exc) or "quota" in str(exc).lower() or "resource" in str(exc).lower():
+                if "429" in str(exc) or "overloaded" in str(exc).lower() or "rate" in str(exc).lower():
                     wait = 60 * (attempt + 1)
                     print(f"  [WARN] Rate limited (chunk {chunk_no}), retrying in {wait}s…",
                           file=sys.stderr)
@@ -288,7 +288,7 @@ def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
                 else:
                     print(f"  [WARN] AI summary chunk {chunk_no}: {exc}", file=sys.stderr)
                     break
-        time.sleep(5)   # 5s between chunks → max 12 RPM, within free-tier limit
+        time.sleep(2)
 
     return results
 
@@ -600,10 +600,13 @@ def render_html(articles: list[dict], summaries: dict[int, dict],
                 if a.get("authors") else ""
             )
 
-            summary_html = (
-                f'<p class="article-summary">{_e(s["summary"])}</p>'
-                if s.get("summary") else ""
-            )
+            if s.get("summary"):
+                summary_html = f'<p class="article-summary">{_e(s["summary"])}</p>'
+            elif not a.get("abstract"):
+                summary_html = ('<p class="article-summary" style="font-style:italic;opacity:.55">'
+                                'No abstract available — AI summary skipped.</p>')
+            else:
+                summary_html = ""
 
             ai_html = ""
             if s.get("hehe") or s.get("nohehe"):
@@ -645,7 +648,7 @@ def render_html(articles: list[dict], summaries: dict[int, dict],
              + str(hours) + ' hours.</div>'
     )
 
-    ai_note = " · AI summaries by Gemini" if has_ai else " · (no AI summaries)"
+    ai_note = " · AI summaries by Claude Haiku" if has_ai else " · (no AI summaries)"
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -841,14 +844,15 @@ def main() -> None:
     # ── AI summaries ──────────────────────────────────────────────────────────
     summaries: dict[int, dict] = {}
     if not args.no_ai and all_articles:
-        gemini_key = os.environ.get("GEMINI_API_KEY", "")
-        if not gemini_key:
-            print("\n[INFO] GEMINI_API_KEY not set — skipping AI summaries.")
-            print("       Get a free key at aistudio.google.com and add it as a GitHub secret.")
+        anthropic_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if not anthropic_key:
+            print("\n[INFO] ANTHROPIC_API_KEY not set — skipping AI summaries.")
         else:
-            print(f"\n── AI summaries (Gemini {GEMINI_MODEL}) ────────────────")
-            summaries = ai_summarize(all_articles, gemini_key)
-            print(f"  Summarised {len(summaries)}/{len(all_articles)} articles")
+            with_abstract = sum(1 for a in all_articles if a.get("abstract"))
+            print(f"\n── AI summaries (Claude Haiku) ──────────────────────")
+            print(f"  {with_abstract}/{len(all_articles)} articles have abstracts")
+            summaries = ai_summarize(all_articles, anthropic_key)
+            print(f"  Summarised {len(summaries)}/{with_abstract} articles")
 
     # ── Render & save ─────────────────────────────────────────────────────────
     html = render_html(all_articles, summaries, run_at, hours)
