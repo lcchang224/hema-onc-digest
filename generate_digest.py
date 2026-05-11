@@ -31,6 +31,7 @@ import re
 import smtplib
 import sys
 import time
+import xml.etree.ElementTree as ET
 from collections import defaultdict
 from datetime import datetime, timezone, timedelta
 from email.mime.multipart import MIMEMultipart
@@ -72,9 +73,13 @@ DEFAULT_HOURS   = 28
 DEMO_HOURS      = 72          # wider window so demo has plenty of articles
 CROSSREF_BASE   = "https://api.crossref.org/works"
 ELSEVIER_BASE   = "https://api.elsevier.com/content/article/doi/"
+PUBMED_ESEARCH  = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+PUBMED_EFETCH   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+PUBMED_BATCH    = 50          # DOIs per esearch query
 RSS_TIMEOUT     = 20
 CROSSREF_TIMEOUT= 30
 ELSEVIER_TIMEOUT= 25
+PUBMED_TIMEOUT  = 30
 CLAUDE_MODEL    = "claude-haiku-4-5-20251001"
 CHUNK_SIZE      = 30                        # articles per Claude call
 
@@ -224,8 +229,82 @@ def fetch_crossref(journal: dict, cutoff: datetime,
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# Elsevier abstract backfill
+# Abstract backfill (PubMed primary, Elsevier fallback)
 # ═════════════════════════════════════════════════════════════════════════════
+
+def fetch_pubmed_abstracts(dois: list[str]) -> dict[str, str]:
+    """Map DOI (lowercased) -> abstract via PubMed E-utilities.
+    Covers all publishers; no API key required (3 req/sec polite limit)."""
+    if not dois:
+        return {}
+    results: dict[str, str] = {}
+    for i in range(0, len(dois), PUBMED_BATCH):
+        chunk = dois[i:i + PUBMED_BATCH]
+        term = " OR ".join(f"{d}[AID]" for d in chunk)
+        try:
+            with httpx.Client(timeout=PUBMED_TIMEOUT) as client:
+                resp = client.get(PUBMED_ESEARCH, params={
+                    "db": "pubmed", "term": term,
+                    "retmax": len(chunk) * 2, "retmode": "json",
+                })
+                resp.raise_for_status()
+                pmids = resp.json().get("esearchresult", {}).get("idlist", [])
+                if not pmids:
+                    time.sleep(0.4)
+                    continue
+                resp = client.get(PUBMED_EFETCH, params={
+                    "db": "pubmed", "id": ",".join(pmids),
+                    "rettype": "abstract", "retmode": "xml",
+                })
+                resp.raise_for_status()
+                xml_text = resp.text
+        except Exception as exc:
+            print(f"  [WARN] PubMed batch {i // PUBMED_BATCH}: {exc}", file=sys.stderr)
+            time.sleep(0.4)
+            continue
+
+        try:
+            root = ET.fromstring(xml_text)
+        except Exception as exc:
+            print(f"  [WARN] PubMed XML parse: {exc}", file=sys.stderr)
+            time.sleep(0.4)
+            continue
+
+        for article in root.findall(".//PubmedArticle"):
+            doi = None
+            for aid in article.findall(".//ArticleIdList/ArticleId"):
+                if aid.get("IdType") == "doi" and aid.text:
+                    doi = aid.text.strip().lower()
+                    break
+            if not doi:
+                continue
+            parts = []
+            for ab in article.findall(".//Abstract/AbstractText"):
+                label = ab.get("Label", "")
+                text = "".join(ab.itertext()).strip()
+                if not text:
+                    continue
+                parts.append(f"{label}: {text}" if label else text)
+            if parts:
+                results[doi] = _clean_html(" ".join(parts))[:600]
+        time.sleep(0.4)   # NCBI fair-use: 3 req/sec without API key
+    return results
+
+
+def backfill_pubmed_abstracts(articles: list[dict]) -> int:
+    """Mutates *articles*; fills empty abstracts via PubMed. Returns count filled."""
+    targets = [a for a in articles if not a.get("abstract") and a.get("doi")]
+    if not targets:
+        return 0
+    doi_map = fetch_pubmed_abstracts([a["doi"] for a in targets])
+    filled = 0
+    for a in targets:
+        abstract = doi_map.get(a["doi"].strip().lower())
+        if abstract:
+            a["abstract"] = abstract
+            filled += 1
+    return filled
+
 
 def fetch_elsevier_abstract(doi: str, api_key: str) -> str:
     """Fetch abstract for an Elsevier DOI via the Article Retrieval API.
@@ -887,22 +966,25 @@ def main() -> None:
 
     print(f"\n  Total articles collected: {len(all_articles)}")
 
-    # ── Elsevier abstract backfill ────────────────────────────────────────────
+    # ── Abstract backfill: PubMed first (all publishers), Elsevier fallback ──
+    missing_total = sum(1 for a in all_articles if not a.get("abstract") and a.get("doi"))
+    if missing_total:
+        print(f"\n── PubMed abstract backfill ────────────────────────")
+        print(f"  Querying PubMed for {missing_total} articles missing abstracts…")
+        filled_pm = backfill_pubmed_abstracts(all_articles)
+        print(f"  Filled {filled_pm}/{missing_total} abstracts via PubMed")
+
     elsevier_key = os.environ.get("ELSEVIER_API_KEY", "")
-    if elsevier_key:
-        missing = sum(1 for a in all_articles
-                      if not a.get("abstract") and a.get("doi", "").startswith("10.1016/"))
-        if missing:
-            print(f"\n── Elsevier abstract backfill ──────────────────────")
-            print(f"  Fetching abstracts for {missing} Elsevier articles…")
-            filled = backfill_elsevier_abstracts(all_articles, elsevier_key)
-            print(f"  Filled {filled}/{missing} abstracts via Elsevier API")
-    else:
-        n_elsevier_missing = sum(1 for a in all_articles
-                                 if not a.get("abstract") and a.get("doi", "").startswith("10.1016/"))
-        if n_elsevier_missing:
-            print(f"\n[INFO] {n_elsevier_missing} Elsevier articles missing abstracts; "
-                  f"set ELSEVIER_API_KEY to enable backfill.")
+    still_missing = sum(1 for a in all_articles
+                        if not a.get("abstract") and a.get("doi", "").startswith("10.1016/"))
+    if still_missing and elsevier_key:
+        print(f"\n── Elsevier abstract backfill (fallback) ───────────")
+        print(f"  Querying Elsevier API for {still_missing} remaining Elsevier articles…")
+        filled_el = backfill_elsevier_abstracts(all_articles, elsevier_key)
+        print(f"  Filled {filled_el}/{still_missing} abstracts via Elsevier API")
+    elif still_missing and not elsevier_key:
+        print(f"\n[INFO] {still_missing} Elsevier articles still missing abstracts; "
+              f"set ELSEVIER_API_KEY to enable fallback.")
 
     # ── AI summaries ──────────────────────────────────────────────────────────
     summaries: dict[int, dict] = {}
