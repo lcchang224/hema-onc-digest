@@ -71,8 +71,10 @@ DEFAULT_OUTPUT  = _SCRIPT_DIR / "reports"
 DEFAULT_HOURS   = 28
 DEMO_HOURS      = 72          # wider window so demo has plenty of articles
 CROSSREF_BASE   = "https://api.crossref.org/works"
+ELSEVIER_BASE   = "https://api.elsevier.com/content/article/doi/"
 RSS_TIMEOUT     = 20
 CROSSREF_TIMEOUT= 30
+ELSEVIER_TIMEOUT= 25
 CLAUDE_MODEL    = "claude-haiku-4-5-20251001"
 CHUNK_SIZE      = 30                        # articles per Claude call
 
@@ -219,6 +221,50 @@ def fetch_crossref(journal: dict, cutoff: datetime,
             "source":    "crossref",
         })
     return articles
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Elsevier abstract backfill
+# ═════════════════════════════════════════════════════════════════════════════
+
+def fetch_elsevier_abstract(doi: str, api_key: str) -> str:
+    """Fetch abstract for an Elsevier DOI via the Article Retrieval API.
+    Returns "" on any failure. Abstracts are public — no subscription needed."""
+    url = f"{ELSEVIER_BASE}{doi}"
+    headers = {
+        "X-ELS-APIKey": api_key,
+        "Accept": "application/json",
+    }
+    try:
+        with httpx.Client(timeout=ELSEVIER_TIMEOUT) as client:
+            resp = client.get(url, headers=headers)
+            if resp.status_code != 200:
+                return ""
+            data = resp.json()
+    except Exception:
+        return ""
+
+    coredata = (data.get("full-text-retrieval-response", {})
+                    .get("coredata", {}))
+    abstract = coredata.get("dc:description", "") or ""
+    return _clean_html(abstract)[:600]
+
+
+def backfill_elsevier_abstracts(articles: list[dict], api_key: str) -> int:
+    """Mutates *articles* in place; fills empty abstracts for 10.1016/ DOIs.
+    Returns the number of abstracts successfully filled."""
+    targets = [a for a in articles
+               if not a.get("abstract") and a.get("doi", "").startswith("10.1016/")]
+    if not targets:
+        return 0
+    filled = 0
+    for a in targets:
+        abstract = fetch_elsevier_abstract(a["doi"], api_key)
+        if abstract:
+            a["abstract"] = abstract
+            filled += 1
+        time.sleep(0.3)   # gentle pacing; free tier is 10k/week
+    return filled
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -840,6 +886,23 @@ def main() -> None:
     all_articles = deduped
 
     print(f"\n  Total articles collected: {len(all_articles)}")
+
+    # ── Elsevier abstract backfill ────────────────────────────────────────────
+    elsevier_key = os.environ.get("ELSEVIER_API_KEY", "")
+    if elsevier_key:
+        missing = sum(1 for a in all_articles
+                      if not a.get("abstract") and a.get("doi", "").startswith("10.1016/"))
+        if missing:
+            print(f"\n── Elsevier abstract backfill ──────────────────────")
+            print(f"  Fetching abstracts for {missing} Elsevier articles…")
+            filled = backfill_elsevier_abstracts(all_articles, elsevier_key)
+            print(f"  Filled {filled}/{missing} abstracts via Elsevier API")
+    else:
+        n_elsevier_missing = sum(1 for a in all_articles
+                                 if not a.get("abstract") and a.get("doi", "").startswith("10.1016/"))
+        if n_elsevier_missing:
+            print(f"\n[INFO] {n_elsevier_missing} Elsevier articles missing abstracts; "
+                  f"set ELSEVIER_API_KEY to enable backfill.")
 
     # ── AI summaries ──────────────────────────────────────────────────────────
     summaries: dict[int, dict] = {}
