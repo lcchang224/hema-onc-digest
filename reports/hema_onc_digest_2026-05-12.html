@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-05-12</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --border: #dde2ec;
+  --accent: #1a56db;
+  --accent2: #2563eb;
+  --accent-light: #eef2ff;
+  --text: #111827;
+  --muted: #6b7280;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #e9edf7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1017;
+    --surface: #161c2c;
+    --border: #252e44;
+    --accent: #6ea8fe;
+    --accent2: #5b8dee;
+    --accent-light: #0f1a30;
+    --text: #e2e8f0;
+    --muted: #8b95a8;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #1e2637;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #1a56db 0%, #2563eb 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(26,86,219,.35);
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-05-12 01:48 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>8</b> articles</span>
+  <span>📚 <b>5</b> journals</span>
+  <span>⏱ Past <b>24h</b></span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-annals-of-hematology-springer">Annals of Hematology (Springer) <span style="opacity:.6">(2)</span></a><a href="#j-annals-of-oncology">Annals of Oncology <span style="opacity:.6">(2)</span></a><a href="#j-blood-reviews">Blood Reviews <span style="opacity:.6">(1)</span></a><a href="#j-clinical-lymphoma-myeloma-leukemia">Clinical Lymphoma Myeloma &amp; Leukemia <span style="opacity:.6">(1)</span></a><a href="#j-transplantation-and-cellular-therapy">Transplantation and Cellular Therapy <span style="opacity:.6">(2)</span></a></div>
+</div>
+<div class="journal-section" id="j-annals-of-hematology-springer">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Annals of Hematology (Springer)</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-12</span><span class="badge">DOI: 10.1007/s00277-026-070</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://link.springer.com/article/10.1007/s00277-026-07063-4" target="_blank" rel="noopener">Academic BCMA CAR-T (ARI0002h) achieves MRD-negative remission with sBCMA biomarker response in relapsed POEMS syndrome after double ASCT</a>
+  </div>
+  
+  <p class="article-summary">BCMA-directed CAR-T therapy (ARI0002h) successfully induced MRD-negative remission in a patient with relapsed POEMS syndrome after failing double autologous stem cell transplantation, with soluble BCMA serving as a useful biomarker for response monitoring.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太棒了！終於有辦法救那些ASC失敗的POEMS患者，CAR-T技術真的是越來越厲害啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>不過就一個病例啦，各位別太興奮，還是要等更多人試過才能確定真的有效。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-12</span><span class="badge">DOI: 10.1007/s00277-026-070</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://link.springer.com/article/10.1007/s00277-026-07018-9" target="_blank" rel="noopener">Expanding the PKLR mutation spectrum: discovery of two novel variants in two pediatric cases of pyruvate kinase deficiency</a>
+  </div>
+  
+  <p class="article-summary">Two novel PKLR gene mutations were identified in pediatric pyruvate kinase deficiency cases, demonstrating that genetic testing is invaluable for definitive diagnosis when transfusions confound conventional hematologic testing.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>基因檢測真的救星，不用再被輸血搞得暈頭轉向，直接驗DNA一切真相大白！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>才找到兩個新變異啦，想必PKLR基因還有一堆祕密躲在角落裡沒被發現呢。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-annals-of-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Annals of Oncology</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.02.019" target="_blank" rel="noopener">When artificial intelligence learns to abstain: towards clinically responsible diagnostic support in liver pathology</a>
+  </div>
+  <p class="article-authors">Svrcek M, Verlingue L</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.04.015" target="_blank" rel="noopener">Targeting Regulatory T Cells for Cancer Immunotherapy: Promises and Pitfalls</a>
+  </div>
+  <p class="article-authors">Mirallas O, Pretelli G, Balsa M, Jiménez-Labaig P et al.</p>
+  <p class="article-summary">This comprehensive review examines therapeutic strategies to target regulatory T cells in cancer, balancing the promise of enhanced anti-tumor immunity against the risks of autoimmunity and adverse effects.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>Treg療法前景超光明，可以讓免疫系統重新站起來狠狠打擊癌症！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>聽起來很簡單，結果自體免疫副作用一堆，患者是贏了癌症卻輸給了自己的免疫系統。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-blood-reviews">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Reviews</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04</span><span class="badge">DOI: 10.1016/j.blre.2026.10</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.blre.2026.101392" target="_blank" rel="noopener">Environmental exposures and multiple myeloma risk: A contemporary review of epidemiologic associations and mechanistic plausibility</a>
+  </div>
+  <p class="article-authors">del Rosal M, He M, Jagannath S, Parekh S et al.</p>
+  <p class="article-summary">This review synthesizes epidemiologic evidence linking environmental and occupational exposures to multiple myeloma risk, highlighting an underexplored yet potentially modifiable factor in disease pathogenesis.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>原來環境因素這麼重要，以後可以從預防著手，幫助病人遠離危險暴露！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>講了一堆環境風險，結果大多數MM患者根本搞不清楚自己是怎麼得病的，有點尷尬。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-clinical-lymphoma-myeloma-leukemia">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Clinical Lymphoma Myeloma &amp; Leukemia</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04</span><span class="badge">DOI: 10.1016/j.clml.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.04.022" target="_blank" rel="noopener">BRIDGE (OP-107): A Phase 2 Pharmacokinetic Study of Melflufen Plus Dexamethasone in Patients with Relapsed/Refractory Multiple Myeloma and Impaired Renal Function</a>
+  </div>
+  <p class="article-authors">Pour L, Delimpasi S, Legiec W, Minarik J et al.</p>
+  <p class="article-summary">The BRIDGE study characterized the pharmacokinetics of melflufen in relapsed/refractory multiple myeloma patients with renal impairment, providing crucial safety and dosing data for this vulnerable population.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>腎功能不好的MM患者終於有人關注了，melflufen在他們身上也能安全用真的太好了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>花這麼大功夫研究腎衰病人的給藥方式，結果可能只有少數人受惠，CP值堪憂啊。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-transplantation-and-cellular-therapy">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Transplantation and Cellular Therapy</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-04</span><span class="badge">DOI: 10.1016/j.jtct.2025.12</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2025.12.003" target="_blank" rel="noopener">Post Hematopoietic Cell Transplantation Maintenance Therapy With Low-Dose Azacitidine in a Pediatric Population With High-Risk Myeloid Malignancies</a>
+  </div>
+  <p class="article-authors">Merkel E, Gooley T, Thakar M, Furlan S et al.</p>
+  <p class="article-summary">Low-dose azacitidine maintenance therapy after hematopoietic cell transplantation reduces relapse risk in pediatric patients with high-risk myeloid malignancies without excessive toxicity.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>小兒患者經過移植後還能繼續吃藥打擊殘餘癌細胞，這樣復發率下降真的很給力！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>維持療法聽起來簡單，但小孩要吃那麼久的藥，遵從性會不會是個問題呢？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.03</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.03.040" target="_blank" rel="noopener">Infections in the first 30-days after CAR-T therapy in Patients Not Receiving Fluoroquinolone Prophylaxis.</a>
+  </div>
+  <p class="article-authors">Reynolds G, Dowling M, Valencia-Klug J, Teh B et al.</p>
+  <p class="article-summary">CAR-T therapy recipients who did not receive routine fluoroquinolone prophylaxis (Australian cohort) had manageable early infection rates, suggesting selective prophylaxis may be feasible without compromising safety.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>不亂用抗生素也能安全度過CAR-T早期，這樣既能保護微生物菌叢又能避免抗藥性，一舉兩得！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>澳洲人膽子就是大，敢不給預防性抗生素，要不是他們免疫系統夠硬誰敢這樣玩。</div></div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-05-12 01:48 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · Springer RSS · CrossRef API
+</footer>
+</body>
+</html>
