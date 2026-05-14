@@ -428,37 +428,37 @@ _CSS = """
 
 /* ── Design tokens ──────────────────────────── */
 :root {
-  --bg: #f4f6fb;
+  --bg: #fbf6f1;
   --surface: #ffffff;
-  --border: #dde2ec;
-  --accent: #1a56db;
-  --accent2: #2563eb;
-  --accent-light: #eef2ff;
-  --text: #111827;
-  --muted: #6b7280;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
   --hehe-bg: #ecfdf5;
   --hehe-bdr: #059669;
   --nohehe-bg: #fff7ed;
   --nohehe-bdr: #d97706;
-  --tag: #e9edf7;
+  --tag: #f0e3d4;
   --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
   --radius: 10px;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0d1017;
-    --surface: #161c2c;
-    --border: #252e44;
-    --accent: #6ea8fe;
-    --accent2: #5b8dee;
-    --accent-light: #0f1a30;
-    --text: #e2e8f0;
-    --muted: #8b95a8;
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
     --hehe-bg: #03260f;
     --hehe-bdr: #16a34a;
     --nohehe-bg: #1a0e02;
     --nohehe-bdr: #ca8a04;
-    --tag: #1e2637;
+    --tag: #3a2818;
     --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
   }
 }
@@ -478,12 +478,15 @@ a:hover { text-decoration: underline; }
 
 /* ── Header ─────────────────────────────────── */
 .site-header {
-  background: linear-gradient(135deg, #1a56db 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
   color: #fff;
   padding: 1.1rem 1.5rem;
   position: sticky; top: 0; z-index: 100;
   display: flex; align-items: center; gap: 1rem;
-  box-shadow: 0 2px 8px rgba(26,86,219,.35);
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
 }
 .site-header h1 {
   font-size: 1.05rem; font-weight: 700; flex: 1;
