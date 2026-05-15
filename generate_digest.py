@@ -4,8 +4,8 @@ generate_digest.py
 ==================
 Fetches hematology/oncology journal articles from RSS (Nature/Springer)
 and CrossRef API, filters to the past 28 hours, optionally summarises
-each article via Claude API, renders a mobile-friendly responsive HTML
-report, and optionally sends it by email.
+each article via Claude API, and renders a mobile-friendly responsive
+HTML report. The report is published to digest.lcchema.cc via CF Pages.
 
 Requirements:
     pip install httpx feedparser anthropic tomli   # tomli only if Python < 3.11
@@ -17,25 +17,17 @@ Usage:
     python generate_digest.py --hours 48           # custom lookback window
     python generate_digest.py --output ./reports   # custom output folder
     python generate_digest.py --config path/to.toml
-    python generate_digest.py --email-to you@example.com   # send HTML email
-
-Email env vars (required when --email-to is set):
-    GMAIL_USER          sender Gmail address
-    GMAIL_APP_PASSWORD  16-char Google App Password (not your login password)
 """
 
 import argparse
 import json
 import os
 import re
-import smtplib
 import sys
 import time
 import xml.etree.ElementTree as ET
 from collections import defaultdict
 from datetime import datetime, timezone, timedelta
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from pathlib import Path
 
 # ── TOML loading (stdlib 3.11+, else tomli) ─────────────────────────────────
@@ -868,23 +860,6 @@ def _slug(s: str) -> str:
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# Email delivery
-# ═════════════════════════════════════════════════════════════════════════════
-
-def send_html_email(html: str, subject: str, to_addr: str,
-                    smtp_user: str, smtp_pass: str) -> None:
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"]    = smtp_user
-    msg["To"]      = to_addr
-    msg.attach(MIMEText(html, "html", "utf-8"))
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
-        server.starttls()
-        server.login(smtp_user, smtp_pass)
-        server.sendmail(smtp_user, to_addr, msg.as_string())
-
-
-# ═════════════════════════════════════════════════════════════════════════════
 # Entry point
 # ═════════════════════════════════════════════════════════════════════════════
 
@@ -902,9 +877,6 @@ def main() -> None:
                         help="Skip Claude AI summaries")
     parser.add_argument("--demo",    action="store_true",
                         help=f"Use {DEMO_HOURS}h window to ensure articles for demo")
-    parser.add_argument("--email-to", default="",
-                        help="Send the HTML digest to this email address via Gmail SMTP. "
-                             "Requires GMAIL_USER and GMAIL_APP_PASSWORD env vars.")
     args = parser.parse_args()
 
     # ── Load config ──────────────────────────────────────────────────────────
@@ -1015,26 +987,6 @@ def main() -> None:
     print(f"  Articles: {len(all_articles)}  |  Journals: {len(set(a['journal'] for a in all_articles))}")
     if summaries:
         print(f"  AI summaries: {len(summaries)}")
-
-    # ── Email delivery ────────────────────────────────────────────────────────
-    if args.email_to:
-        smtp_user = os.environ.get("GMAIL_USER", "")
-        smtp_pass = os.environ.get("GMAIL_APP_PASSWORD", "")
-        if not smtp_user or not smtp_pass:
-            print("\n[WARN] --email-to set but GMAIL_USER / GMAIL_APP_PASSWORD "
-                  "not found in environment — email skipped.")
-        else:
-            n_journals = len(set(a["journal"] for a in all_articles))
-            subject = (f"\U0001f9ea Heme/Onc Digest · "
-                       f"{run_at.strftime('%Y-%m-%d')} · "
-                       f"{len(all_articles)} articles · "
-                       f"{n_journals} journals")
-            print(f"\n── Sending email → {args.email_to} ─────────────────────")
-            try:
-                send_html_email(html, subject, args.email_to, smtp_user, smtp_pass)
-                print(f"✓ Email sent → {args.email_to}")
-            except Exception as exc:
-                print(f"[ERROR] Email failed: {exc}", file=sys.stderr)
 
 
 if __name__ == "__main__":

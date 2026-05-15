@@ -1,9 +1,15 @@
-"""Build reports/index.html with collapsible month groups (terracotta palette)."""
+"""Build reports/index.html with collapsible month groups (terracotta palette).
+Also emits manifests/latest.json — manifest of the 5 most recent digests,
+consumed by the lcchema-hub landing page (fetched via raw.githubusercontent.com,
+which is why the manifest lives in a committed folder outside reports/)."""
+import json
 import re
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 REPORTS = Path("reports")
+MANIFESTS = Path("manifests")
+DIGEST_BASE = "https://digest.lcchema.cc"
 MONTHS = {"01":"Jan","02":"Feb","03":"Mar","04":"Apr","05":"May","06":"Jun",
           "07":"Jul","08":"Aug","09":"Sep","10":"Oct","11":"Nov","12":"Dec"}
 
@@ -71,3 +77,23 @@ html = f"""<!DOCTYPE html>
 
 (REPORTS / "index.html").write_text(html, encoding="utf-8")
 print(f"Built index: {len(files)} reports across {len(keys)} months")
+
+# ── latest.json manifest (consumed by lcchema-hub) ────────────────────────────
+manifest_items = []
+for f in files[:5]:
+    m = re.search(r"(\d{4}-\d{2}-\d{2})", f.name)
+    if not m:
+        continue
+    manifest_items.append({
+        "date": m.group(1),
+        "url":  f"{DIGEST_BASE}/{f.name}",
+    })
+manifest = {
+    "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    "items":     manifest_items,
+}
+MANIFESTS.mkdir(exist_ok=True)
+(MANIFESTS / "latest.json").write_text(
+    json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
+)
+print(f"Wrote manifests/latest.json: {len(manifest_items)} items")
