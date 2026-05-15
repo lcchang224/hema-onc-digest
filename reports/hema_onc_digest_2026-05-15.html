@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-05-15</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-05-15 01:54 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>13</b> articles</span>
+  <span>📚 <b>9</b> journals</span>
+  <span>⏱ Past <b>24h</b></span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-annals-of-oncology">Annals of Oncology <span style="opacity:.6">(1)</span></a><a href="#j-blood-advances">Blood Advances <span style="opacity:.6">(1)</span></a><a href="#j-blood-cancer-discovery">Blood Cancer Discovery <span style="opacity:.6">(1)</span></a><a href="#j-blood-reviews">Blood Reviews <span style="opacity:.6">(1)</span></a><a href="#j-british-journal-of-haematology">British Journal of Haematology <span style="opacity:.6">(2)</span></a><a href="#j-clinical-lymphoma-myeloma-leukemia">Clinical Lymphoma Myeloma &amp; Leukemia <span style="opacity:.6">(1)</span></a><a href="#j-european-journal-of-haematology">European Journal of Haematology <span style="opacity:.6">(1)</span></a><a href="#j-leukemia-nature">Leukemia (Nature) <span style="opacity:.6">(1)</span></a><a href="#j-transplantation-and-cellular-therapy">Transplantation and Cellular Therapy <span style="opacity:.6">(4)</span></a></div>
+</div>
+<div class="journal-section" id="j-annals-of-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Annals of Oncology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.01.015" target="_blank" rel="noopener">Advanced and metastatic prostate cancer: ESMO Clinical Practice Guideline for diagnosis, treatment and follow-up</a>
+  </div>
+  <p class="article-authors">Fizazi K, Attard G, Azad A, Baciarello G et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-blood-advances">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Advances</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-04</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025018680" target="_blank" rel="noopener">Ferroportin inhibition attenuates pulmonary hypertension in hypoxic sickle cell disease mice</a>
+  </div>
+  <p class="article-authors">Lucero M, Setua S, Thangaraju K, Khan A et al.</p>
+  <p class="article-summary">Inhibiting ferroportin (a key iron exporter) reduces pulmonary hypertension in sickle cell disease mice by modulating iron metabolism and hypoxic responses. This offers a novel therapeutic target for a major complication of SCD.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>鐵代謝研究真的越來越有趣，用鐵吸收調節來對付肺高血壓，創意滿分！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>看來鐵離子也要被罰站了，只許它乖乖待在細胞裡，別亂跑出來搗亂。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-blood-cancer-discovery">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Cancer Discovery</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-14</span><span class="badge">DOI: 10.1158/2643-3230.bcd-</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1158/2643-3230.bcd-25-0102" target="_blank" rel="noopener">Genetic Evidence against Clonotypic B Lymphocytes as a Reservoir for Plasma Cell Cancers</a>
+  </div>
+  <p class="article-authors">Gonzalez C, Garces J, Gracia H, Guerrero C et al.</p>
+  <p class="article-summary">Genetic sequencing reveals that multiple myeloma and light-chain amyloidosis originate from terminally differentiated plasma cells rather than earlier B cell precursors, challenging the clonotypic B cell reservoir hypothesis. This refines our understanding of plasma cell cancer pathogenesis.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於破案了！原來骨髓瘤真的是終末分化的漿細胞幹的，我們的基因證據白紙黑字寫得清楚啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>那些之前堅持B細胞儲備庫理論的同仁可能要改口了，科學就是這麼無情。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-blood-reviews">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Reviews</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.blre.2026.10</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.blre.2026.101397" target="_blank" rel="noopener">Challenges in the treatment of adolescent and young adult acute lymphoblastic leukemia: A comprehensive review</a>
+  </div>
+  <p class="article-authors">Burkart M, Dinner S</p>
+  <p class="article-summary">Adolescent and young adult ALL patients continue to have worse outcomes than pediatric counterparts despite treatment advances, highlighting the need for tailored therapeutic approaches that address age-specific biological and psychosocial factors. This comprehensive review identifies key gaps in current treatment strategies.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>認真點出青少年ALL患者的困境，這篇回顧文章肯定會激發一波新的臨床試驗，加油！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>呃，所以我們現在用的治療方式對青少年患者其實不太行，早知道啦……</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-british-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">British Journal of Haematology</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-14</span><span class="badge">DOI: 10.1111/bjh.70535</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70535" target="_blank" rel="noopener">Development and validation of a novel prognostic index for mantle cell lymphoma integrating TP53 mutations ( MIPI53 )</a>
+  </div>
+  <p class="article-authors">Bastos‐Boente M, Medina‐Herrera A, Navarro‐Bailón A, Ferrero S et al.</p>
+  <p class="article-summary">A novel prognostic index (MIPI53) integrating TP53 mutations with the MIPI score improves predictive accuracy for mantle cell lymphoma outcomes compared to MIPI alone. This genetic refinement enhances risk stratification and treatment decision-making.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太給力了！把TP53基因資訊加進去，MIPI立刻升級成更強版本，預測能力棒呆了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又要背一個新的評分系統，下次看mantle cell lymphoma就多一項該查的東西。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-14</span><span class="badge">DOI: 10.1111/bjh.70533</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70533" target="_blank" rel="noopener">Anti‐ HPA ‐1a IgG3 subclass antibodies induce strong platelet phagocytosis</a>
+  </div>
+  <p class="article-authors">Schmidt S, Xu X, Michel G, Kroll H et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-clinical-lymphoma-myeloma-leukemia">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Clinical Lymphoma Myeloma &amp; Leukemia</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.clml.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.04.024" target="_blank" rel="noopener">Monoclonal Gammopathy of Clinical Significance: A Multisystem Disorder Requiring a Multidisciplinary Approach</a>
+  </div>
+  <p class="article-authors">Dimopoulos M, Theodorakakou F, Kastritis E</p>
+  <p class="article-summary">Monoclonal gammopathy of clinical significance (MGCS) is an emerging category of clonal disorders causing significant organ dysfunction without meeting malignancy criteria, requiring a multidisciplinary clinical approach for diagnosis and management. This expands the spectrum of plasma cell-related diseases requiring recognition.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>MGCS的確是個容易被漏掉的診斷陷阱，這篇文章幫我們整理得超清楚，必讀啊！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又一個新的診斷名詞出現，病人來門診時我們又要多想一個可能性了……</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-european-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">European Journal of Haematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-14</span><span class="badge">DOI: 10.1111/ejh.70220</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/ejh.70220" target="_blank" rel="noopener">Survival After Diagnosis of Cardiovascular Disease in Survivors of Adolescent and Young Adult Lymphoma</a>
+  </div>
+  <p class="article-authors">Gowda K, Gupta M, Aguilar A, Cruz C et al.</p>
+  <p class="article-summary">Cardiovascular disease diagnosis in adolescent and young adult lymphoma survivors is associated with high subsequent mortality, highlighting the need for intensive cardiac monitoring and intervention in this vulnerable survivor population. Long-term cardiac toxicity represents a critical survivorship issue.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>心臟病倖存者的生存率這麼差，真的要更積極地追蹤和預防心臟毒性，這個數據驚人！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以我們治好了癌症，反而因為心臟問題挂掉？這真是用力過猛的反諷啊……</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-leukemia-nature">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Leukemia (Nature)</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-15</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nature.com/articles/s41375-026-02971-w" target="_blank" rel="noopener">Local oxygen tension dictates hematopoietic cell growth and potency</a>
+  </div>
+  <p class="article-authors">James Ropa, Sarah Gutch, Lindsay Wathen, So Jeong Kim, et al.</p>
+  <p class="article-summary">Local oxygen tension in the hematopoietic microenvironment plays a critical role in regulating hematopoietic stem cell growth and differentiation potential. This finding suggests that manipulating hypoxic niches could be therapeutically leveraged in leukemia management.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太棒了！終於有人認真研究氧氣對造血細胞的影響，這下我們知道為什麼有些患者的細胞長得特別兇悍啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>搞了半天，原來氧氣才是真正的幕後黑手，害得我們以前一直怪錯人了。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-transplantation-and-cellular-therapy">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Transplantation and Cellular Therapy</span>
+    <span class="journal-count">4</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.05</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.05.009" target="_blank" rel="noopener">Cord Blood Transplantation versus Other Donor Sources in High-risk Acute Myeloid Leukemia</a>
+  </div>
+  <p class="article-authors">Hirao T, Yamamoto H, Kuno M, Watanabe O et al.</p>
+  <p class="article-summary">Cord blood transplantation provides a viable alternative donor source for high-risk acute myeloid leukemia patients when HLA-matched siblings are unavailable, with outcomes comparable to or potentially superior to unrelated donors in select cohorts. This expands transplant access for this challenging population.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>臍帶血移植終於被認可為高危AML的好選擇，這下患者們的選項更多了，太讚了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>搞了這麼久，才發現臍帶血也是個寶，之前怎麼沒好好利用呢。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.05</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.05.006" target="_blank" rel="noopener">Fludarabine–Treosulfan (FT10) Conditioning in Older AML Patients Undergoing Haploidentical Transplantation: A Prospective Italian Study with External Comparison to the Haplo-UK Reduced-Intensity Conditioning Cohort</a>
+  </div>
+  <p class="article-authors">Federico V, Avenoso D, Raj K, De Lavallade H et al.</p>
+  <p class="article-summary">Fludarabine-treosulfan (FT10) conditioning in elderly AML patients undergoing haploidentical transplantation shows favorable toxicity and efficacy profiles compared to reduced-intensity conditioning, making this approach a promising option for older, comorbid patients. Age is no longer an absolute barrier.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>年紀大的AML患者終於有更溫和但有效的移植方案啦，FT10組合真的功夫不負有心人！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>原來年長患者也能活著完成移植，看來我們以前對他們的保護措施還不夠狠……</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.04.045" target="_blank" rel="noopener">Chimeric Antigen Receptor T-Cell Therapy in Autoimmune Disorders: An Expert Panel Opinion from the American Society for Transplantation and Cellular Therapy</a>
+  </div>
+  <p class="article-authors">Oluwole O, Crofford L, Jallouk A, Lee D et al.</p>
+  <p class="article-summary">CAR T-cell therapy's potential in treating severe autoimmune disorders is explored through expert consensus, leveraging the profound B cell depletion that makes it effective in lymphoid malignancies. Early clinical data suggest promise but raise important safety considerations.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>CAR-T細胞療法從癌症戰場轉進自體免疫疾病，這跨界應用真的想像力十足啊！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>等等，用可能自殺的細胞來治療自體免疫病？聽起來是在玩火……</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.04.051" target="_blank" rel="noopener">Suicidal Ideation experienced by long-term survivors of Blood or Marrow Transplantation: a BMTSS Report</a>
+  </div>
+  <p class="article-authors">Samant R, Bhatia D, Meng Q, Chen Y et al.</p>
+  <p class="article-summary">Long-term survivors of blood and marrow transplantation experience significant suicidal ideation, reflecting the psychological burden from intensive conditioning and chronic immunosuppression. This highlights the critical need for mental health screening and intervention in the BMT survivor population.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>認真看待BMT倖存者的心理健康問題，這份數據深刻地提醒我們不能忽視精神層面的照顧！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>我們忙著治療身體的癌症，卻忽略了患者心理上的創傷，真的是見樹不見林。</div></div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-05-15 01:54 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · Springer RSS · CrossRef API
+</footer>
+</body>
+</html>
