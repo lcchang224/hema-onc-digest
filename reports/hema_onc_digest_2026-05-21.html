@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-05-21</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-05-21 01:59 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>21</b> articles</span>
+  <span>📚 <b>8</b> journals</span>
+  <span>⏱ Past <b>24h</b></span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-blood-cancer-discovery">Blood Cancer Discovery <span style="opacity:.6">(2)</span></a><a href="#j-clinical-lymphoma-myeloma-leukemia">Clinical Lymphoma Myeloma &amp; Leukemia <span style="opacity:.6">(1)</span></a><a href="#j-european-journal-of-haematology">European Journal of Haematology <span style="opacity:.6">(1)</span></a><a href="#j-hemasphere">HemaSphere <span style="opacity:.6">(5)</span></a><a href="#j-journal-of-thrombosis-and-haemostasis">Journal of Thrombosis and Haemostasis <span style="opacity:.6">(1)</span></a><a href="#j-lancet-haematology">Lancet Haematology <span style="opacity:.6">(1)</span></a><a href="#j-nejm-evidence">NEJM Evidence <span style="opacity:.6">(1)</span></a><a href="#j-transplantation-and-cellular-therapy">Transplantation and Cellular Therapy <span style="opacity:.6">(9)</span></a></div>
+</div>
+<div class="journal-section" id="j-blood-cancer-discovery">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Cancer Discovery</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-20</span><span class="badge">DOI: 10.1158/2643-3230.bcd-</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1158/2643-3230.bcd-26-0160" target="_blank" rel="noopener">RAS pathway activation and microenvironmental adaptation as hallmarks of myeloid sarcoma</a>
+  </div>
+  <p class="article-authors">Nadorp B, Lasry A, Loghavi S, Patel R et al.</p>
+  <p class="article-summary">RAS pathway activation and microenvironmental adaptation drive myeloid sarcoma evolution, a aggressive extramedullary AML subtype that occurs in ~20% of AML patients but remains poorly characterized at the genomic level.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有人認真研究髓外白血病了，這下我們可以更聰明地對付這個狡猾的傢伙！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>只花了幾十年才決定要好好研究佔AML五分之一的這個亞型，真是效率滿分呢。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-20</span><span class="badge">DOI: 10.1158/2643-3230.bcd-</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1158/2643-3230.bcd-25-0477" target="_blank" rel="noopener">Integrated Analysis of Genomics, Molecular Responses, and Outcomes of CBF-AML with FLAG-Based Therapy on a Phase II Trial</a>
+  </div>
+  <p class="article-authors">Senapati J, Kantarjian H, Ayoub E, Quesada A et al.</p>
+  <p class="article-summary">FLAG-based chemotherapy combined with gemtuzumab ozogamicin achieves ~60% 5-year overall survival in core-binding factor AML, with MRD status via qPCR serving as a critical prognostic predictor for treatment outcomes.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>CBF-AML患者終於有更好的治療策略和MRD監測方法，60%生存率讓我們看到了希望！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>只要你的MRD在該清的時候乖乖清掉，就能享受接近60%的生存率，聽起來簡單吧？</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-clinical-lymphoma-myeloma-leukemia">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Clinical Lymphoma Myeloma &amp; Leukemia</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.clml.2026.05</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.05.005" target="_blank" rel="noopener">Pretransplant Blinatumomab Is Associated with Reduced Relapse and Improved Disease-Free Survival in Adults with B-Cell ALL Undergoing Allogeneic Hematopoietic Cell Transplantation</a>
+  </div>
+  <p class="article-authors">Ginosyan A, Ashouri K, Chen T, Grove S et al.</p>
+  <p class="article-summary">Pretransplant blinatumomab effectively eradicates MRD in adult B-cell ALL before HSCT, resulting in reduced relapse rates and improved disease-free survival compared to historical outcomes.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>在移植前用雙特異抗體清MRD，大人ALL患者的預後終於能追上小朋友了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>原來只要在移植前把壞蛋們用雙特異抗體清乾淨，復發率就會聽話地往下掉。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-european-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">European Journal of Haematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-20</span><span class="badge">DOI: 10.1111/ejh.70229</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/ejh.70229" target="_blank" rel="noopener">Updates in Evidence‐Based Decision Making for Upfront Surgical Interventions in Paediatric Lymphoma</a>
+  </div>
+  <p class="article-authors">Vierboom L, Loh A</p>
+  <p class="article-summary">Updated evidence-based guidelines recommend reduced upfront surgical interventions in pediatric lymphoma, particularly for mediastinal disease, due to advances in perioperative care and modern treatment protocols.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>手術的角色在小兒淋巴瘤變小了，這代表我們的治療手段進步到可以更保守地對待！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>花了這麼久才發現我們其實不用一開始就拿手術刀對著小朋友，醫學就是這樣慢慢演進的。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-hemasphere">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">HemaSphere</span>
+    <span class="journal-count">5</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1002/hem3.70393</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/hem3.70393" target="_blank" rel="noopener">Clonal hematopoiesis dynamics influences long‐term outcomes of follicular lymphoma: Results from FIL FOLL12 trial</a>
+  </div>
+  <p class="article-authors">Maher N, Moia R, Almasri M, Cividini L et al.</p>
+  <p class="article-summary">Clonal hematopoiesis dynamics at baseline and during follow-up significantly influence long-term clinical outcomes in follicular lymphoma patients treated with R-CHOP or R-Bendamustine.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>原來克隆造血動態是預測濾泡淋巴瘤患者預後的關鍵，這發現真的太棒了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>我們終於知道那些亂竄的克隆不只是在旁邊看戲，它們還真的會影響患者的運氣。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1002/hem3.70356</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/hem3.70356" target="_blank" rel="noopener">Outcomes and salvage strategies for large B‐cell lymphoma progressing after second‐line CAR T‐cell therapy: A DESCAR‐T study from the LYSA group</a>
+  </div>
+  <p class="article-authors">Sesques P, Manson G, Cartron G, Gros F et al.</p>
+  <p class="article-summary">LBCL patients who progress after second-line CAR-T therapy have dismal prognosis; real-world data from the LYSA group identifies salvage strategies and outcomes in this high-risk population.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有真實世界數據說明CAR-T後復發患者的預後和救援治療方法，可以更好地幫助他們！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>CAR-T失敗後的患者預後確實很慘，但至少現在我們知道該怎麼試著救他們了。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1002/hem3.70350</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/hem3.70350" target="_blank" rel="noopener">Splenectomy in β‐thalassemia patients: Practices and risks in a nationwide study</a>
+  </div>
+  <p class="article-authors">Benoit A, Pages J, Szepetowski S, Agouti I et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1002/hem3.70371</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/hem3.70371" target="_blank" rel="noopener">The rearrangement partner and the presence of MYC mutations determine the outcome of patients with MYC and BCL6 rearrangements</a>
+  </div>
+  <p class="article-authors">Stengel A, Lenk M, Kern W, Walter W</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1002/hem3.70376</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/hem3.70376" target="_blank" rel="noopener">Fitusiran treatment modulates the ratio between alpha‐ and beta‐antithrombin isoforms</a>
+  </div>
+  <p class="article-authors">McCluskey G, Maynadié H, Borgel D, Frenzel L et al.</p>
+  <p class="article-summary">Fitusiran treatment modulates the ratio of alpha- and beta-antithrombin isoforms in plasma, which may contribute to its anticoagulant effects in patients with antithrombin deficiency.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>Fitusiran居然能改變抗凝血酶的糖基化模式，這個機制新發現讓我們更懂這個藥了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>原來這個藥除了降低因子XI，還順便玩起了抗凝血酶的糖基化遊戲。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-journal-of-thrombosis-and-haemostasis">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Thrombosis and Haemostasis</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtha.2026.05</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.05.015" target="_blank" rel="noopener">Gene expression integration and similarity score based modeling improve risk stratification in idiopathic venous thrombophilia.</a>
+  </div>
+  <p class="article-authors">Ezquerra-Condeminas P, Martinez-Perez A, Howald C, Brown A et al.</p>
+  <p class="article-summary">Integrating gene expression data with established clinical risk factors significantly improves risk stratification for idiopathic venous thromboembolism, enabling better identification of high-risk individuals.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>用轉錄體數據加強風險分層，終於能對特發性靜脈血栓栓塞症的患者更精準地預測了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>原來光看臨床特徵還不夠聰明，得加上基因表現數據才能真正看穿VTE的風險面紗。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-lancet-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Lancet Haematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00071-2" target="_blank" rel="noopener">Post pulmonary embolism syndrome following paediatric pulmonary embolism: a multicentre, retrospective cohort study</a>
+  </div>
+  <p class="article-authors">Verweij M, van Ommen C, Diender M, Jongmans-van der Heide A et al.</p>
+  <p class="article-summary">Post-pulmonary embolism syndrome occurs in children following PE, and identifying its prevalence and risk factors is crucial for personalizing pediatric PE management and long-term care.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>發現小朋友PE後還會有長期症候群，這研究幫助我們更完整地照顧這些患者！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>原來大人有的後遺症小孩也有，看來PE這傢伙對所有年紀都沒在客氣的。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-nejm-evidence">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">NEJM Evidence</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-20</span><span class="badge">DOI: 10.1056/evidpha2600170</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/evidpha2600170" target="_blank" rel="noopener">Andes Hantavirus Outbreak on a Cruise Ship, 2026</a>
+  </div>
+  
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-transplantation-and-cellular-therapy">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Transplantation and Cellular Therapy</span>
+    <span class="journal-count">9</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.05</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.05.033" target="_blank" rel="noopener">Treatment outcomes of adult B-cell ALL with post-transplant relapse in the era of immunotherapeutic agents</a>
+  </div>
+  <p class="article-authors">Shimizu H, Najima Y, Kako S, Tachibana T et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.04.023" target="_blank" rel="noopener">Outcomes of Allogeneic Hematopoietic Stem Cell Transplantation in X-Linked Hyper IgM Syndrome: A Multicenter Chinese Cohort Study from CCBMT</a>
+  </div>
+  <p class="article-authors">Yu U, Zhou C, Tang X, Sun Y et al.</p>
+  <p class="article-summary">Allogeneic HSCT is curative for X-linked hyper-IgM syndrome caused by CD40L deficiency, and outcomes in a large Chinese pediatric cohort demonstrate its efficacy as the sole definitive treatment.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>有了大規模的中國患兒數據，我們對X連鎖高IgM症候群的HSCT療效更有信心了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>71個患者的數據告訴我們HSCT確實是唯一的救命仙丹，其他方法就別想了。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.04.051" target="_blank" rel="noopener">Suicidal Ideation Experienced by Long-Term Survivors of Blood or Marrow Transplantation: A Blood or Marrow Transplant Survivor Study Report</a>
+  </div>
+  <p class="article-authors">Samant R, Bhatia D, Meng Q, Chen Y et al.</p>
+  <p class="article-summary">Long-term blood or marrow transplant survivors experience significant suicidal ideation due to high-intensity therapeutic exposures and prolonged immunosuppression, highlighting critical mental health support needs.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於正視BMT長期倖存者的心理健康危機，這讓我們能提供更全面的追蹤照護！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>移植救了他們的命，但心理創傷還是跟著他們一輩子，看來治療不只是醫學問題。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.04.053" target="_blank" rel="noopener">Clinical Management of Acute Graft-Versus-Host Disease: An Evidence-Based Review from the ASTCT Committee on Practice Guidelines</a>
+  </div>
+  <p class="article-authors">DeFilipp Z, Alousi A, Levine J, Holtan S et al.</p>
+  <p class="article-summary">Updated ASTCT evidence-based guidelines comprehensively review acute GVHD diagnosis, grading, and treatment strategies, addressing remaining clinical uncertainties despite declining severe acute GVHD incidence.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>有了新的實證指南，我們對急性GVHD的診療可以更有根據和更一致！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>儘管重症急性GVHD已經少了，但該怎麼治療這傢伙的問題還是問不完呢。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.05</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.05.026" target="_blank" rel="noopener">PTCy-Based versus ATG-Based GVHD Prophylaxis in Mismatched Unrelated Donor HCT: A Secondary Analysis of CIBMTR Data</a>
+  </div>
+  <p class="article-authors">Rodriguez-Rodriguez S, Bentolila G, Pandharipande A, Gagelmann N et al.</p>
+  <p class="article-summary">PTCy-based GVHD prophylaxis compared to ATG-based regimens in 7/8 HLA-mismatched unrelated donor HSCT shows differential outcomes, helping establish optimal prophylaxis strategy for this high-risk population.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有CIBMTR的大數據幫助我們在PTCy和ATG之間做出更聰明的選擇！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>原來選PTCy還是ATG這個老問題，得靠幾千個患者的數據才能說出個所以然。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.04.049" target="_blank" rel="noopener">Safety of Prophylactic Anakinra in Patients Treated with CD28-Based CD19 Chimeric Antigen Receptor-T Cells for R/R B-Cell Lymphoma</a>
+  </div>
+  <p class="article-authors">Cutini I, Camerini C, Coltro G, Gozzini A et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.04.044" target="_blank" rel="noopener">Real-World, Evidence-Based, Retrospective Study of Patients Infused with Commercially Released Lifileucel for Advanced Melanoma</a>
+  </div>
+  <p class="article-authors">Karapetyan L, Moser J, Ma B, Otteni C et al.</p>
+  <p class="article-summary">Real-world effectiveness data of commercially available lifileucel demonstrates outcomes in advanced melanoma patients previously treated with checkpoint inhibitors and/or targeted therapy.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有真實世界的lifileucel有效性數據，這對晚期黑色素瘤患者來說真的太需要了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>看著臨床試驗數據漂亮，但真的用在患者身上效果究竟如何，現在終於有答案了。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.04.050" target="_blank" rel="noopener">Increased Susceptibility to Long-Term Complications in Leukemia Survivors Who Received Hematopoietic Stem Cell Transplantation During Adolescence</a>
+  </div>
+  <p class="article-authors">Pessarossi L, Poirée M, Dalle J, Visentin S et al.</p>
+  <p class="article-summary">Adolescent leukemia survivors who received HSCT during puberty face significantly increased susceptibility to long-term complications compared to older transplant recipients, based on French registry data.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>這研究揭示了青少年時期移植的患者長期風險更高，讓我們能提供更周全的監測！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>看來在青春期經歷HSCT的運氣不太好，晚年的併發症會特別愛上他們。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.04.027" target="_blank" rel="noopener">Third-Party Viral Specific T Cells for Immunocompromised Hosts and Access Barriers: A Review and Commentary by an Expert Panel from ASTCT</a>
+  </div>
+  <p class="article-authors">Davies S, Blyth E, Bollard C, Craddock J et al.</p>
+  <p class="article-summary">Third-party virus-specific T cells effectively prevent viral reactivation post-HSCT, particularly after intensive GVHD prophylaxis with T-cell depletion, though access and availability remain significant barriers.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>第三方病毒特異性T細胞真的能救命，可惜獲得困難重重，這值得更多關注！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>好藥在眼前卻用不到，光想想就令人扼腕，這才是最大的療法困境啊。</div></div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-05-21 01:59 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · Springer RSS · CrossRef API
+</footer>
+</body>
+</html>
