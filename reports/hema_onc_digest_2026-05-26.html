@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-05-26</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-05-26 01:56 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>15</b> articles</span>
+  <span>📚 <b>6</b> journals</span>
+  <span>⏱ Past <b>24h</b></span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-american-journal-of-hematology">American Journal of Hematology <span style="opacity:.6">(1)</span></a><a href="#j-british-journal-of-haematology">British Journal of Haematology <span style="opacity:.6">(9)</span></a><a href="#j-clinical-lymphoma-myeloma-leukemia">Clinical Lymphoma Myeloma &amp; Leukemia <span style="opacity:.6">(2)</span></a><a href="#j-journal-of-thrombosis-and-haemostasis">Journal of Thrombosis and Haemostasis <span style="opacity:.6">(1)</span></a><a href="#j-new-england-journal-of-medicine">New England Journal of Medicine <span style="opacity:.6">(1)</span></a><a href="#j-transplantation-and-cellular-therapy">Transplantation and Cellular Therapy <span style="opacity:.6">(1)</span></a></div>
+</div>
+<div class="journal-section" id="j-american-journal-of-hematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">American Journal of Hematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-24</span><span class="badge">DOI: 10.1002/ajh.70378</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/ajh.70378" target="_blank" rel="noopener">Correction to “ DNA Methylation Episignature as a Novel Diagnostic Tool for Diamond‐Blackfan Anemia Syndrome”</a>
+  </div>
+  
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-british-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">British Journal of Haematology</span>
+    <span class="journal-count">9</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-25</span><span class="badge">DOI: 10.1111/bjh.70562</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70562" target="_blank" rel="noopener">Utility of combined CD39 / CD73 / CD38 expression for the detection of malignant T cells in Sézary syndrome</a>
+  </div>
+  <p class="article-authors">Marchisio S, Yakymiv Y, Lin L, Ortolan E et al.</p>
+  <p class="article-summary">A combination of CD39/CD73/CD38 expression markers on circulating T cells can effectively identify malignant cells in Sézary syndrome, offering a much-needed diagnostic biomarker for early detection of this aggressive cutaneous T-cell lymphoma.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於找到能夠早期抓住皮膚T細胞淋巴瘤壞傢伙的生物標誌，這對患者真是救星啊！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>三個標誌物一起用才行，這是要考驗各家實驗室有沒有認真流程標準化了。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-24</span><span class="badge">DOI: 10.1111/bjh.70555</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70555" target="_blank" rel="noopener">Treatment‐specific differences in soluble B‐cell maturation antigen levels at minimum residual disease negativity in multiple myeloma</a>
+  </div>
+  <p class="article-authors">Toho M, Tabata R, Shima K, Terunuma D et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-20</span><span class="badge">DOI: 10.1111/bjh.70568</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70568" target="_blank" rel="noopener">Azacitidine–venetoclax in unfit acute myeloid leukaemia: One size does not fit all</a>
+  </div>
+  <p class="article-authors">Ferrara F</p>
+  <p class="article-summary">This commentary discusses how defining 'fitness' criteria differently can significantly impact treatment outcomes when using azacitidine-venetoclax combinations in elderly/unfit acute myeloid leukemia patients, emphasizing one-size-fits-all approaches may be inadequate.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>提醒我們千萬別用單一標準來判斷病人適不適合治療，個性化評估才是王道！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>換句話說，AML的「不適合」患者也許根本沒有定義清楚，我們還在摸著石頭過河呢。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-24</span><span class="badge">DOI: 10.1111/bjh.70583</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70583" target="_blank" rel="noopener">Transplantation outcomes in patients with Down syndrome‐associated acute lymphoblastic leukaemia: Implications for treatment intensity and the use of novel therapies</a>
+  </div>
+  <p class="article-authors">Ishida H, Okamoto Y, Sakaguchi H, Arai Y et al.</p>
+  <p class="article-summary">Down syndrome patients with acute lymphoblastic leukemia show worse outcomes than non-Down syndrome ALL, and this analysis reveals how transplant outcomes and novel therapy strategies should be adapted specifically for this vulnerable population.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有人系統性地研究唐氏症ALL的移植結果，為這群特殊病人提出客製化治療策略，真棒！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>看來我們得承認，標準ALL治療藍圖對唐氏症病人不適用，該改劇本了。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-24</span><span class="badge">DOI: 10.1111/bjh.70574</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70574" target="_blank" rel="noopener">A multicentre randomized open‐label phase 2 trial of dexamethasone plus glycyrrhizinate versus dexamethasone in newly diagnosed immune thrombocytopenia</a>
+  </div>
+  <p class="article-authors">Wang H, Wang R, Yuan C, Bi K et al.</p>
+  <p class="article-summary">A randomized phase 2 trial tested whether adding glycyrrhizinate (licorice extract) to dexamethasone improves platelet responses in newly diagnosed immune thrombocytopenia, aiming to optimize first-line therapy outcomes.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>用甘草酸搭配類固醇來治療ITP，中西醫結合的創新思路，很有意思呢！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>甘草搭配類固醇？這是要考驗病人們的腸胃耐受力嗎？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-24</span><span class="badge">DOI: 10.1111/bjh.70575</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70575" target="_blank" rel="noopener">Optical genome mapping improves detection and characterisation of cytogenetic abnormalities in non‐Hodgkin lymphomas</a>
+  </div>
+  <p class="article-authors">Fall C, Daudignon A, Valmary‐Degano S, Mondet J et al.</p>
+  <p class="article-summary">Optical genome mapping (OGM) provides superior detection and characterization of chromosomal abnormalities in non-Hodgkin lymphoma compared to traditional cytogenetics and FISH, offering better resolution without tissue sampling limitations.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>OGM技術真的超強，能看清楚淋巴瘤的基因組異常，診斷精準度大躍進！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又一個新技術來搶傳統細胞遺傳學的飯碗，只是不知道健保會不會給付啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-24</span><span class="badge">DOI: 10.1111/bjh.70576</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70576" target="_blank" rel="noopener">DNMT3A variants are associated with the development of nodal TFH cell lymphoma, angioimmunoblastic‐type after solid tumour occurrence</a>
+  </div>
+  <p class="article-authors">Frutos Díaz‐Alejo J, Díaz de la Pinta F, Pavía Pascual L, Manso R et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-24</span><span class="badge">DOI: 10.1111/bjh.70581</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70581" target="_blank" rel="noopener">Long‐term outcomes after allogeneic versus autologous haematopoietic stem cell transplantation for T‐lymphoblastic lymphoma</a>
+  </div>
+  <p class="article-authors">Cheng Q, Zhu Y, Sheng K, Zhou J et al.</p>
+  <p class="article-summary">In T-lymphoblastic lymphoma, allogeneic stem cell transplantation demonstrated superior long-term survival outcomes compared to autologous transplantation, despite higher transplant-related mortality, suggesting allo-HSCT is the preferred transplant strategy for this aggressive disease.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>異體移植雖然風險高，但T淋巴母細胞淋巴瘤用它就是能活得更久，這就是「值得」啊！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以患者得在「可能早死於移植」和「肯定晚死於復發」之間二選一，真是個痛苦的選擇。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-24</span><span class="badge">DOI: 10.1111/bjh.70580</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70580" target="_blank" rel="noopener">Structural similarity between CD38 and the Duffy antigen as a potential mechanism of attenuated anti‐Fy antibody reactivity with soluble CD38</a>
+  </div>
+  <p class="article-authors">Sakai Y, Matsuura H, Ito R, Ishii K et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-clinical-lymphoma-myeloma-leukemia">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Clinical Lymphoma Myeloma &amp; Leukemia</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.clml.2026.05</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.05.003" target="_blank" rel="noopener">SOHO State of the Art Updates and Next Questions | Early Stage Hodgkin Lymphoma - Are We Ready for Novel Agents?</a>
+  </div>
+  <p class="article-authors">Schroers-Martin J, Advani R</p>
+  <p class="article-summary">Early stage classical Hodgkin lymphoma now achieves excellent cure rates, with treatment strategies increasingly personalized using interim PET scans to reduce long-term toxicity from standard ABVD chemotherapy while maintaining disease control.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太好了！用PET引導治療強度真的是聰明做法，既能打敗癌症又能保護病人的未來！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以我們終於要放棄用大砲轟螞蟻的老套路了？真是時候了呢！</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.clml.2026.05</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.05.009" target="_blank" rel="noopener">Pharmacokinetics and safety of belantamab mafodotin monotherapy in patients with relapsed/refractory multiple myeloma who have normal and varying degrees of impaired renal function</a>
+  </div>
+  <p class="article-authors">Chen X, Hakim S, Lien Y, Dimopoulos M et al.</p>
+  <p class="article-summary">The DREAMM-12 study assessed how belantamab mafodotin (a BCMA-targeted antibody-drug conjugate) is handled by the body in multiple myeloma patients with varying degrees of kidney impairment, ensuring safe dosing across renal function levels.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>藥物動力學研究做得細緻，為不同腎功能的病人量身打造用藥方案，真的是貼心又專業！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又是另一個「我們需要更多數據」的研究，但至少這次是實實在在的安全性資料啦。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-journal-of-thrombosis-and-haemostasis">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Thrombosis and Haemostasis</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtha.2026.05</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.05.018" target="_blank" rel="noopener">Human Monoclonal and Polyclonal Anti-ADAMTS13 Antibodies in Immune Thrombotic Thrombocytopenic Purpura: Variable Mechanisms of Inhibition</a>
+  </div>
+  <p class="article-authors">Meng C, Halkidis K, Shay M, Liu S et al.</p>
+  <p class="article-summary">Different anti-ADAMTS13 antibody subclasses in immune thrombotic thrombocytopenic purpura demonstrate variable mechanisms of ADAMTS13 inhibition, which may be further influenced by pH and temperature, providing insights into iTTP pathophysiology.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>原來不同IgG亞型在iTTP中各顯神通，理解這些機制差異能幫我們更好地對付這個兇險的血栓病！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>細胞實驗裡這麼講究pH和溫度，只是不知道血管裡的實際情況會不會這麼乖乖聽話。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-new-england-journal-of-medicine">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">New England Journal of Medicine</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-25</span><span class="badge">DOI: 10.1056/nejmoa2601283</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/nejmoa2601283" target="_blank" rel="noopener">In Vivo Base Editing of PCSK9 with VERVE-102 for Hypercholesterolemia</a>
+  </div>
+  <p class="article-authors">Vafai S, Täubel J, Ashdown T, Patel R et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-transplantation-and-cellular-therapy">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Transplantation and Cellular Therapy</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.05</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.05.004" target="_blank" rel="noopener">A Network Meta-Analysis of Randomized Trials to Determine Optimal GVHD Prophylaxis in Matched Sibling Donor Transplantation</a>
+  </div>
+  <p class="article-authors">Bentolila G, Desai N, Holtan S, Bonifazi F et al.</p>
+  <p class="article-summary">A network meta-analysis compared post-transplant cyclophosphamide (PTCy) and anti-thymocyte globulin (ATG) for graft-versus-host disease prophylaxis in matched sibling donor transplantation, aiming to identify the optimal strategy through analysis of randomized trials.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>用網路薈萃分析來比較PTCy和ATG，幫助我們找到配對兄妹捐贈者移植的最佳GVHD預防方案！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>終於有人認真做這個對比了，只是還要看各家醫院會不會照著建議改變做法就是了。</div></div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-05-26 01:56 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · Springer RSS · CrossRef API
+</footer>
+</body>
+</html>
