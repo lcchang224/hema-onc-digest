@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-06-01</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-06-01 02:14 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>22</b> articles</span>
+  <span>📚 <b>7</b> journals</span>
+  <span>⏱ Past <b>24h</b></span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-american-journal-of-hematology">American Journal of Hematology <span style="opacity:.6">(1)</span></a><a href="#j-annals-of-oncology">Annals of Oncology <span style="opacity:.6">(4)</span></a><a href="#j-european-journal-of-haematology">European Journal of Haematology <span style="opacity:.6">(1)</span></a><a href="#j-journal-of-clinical-oncology">Journal of Clinical Oncology <span style="opacity:.6">(4)</span></a><a href="#j-lancet-oncology">Lancet Oncology <span style="opacity:.6">(7)</span></a><a href="#j-new-england-journal-of-medicine">New England Journal of Medicine <span style="opacity:.6">(4)</span></a><a href="#j-transplantation-and-cellular-therapy">Transplantation and Cellular Therapy <span style="opacity:.6">(1)</span></a></div>
+</div>
+<div class="journal-section" id="j-american-journal-of-hematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">American Journal of Hematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-30</span><span class="badge">DOI: 10.1002/ajh.70388</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/ajh.70388" target="_blank" rel="noopener">Distribution of Gastrointestinal and Dietary Risk Factors Among U.S. Adults Classified as Having Iron Deficiency Anemia Across Diagnostic Thresholds</a>
+  </div>
+  <p class="article-authors">Al Ta’ani O, Mayrer B, Luche N, Siddique S et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-annals-of-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Annals of Oncology</span>
+    <span class="journal-count">4</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.05.692" target="_blank" rel="noopener">Lorlatinib versus crizotinib as first-line treatment for advanced ALK-positive non-small cell lung cancer: 7-year update from the phase 3 CROWN study</a>
+  </div>
+  <p class="article-authors">Shaw A, Solomon B, Felip E, Bauer T et al.</p>
+  <p class="article-summary">The 7-year follow-up data from the CROWN trial demonstrates that lorlatinib maintains a substantial progression-free survival advantage over crizotinib as first-line treatment for advanced ALK-positive NSCLC, with long-term efficacy sustained.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>七年的數據還在閃閃發光！Lorlatinib 不愧是二代 ALK 抑制劑，真的把 crizotinib 比下去了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>七年啦七年，終於可以講「這是我們的標準治療」，但下一個突變又要出現了吧。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.05.707" target="_blank" rel="noopener">Metastatic breast cancer: ESMO Clinical Practice Guideline for diagnosis, treatment and follow-up†</a>
+  </div>
+  <p class="article-authors">de Azambuja E, Barrios C, Bartsch R, Curigliano G et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.04.017" target="_blank" rel="noopener">A randomised study of encorafenib, cetuximab, and FOLFIRI versus FOLFIRI with or without bevacizumab in BRAF V600E-mutant colorectal cancer: BREAKWATER Cohort 3</a>
+  </div>
+  <p class="article-authors">Kopetz S, Tabernero J, Lonardi S, Shen L et al.</p>
+  <p class="article-summary">BREAKWATER Cohort 3 randomizes BRAF V600E-mutant metastatic colorectal cancer patients to encorafenib plus cetuximab with FOLFIRI versus FOLFIRI alone or with bevacizumab, evaluating the benefit of targeted BRAF inhibition in this setting.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>BRAF 突變的結直腸癌病人終於不用被當作「一般mCRC」來治療了，靶向療法來救駕！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又一個三臂試驗，又要等半天才知道什麼才是「最佳」組合，肯定又有人會怨嘆為什麼沒有四臂試驗。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.05.001" target="_blank" rel="noopener">Chemotherapy for patients with circulating tumour DNA positive, stage II colon cancer (CIRCULATE) – an AIO / ABCSG trial</a>
+  </div>
+  <p class="article-authors">Folprecht G, Stasik S, Reinacher-Schick A, Weiss L et al.</p>
+  <p class="article-summary">The CIRCULATE trial investigates whether adjuvant chemotherapy guided by postoperative circulating tumor DNA (ctDNA) status can improve outcomes in stage II colon cancer, enriching for patients with poor prognosis using molecular markers rather than clinical criteria alone.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>循環腫瘤DNA 當嚮導！終於可以精準挑出真正需要化療的第二期結腸癌病人，不用浪費無辜人的生命！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>ctDNA 檢測聽起來很神奇，但等等…這在普通醫院做得出來嗎？成本會不會貴到爆炸？</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-european-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">European Journal of Haematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-31</span><span class="badge">DOI: 10.1111/ejh.70233</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/ejh.70233" target="_blank" rel="noopener">Longitudinal Changes in Transfusion Practice in Myelodysplastic Syndromes: A Population Data‐Linkage Study</a>
+  </div>
+  <p class="article-authors">Mo A, Thao L, Wellard C, Wood E et al.</p>
+  <p class="article-summary">This population-based data-linkage study examines real-world transfusion practices and trends in myelodysplastic syndrome patients before and after the introduction of disease-modifying therapies like 5-azacitidine, revealing the actual impact on RBC transfusion dependence.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>真實世界數據最誠實！看看 5-azacitidine 在澳洲真正幫了多少 MDS 病人減少輸血的麻煩！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>人口數據真的很酷，但願他們沒有被那些選擇偏差給玩得團團轉。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-journal-of-clinical-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Clinical Oncology</span>
+    <span class="journal-count">4</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-31</span><span class="badge">DOI: 10.1200/jco-26-00841</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1200/jco-26-00841" target="_blank" rel="noopener">Low-Dose Tamoxifen in Noninvasive Breast Neoplasia: Long-Term Results From an Individual-Participant Data Pooled Analysis</a>
+  </div>
+  <p class="article-authors">Gandini S, Guerrieri-Gonzaga A, Serrano D, Rizzo R et al.</p>
+  <p class="article-summary">A pooled analysis of individual participant data shows that low-dose tamoxifen may be effective for reducing breast cancer risk in DCIS, though the analysis explores whether lower doses maintain benefit durability and whether outcomes differ by menopausal status and recurrence site.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太棒了！終於有人在認真研究怎樣用更少的藥物達到同樣的效果，這樣病人就不用被副作用折磨得那麼慘！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>說好的「長期結果」呢？摘要寫得跟謎語一樣，害我還得自己去翻全文才知道他們到底發現了什麼。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-31</span><span class="badge">DOI: 10.1200/jco-26-00765</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1200/jco-26-00765" target="_blank" rel="noopener">Structured exercise program following adjuvant chemotherapy for colon cancer: A cost-utility analysis of the CHALLENGE trial</a>
+  </div>
+  <p class="article-authors">Chan K, Chu R, Cheung M, Courneya K et al.</p>
+  <p class="article-summary">The CHALLENGE trial demonstrated that a 3-year structured exercise program improves disease-free and overall survival in stage III/high-risk stage II colon cancer patients after chemotherapy, and this cost-utility analysis evaluates its economic value.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>運動真的能救命！這下子我們終於有好消息可以講給病人聽，而且還便宜得要命！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>讓我猜猜——運動計畫會不會在醫療系統裡被列為「太實際」而永遠沒人願意真的執行？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-31</span><span class="badge">DOI: 10.1200/jco-26-01042</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1200/jco-26-01042" target="_blank" rel="noopener">Amivantamab in recurrent/metastatic HNSCC after checkpoint inhibitor and chemotherapy: pivotal results from the phase 1b/2 OrigAMI-4 study</a>
+  </div>
+  <p class="article-authors">Burtness B, Rosenberg A, Calderon B, Lim S et al.</p>
+  <p class="article-summary">Amivantamab, a bispecific EGFR-MET antibody, shows promising activity as a single-agent in treatment-refractory recurrent/metastatic HNSCC patients who have progressed on checkpoint inhibitors and chemotherapy, outperforming historical response rates.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>雙特異性抗體來救場！對付那些玩膩了免疫療法和化療的頑固腫瘤，這次有新武器了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又是一個「比historical control更好」的故事，但願這次不會在第三期試驗裡摔跤。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-31</span><span class="badge">DOI: 10.1200/jco-26-00142</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1200/jco-26-00142" target="_blank" rel="noopener">Neoadjuvant Sacituzumab Govitecan in Patients With Muscle-Invasive Bladder Cancer: Primary Results of the SURE-01 Trial</a>
+  </div>
+  <p class="article-authors">Necchi A, de Jong J, Maiorano B, Proudfoot J et al.</p>
+  <p class="article-summary">The phase II SURE-01 trial evaluates sacituzumab govitecan as a neoadjuvant therapy option for muscle-invasive bladder cancer patients who cannot tolerate or refuse standard chemotherapy, with primary efficacy and biomarker results reported.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太好了！終於給那些化療不了的膀胱癌病人一個新的選擇，讓他們也有機會拼一拼根除性膀胱切除！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以…這個試驗有沒有實際改變任何人的治療計畫，還是又只是一篇「數據很有趣」的論文？</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-lancet-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Lancet Oncology</span>
+    <span class="journal-count">7</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00225-1" target="_blank" rel="noopener">AI and the cancer workforce: what problem are we solving?</a>
+  </div>
+  <p class="article-authors">Rosella L</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00230-5" target="_blank" rel="noopener">The global cancer workforce crisis: a shared responsibility, a united front</a>
+  </div>
+  <p class="article-authors">Gralow J, Pyle D, Garrett-Mayer E</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00227-5" target="_blank" rel="noopener">Beyond the count: the unseen foundations of cancer care</a>
+  </div>
+  <p class="article-authors">Bhoo-Pathy N</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00231-7" target="_blank" rel="noopener">Regionally anchored, globally connected: lessons from the Pacific on the cancer workforce crisis</a>
+  </div>
+  <p class="article-authors">Jackson C, Yip D, Tafuna'i L</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00224-x" target="_blank" rel="noopener">The UK's radiotherapy workforce shortage: a case for reform</a>
+  </div>
+  <p class="article-authors">Vulpe H, Tree A, Price P, Abelson D et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00232-9" target="_blank" rel="noopener">From shortage to synergy: transforming global radiology workforce capacity with digital innovation and task-shifting</a>
+  </div>
+  <p class="article-authors">Prosch H, Langs G</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00065-3" target="_blank" rel="noopener">Cancer workforce—a global crisis: a Lancet Oncology Commission</a>
+  </div>
+  <p class="article-authors">Hricak H, Ward Z, Moraes F, Scott A et al.</p>
+  <p class="article-summary">A Lancet Oncology Commission addresses the critical global shortage of trained cancer care professionals and researchers, particularly affecting low- and middle-income countries, and provides actionable recommendations for workforce strengthening.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有人把這個沉默的危機說出來了！我們的癌症醫療隊伍真的跟不上需求，現在開始努力還來得及！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>Actionable guidance 聽起來不錯，但實際上又有哪個開發中國家有預算和政治意願去真的實施呢？</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-new-england-journal-of-medicine">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">New England Journal of Medicine</span>
+    <span class="journal-count">4</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-31</span><span class="badge">DOI: 10.1056/nejmoa2605555</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/nejmoa2605555" target="_blank" rel="noopener">Daraxonrasib or Chemotherapy in Previously Treated Metastatic Pancreatic Cancer</a>
+  </div>
+  <p class="article-authors">O’Reilly E, Wainberg Z, Hendifar A, Borad M et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-31</span><span class="badge">DOI: 10.1056/nejme2606250</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/nejme2606250" target="_blank" rel="noopener">A Watershed Moment in the Perioperative Treatment of Prostate Cancer</a>
+  </div>
+  <p class="article-authors">Antonarakis E</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-31</span><span class="badge">DOI: 10.1056/nejmoa2603878</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/nejmoa2603878" target="_blank" rel="noopener">Perioperative Apalutamide in High-Risk Localized Prostate Cancer</a>
+  </div>
+  <p class="article-authors">Taplin M, Gleave M, Shore N, Lopez-Gitlitz A et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-31</span><span class="badge">DOI: 10.1056/nejmoa2602628</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/nejmoa2602628" target="_blank" rel="noopener">Selpercatinib in Early-Stage RET Fusion–Positive Non–Small-Cell Lung Cancer</a>
+  </div>
+  <p class="article-authors">Wu Y, Hochmair M, Yang Y, Yang X et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-transplantation-and-cellular-therapy">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Transplantation and Cellular Therapy</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.05</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.05.038" target="_blank" rel="noopener">Addition of High-Dose Cytarabine to Fludarabine, Busulfan, and Melphalan Conditioning for Cord Blood Transplantation in Adult Acute Myeloid Leukemia</a>
+  </div>
+  <p class="article-authors">Yamaguchi K, Watanabe O, Mitsuki T, Kageyama K et al.</p>
+  <p class="article-summary">This retrospective study evaluates the safety and efficacy of adding high-dose cytarabine to a fludarabine/busulfan/melphalan conditioning regimen for adult AML patients undergoing cord blood transplantation, assessing whether intensification improves outcomes.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>強化制約方案來了！在臍帶血移植這個本來就風險大的地方，看看能不能藉著多一點化療來提升療效！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>往臍帶血移植裡再加一種毒性強的藥物，這聽起來像是在刀口上跳舞，希望他們的數據確實證明了值得。</div></div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-06-01 02:14 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · Springer RSS · CrossRef API
+</footer>
+</body>
+</html>
