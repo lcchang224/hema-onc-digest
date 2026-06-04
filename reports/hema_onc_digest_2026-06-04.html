@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-06-04</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-06-04 02:29 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>10</b> articles</span>
+  <span>📚 <b>6</b> journals</span>
+  <span>⏱ Past <b>24h</b></span>
+  
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-bone-marrow-transplantation-nature">Bone Marrow Transplantation (Nature) <span style="opacity:.6">(1)</span></a><a href="#j-hemasphere">HemaSphere <span style="opacity:.6">(1)</span></a><a href="#j-nejm-evidence">NEJM Evidence <span style="opacity:.6">(1)</span></a><a href="#j-nejm-hematology-oncology">NEJM Hematology-Oncology <span style="opacity:.6">(3)</span></a><a href="#j-thrombosis-and-haemostasis">Thrombosis and Haemostasis <span style="opacity:.6">(1)</span></a><a href="#j-transplantation-and-cellular-therapy">Transplantation and Cellular Therapy <span style="opacity:.6">(3)</span></a></div>
+</div>
+<div class="journal-section" id="j-bone-marrow-transplantation-nature">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Bone Marrow Transplantation (Nature)</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-06-04</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nature.com/articles/s41409-026-02929-7" target="_blank" rel="noopener">Non-gene-edited, CD19-targeted, allogeneic CAR-T cell therapy for relapsed or refractory B-cell acute lymphoblastic leukemia: an open-label, single-arm phase 1 study</a>
+  </div>
+  <p class="article-authors">Chenxue Wu, Lei Xue, Miaomiao Wu, Sujun Li, et al.</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-hemasphere">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">HemaSphere</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-06</span><span class="badge">DOI: 10.1002/hem3.70377</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/hem3.70377" target="_blank" rel="noopener">A RiboCancer cell line panel reveals that CLL‐associated Rps15 mutations translationally rewire transcription through codon‐specific tRNA accommodation defects</a>
+  </div>
+  <p class="article-authors">Astier A, Caruso M, Vereecke S, Santo P et al.</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-nejm-evidence">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">NEJM Evidence</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-06-03</span><span class="badge">DOI: 10.1056/evidoa2600112</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1056/evidoa2600112" target="_blank" rel="noopener">Secukinumab for Giant Cell Arteritis</a>
+  </div>
+  <p class="article-authors">Stone J, Venhoff N, Buttgereit F, Dejaco C et al.</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-nejm-hematology-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">NEJM Hematology-Oncology</span>
+    <span class="journal-count">3</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-06-04</span><span class="badge">DOI: 10.1056/NEJMoa2510223?</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2510223?rss=searchAndBrowse" target="_blank" rel="noopener">All-Oral Treatment of Newly Diagnosed Acute Myeloid Leukemia</a>
+  </div>
+  <p class="article-authors">Gail J. Roboz, Amer M. Zeidan, Gabriel N. Mannis, Pau Montesinos, Montserrat Arnan, Michael R. Savona, Olatoyosi Odenike, James K. McCloskey, Harshad V. Amin, Amir T. Fathi, Teresa Bernal del Castillo, Gabriela Rodríguez-Macías, Jane L. Liesveld, Annie P. Im, Jan Cerny, Teresa C. Gentile, Aram Oganesian, Danna Chan, Yubing Wan, Margit Dijkstra, Harold N. Keer, Elizabeth A. Griffiths, Courtney D. DiNardo</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-06-04</span><span class="badge">DOI: 10.1056/NEJMcibr260064</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMcibr2600647?rss=searchAndBrowse" target="_blank" rel="noopener">Fasting, Glucocorticoids, and Breast Cancer</a>
+  </div>
+  <p class="article-authors">Nima Sharifi</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-06-04</span><span class="badge">DOI: 10.1056/NEJMc2517783?r</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMc2517783?rss=searchAndBrowse" target="_blank" rel="noopener">Targeting of Wnt–β-Catenin Pathway in Recurrent Ameloblastoma</a>
+  </div>
+  <p class="article-authors">Samuel J. Klempner, Moh’d Khushman, Kyriakos P. Papadopoulos, Meredith P. Pelster, Jordi A. Rodon, Rona Yaeger, Shivaani Kummar, Sunil Sharma, David Bajor, Dennis Hsu, Ranjodh S. Dhami, Bayan Alzumaili, Jeremy D. Kratz, Varun Monga, Alexander Philipovskiy, Jorge Ramos, Amber Wells, Marie H. Nguyen, Jonathan B. Hurov, Michael Cecchini</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-thrombosis-and-haemostasis">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Thrombosis and Haemostasis</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05-29</span><span class="badge">DOI: 10.1055/a-2862-6563</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1055/a-2862-6563" target="_blank" rel="noopener">Bleeding and Thrombotic Trade-off in Dual-Risk Patients Undergoing Percutaneous Coronary Intervention</a>
+  </div>
+  <p class="article-authors">Mauro M, Finocchiaro S, Calderone D, Laudani C et al.</p>
+  
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-transplantation-and-cellular-therapy">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Transplantation and Cellular Therapy</span>
+    <span class="journal-count">3</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-06</span><span class="badge">DOI: 10.1016/j.jtct.2026.05</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.05.041" target="_blank" rel="noopener">Brexucabtagene autoleucel in the Outpatient Setting, A Single Institution Experience</a>
+  </div>
+  <p class="article-authors">Mercadante G, Akhom P, Ali N, Baer B et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2025.12</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2025.12.1004" target="_blank" rel="noopener">Clinical Outcomes of Allogeneic Hematopoietic Stem Cell Transplantation in Children with T Cell Acute Lymphoblastic Leukemia/Lymphoma</a>
+  </div>
+  <p class="article-authors">Klimentova M, Shelikhova L, Perminova M, Molostova O et al.</p>
+  
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-05</span><span class="badge">DOI: 10.1016/j.jtct.2026.05</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.05.021" target="_blank" rel="noopener">Outcomes and safety of CAR-T cell therapy in B-NHL patients with reduced left ventricular ejection fraction</a>
+  </div>
+  <p class="article-authors">Rojek A, Guo J, Kline J, Kosuri S et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-06-04 02:29 UTC · (no AI summaries)<br>
+  Sources: Nature RSS · Springer RSS · CrossRef API
+</footer>
+</body>
+</html>
