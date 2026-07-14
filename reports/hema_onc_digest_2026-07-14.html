@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-07-14</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-07-14 01:13 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>13</b> articles</span>
+  <span>📚 <b>5</b> journals</span>
+  <span>⏱ Past <b>24h</b></span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-clinical-lymphoma-myeloma-leukemia">Clinical Lymphoma Myeloma &amp; Leukemia <span style="opacity:.6">(3)</span></a><a href="#j-european-journal-of-haematology">European Journal of Haematology <span style="opacity:.6">(1)</span></a><a href="#j-lancet-haematology">Lancet Haematology <span style="opacity:.6">(1)</span></a><a href="#j-lancet-oncology">Lancet Oncology <span style="opacity:.6">(4)</span></a><a href="#j-transplantation-and-cellular-therapy">Transplantation and Cellular Therapy <span style="opacity:.6">(4)</span></a></div>
+</div>
+<div class="journal-section" id="j-clinical-lymphoma-myeloma-leukemia">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Clinical Lymphoma Myeloma &amp; Leukemia</span>
+    <span class="journal-count">3</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.clml.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.07.004" target="_blank" rel="noopener">Safe Integration of Radiation Therapy with Bispecific Antibodies in Relapsed/Refractory B-cell Lymphomas</a>
+  </div>
+  <p class="article-authors">Baron J, Chelius M, Singh G, Schad M et al.</p>
+  <p class="article-summary">Radiation therapy can be safely integrated with bispecific antibodies in relapsed/refractory B-cell lymphomas, expanding treatment options for patients who require cytoreduction or bridging therapy alongside these immunotherapies.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太好了，雙特異性抗體和放療可以搭著用，治療靈活度大大提升！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>就是說我們終於搞清楚這兩種療法一起用不會互相扯後腿。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.clml.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.07.003" target="_blank" rel="noopener">Clonal Hematopoiesis in Newly Diagnosed Multiple Myeloma: Associations with Neutropenia, Supportive Care Burden and Survival</a>
+  </div>
+  <p class="article-authors">Yigitbasi A, Puyan F, Kirkizlar H, Kirkizlar T et al.</p>
+  <p class="article-summary">Clonal hematopoiesis is independently associated with neutropenia, increased supportive care burden, and worse survival outcomes in newly diagnosed multiple myeloma patients, suggesting it is a clinically relevant host factor for prognosis.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>發現造血幹細胞克隆演變竟然這麼影響多發性骨髓瘤患者的預後，真是大開眼界！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>簡單講就是「你造血幹細胞越亂，你越容易倒楣」啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.clml.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.07.005" target="_blank" rel="noopener">SOHO State of the Art Updates and Next Questions | Mediastinal Gray-Zone Lymphoma: Novel Biologic Insights and Updates on How Best to Approach This Rare Entity.</a>
+  </div>
+  <p class="article-authors">Ozcan G, Roswarski J, Dunleavy K</p>
+  <p class="article-summary">Mediastinal gray-zone lymphoma is a rare aggressive entity with overlapping features between nodular sclerosis Hodgkin lymphoma and primary mediastinal B-cell lymphoma; recent molecular profiling is reshaping our understanding of its biology and treatment approach.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>分子診斷幫我們更清楚認識這個模糊的淋巴瘤邊界帶，未來治療會更精準！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>這種「灰色地帶」淋巴瘤就像在賭桌上，搞不清楚到底該跟誰的規則走。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-european-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">European Journal of Haematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-13</span><span class="badge">DOI: 10.1111/ejh.70264</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/ejh.70264" target="_blank" rel="noopener">Feasibility and Safety of Venetoclax for Cytoreduction During Induction Therapy in Newly Diagnosed Acute Promyelocytic Leukemia</a>
+  </div>
+  <p class="article-authors">Wang Y, Xiao R, Huang X, Xiao Y</p>
+  <p class="article-summary">Venetoclax appears feasible and safe as a cytoreductive strategy during induction therapy for newly diagnosed acute promyelocytic leukemia, offering a potentially gentler approach to rapid cytoreduction in this disease.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>用Venetoclax來輔助急性前骨髓球白血病的誘導治療，安全又有效，患者會更舒服！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>就是把一個BCL-2抑制劑用在APL身上，看看能不能減少傳統化療的毒性。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-lancet-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Lancet Haematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00079-7" target="_blank" rel="noopener">Reducing mortality, improving outcomes, and establishing equity for women with classical haematological disease: a Lancet Haematology Commission</a>
+  </div>
+  <p class="article-authors">Scheres L, Weyand A, Baldwin M, Thachil J et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-lancet-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Lancet Oncology</span>
+    <span class="journal-count">4</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00133-6" target="_blank" rel="noopener">Efficacy and safety of dabrafenib plus trametinib in adults with differentiated thyroid cancer: a randomised, double-blind, placebo-controlled, phase 3 trial</a>
+  </div>
+  <p class="article-authors">Gao M, Park Y, Lin C, Krzyzanowska M et al.</p>
+  <p class="article-summary">Dabrafenib plus trametinib demonstrated clinically significant efficacy and manageable safety in a phase 3 trial for BRAF V600E-positive radioactive iodine-refractory differentiated thyroid cancer, validating this combination as a treatment option for this aggressive subtype.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有堂堂正正的第三期數據支持這個組合療法，甲狀腺癌患者的福音啊！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>只不過又是另一個「preliminary results看起來不錯，所以我們做了phase 3」的故事罷了。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00287-1" target="_blank" rel="noopener">Switching to camizestrant at ESR1 mutation emergence before disease progression during first-line treatment of hormone receptor-positive advanced breast cancer (SERENA-6): extended analysis of a double-blind, placebo-controlled, randomised, phase 3 trial</a>
+  </div>
+  <p class="article-authors">Turner N, Mayer E, Park Y, Janni W et al.</p>
+  <p class="article-summary">SERENA-6 demonstrates that prospective circulating tumor DNA monitoring can identify ESR1 mutations before clinical progression, enabling early treatment switching to camizestrant in hormone receptor-positive advanced breast cancer patients.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>用ctDNA做前瞻性監測來提早發現抗藥性變異，這才是精準醫療的真諦呀！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>說穿了就是一個「趕在病人知道之前，我們先發現他的癌症變聰明了」的概念。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00332-3" target="_blank" rel="noopener">Now or later? Switching therapies in metastatic breast cancer</a>
+  </div>
+  <p class="article-authors">Valenza C, Regan M, Burstein H</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00254-8" target="_blank" rel="noopener">A step forward for precision oncology in thyroid cancer</a>
+  </div>
+  <p class="article-authors">Hamidi S, Dadu R</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-transplantation-and-cellular-therapy">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Transplantation and Cellular Therapy</span>
+    <span class="journal-count">4</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtct.2026.06</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.06.054" target="_blank" rel="noopener">Facilitation Of Related Donor Haematopoietic Stem Cell Donation By Unrelated Donor Registries: Recommendations From The World Marrow Donor Association</a>
+  </div>
+  <p class="article-authors">Cody M, Stefanski H, van Eerden E, Ward J et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-06</span><span class="badge">DOI: 10.1016/j.jtct.2026.06</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.06.027" target="_blank" rel="noopener">Allogeneic Transplantation in the Rare Disease Myelodysplastic Syndrome/Myeloproliferative Neoplasm with Neutrophilia: Age and Disease Burden Determine Outcome</a>
+  </div>
+  <p class="article-authors">Mohring A, Sockel K, Thiede C, Schröder J et al.</p>
+  <p class="article-summary">In allogeneic hematopoietic stem cell transplantation for the rare MDS/MPN with neutrophilia, patient age and disease burden are critical prognostic factors determining transplant outcomes, with implications for patient selection and conditioning strategies.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>總算有數據幫我們理解這個罕見疾病的異基因移植預後因子，選患者會更聰明！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>歸根結柢就是「年紀大病況重的人，移植不會好到哪裡去」，這誰都知道。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-06</span><span class="badge">DOI: 10.1016/j.jtct.2026.06</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.06.029" target="_blank" rel="noopener">Infections Within 100 Days of Idecabtagene Vicleucel and Impact on Survival for Relapsed/Refractory Multiple Myeloma: A CIBMTR Analysis</a>
+  </div>
+  <p class="article-authors">Wudhikarn K, Gowda L, Ye Q, Oloyede T et al.</p>
+  <p class="article-summary">Infections within 100 days of idecabtagene vicleucel (anti-BCMA CAR-T) in relapsed/refractory multiple myeloma are common and significantly impact survival, demonstrating the substantial infectious disease burden associated with this CAR-T approach.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>詳細描繪BCMA CAR-T療法的感染風險，讓我們能更好地預防和管理，棒！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>說穿了就是「CAR-T細胞再強，感染還是能把患者打趴」。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-06</span><span class="badge">DOI: 10.1016/j.jtct.2026.06</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.06.046" target="_blank" rel="noopener">International Survey and Next-Generation Sequencing-Based Indel Chimerism Detection of Human Leukocyte Antigens Loss in Relapsed Haploidentical and Mismatched Unrelated Donor Transplant Recipients</a>
+  </div>
+  <p class="article-authors">Desai N, Pettersson L, Wang J, Kiernan J et al.</p>
+  <p class="article-summary">HLA loss-mediated relapse occurs in haploidentical and mismatched unrelated donor transplant recipients through an indel mechanism detectable by NGS-based chimerism analysis, with important implications for DLI efficacy and subsequent transplant strategies.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>NGS技術讓我們能精確抓住HLA喪失這個逃脫機制，真的是科技進步的勝利！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>簡單說就是患者的癌細胞把HLA扔了，害得捐獻者的淋巴細胞認不出來，躲貓貓玩得很溜。</div></div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-07-14 01:13 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · Springer RSS · CrossRef API
+</footer>
+</body>
+</html>
