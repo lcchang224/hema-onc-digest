@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-07-16</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-07-16 01:19 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>12</b> articles</span>
+  <span>📚 <b>7</b> journals</span>
+  <span>⏱ Past <b>24h</b></span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-blood-cancer-journal-nature">Blood Cancer Journal (Nature) <span style="opacity:.6">(1)</span></a><a href="#j-clinical-lymphoma-myeloma-leukemia">Clinical Lymphoma Myeloma &amp; Leukemia <span style="opacity:.6">(1)</span></a><a href="#j-european-journal-of-haematology">European Journal of Haematology <span style="opacity:.6">(1)</span></a><a href="#j-journal-of-thrombosis-and-haemostasis">Journal of Thrombosis and Haemostasis <span style="opacity:.6">(2)</span></a><a href="#j-nejm-hematology-oncology">NEJM Hematology-Oncology <span style="opacity:.6">(2)</span></a><a href="#j-thrombosis-and-haemostasis">Thrombosis and Haemostasis <span style="opacity:.6">(2)</span></a><a href="#j-transplantation-and-cellular-therapy">Transplantation and Cellular Therapy <span style="opacity:.6">(3)</span></a></div>
+</div>
+<div class="journal-section" id="j-blood-cancer-journal-nature">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Cancer Journal (Nature)</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-16</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nature.com/articles/s41408-026-01520-z" target="_blank" rel="noopener">Epstein-Barr virus antibodies and risk of non-Hodgkin lymphoma: a pooled analysis of four prospective cohorts</a>
+  </div>
+  <p class="article-authors">Lauren R. Teras, Mariah Landry, James M. Hodge, Parichoy Pal Choudhury, et al.</p>
+  <p class="article-summary">This pooled analysis of four prospective cohorts demonstrates that elevated Epstein-Barr virus antibodies are associated with increased risk of non-Hodgkin lymphoma, providing epidemiological evidence for EBV's role in lymphomagenesis.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太棒了！終於有大型隊列研究證實EBV和淋巴瘤的關係，這是預防和篩檢的重要突破呢！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>咦，這個發現只是確認了我們早就懷疑的事情，看來EBV也是個「老調重彈」的風險因子啦。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-clinical-lymphoma-myeloma-leukemia">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Clinical Lymphoma Myeloma &amp; Leukemia</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.clml.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.07.008" target="_blank" rel="noopener">KMT2A-Partial Tandem Duplication associates with leukemia transformation in myelodysplastic syndrome</a>
+  </div>
+  <p class="article-authors">Li Z, Xie D, Chen W, Wang X et al.</p>
+  <p class="article-summary">This study clarifies that KMT2A-partial tandem duplication is a significant prognostic marker associated with leukemia transformation in myelodysplastic syndrome, helping guide therapeutic decisions in this high-risk population.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>棒極了！終於把KMT2A-PTD在MDS中的預後價值搞清楚了，這對風險分層太有幫助啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又是另一個基因突變要追蹤啦，醫生們的檢測清單越來越長，銀行帳戶越來越短呢。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-european-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">European Journal of Haematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-14</span><span class="badge">DOI: 10.1111/ejh.70237</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/ejh.70237" target="_blank" rel="noopener">Impact of Hemoglobin Improvement on Survival in Patients With Myelofibrosis and Anemia Treated With Momelotinib in the SIMPLIFY ‐1 and MOMENTUM Trials</a>
+  </div>
+  <p class="article-authors">Palandri F, O'Connell C, Vachhani P, McLornan D et al.</p>
+  <p class="article-summary">Post hoc analyses of SIMPLIFY-1 and MOMENTUM trials demonstrate that achieving hemoglobin ≥10 g/dL with momelotinib has prognostic significance and rapid kinetics in myelofibrosis patients with baseline anemia.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太好了！momelotinib改善貧血的速度和預後價值都確認了，骨髓纖維化患者終於有更實際的監測指標！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>Post hoc分析又來了，這次是血紅素達標才能活得久，患者們又多一個要緊盯的數字啦。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-journal-of-thrombosis-and-haemostasis">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Thrombosis and Haemostasis</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtha.2026.06</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.06.041" target="_blank" rel="noopener">FVIII exposure, bleeding outcomes, and inhibitor development in 80 PUPs and MTPs with severe hemophilia A on emicizumab prophylaxis: real world data from the PedNet Registry.</a>
+  </div>
+  <p class="article-authors">de Kovel M, Kenet G, Motwani J, Andersson N et al.</p>
+  <p class="article-summary">Real-world data from PedNet Registry shows that emicizumab prophylaxis in infants and young children with severe hemophilia A has favorable FVIII exposure, bleeding outcomes, and low inhibitor development rates outside the controlled trial setting.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太令人鼓舞了！emicizumab在真實世界中對小寶寶也這麼安全有效，皮下給藥真的改變遊戲規則呢！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又一個真實世界研究告訴我們臨床試驗是對的，那當初為什麼還要做RCT呢？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtha.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.07.005" target="_blank" rel="noopener">The role of mutant p53R175H in de novo activation of von Willebrand factor expression in tumor cells</a>
+  </div>
+  <p class="article-authors">Seyyedi N, Lo C, Alavi P, Pasdar M et al.</p>
+  <p class="article-summary">This mechanistic study reveals that mutant p53R175H can aberrantly activate von Willebrand factor expression in non-endothelial tumor cells, potentially explaining thrombotic complications in certain malignancies.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>哇！p53突變竟然能驅動VWF表達，這個新機制真的太聰慧了，血栓形成謎團又解開一塊！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以癌細胞不只會長大，還會學會偽裝成血管細胞製造VWF，真是個「全能演員」呢。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-nejm-hematology-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">NEJM Hematology-Oncology</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-16</span><span class="badge">DOI: 10.1056/NEJMoa2600157?</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2600157?rss=searchAndBrowse" target="_blank" rel="noopener">Continuous or Fixed-Duration Maintenance Therapy in Multiple Myeloma</a>
+  </div>
+  <p class="article-authors">Shaji Kumar, Susanna Jacobus, Adam Cohen, Matthias Weiss, Natalie Callander, Avina Singh, Terri Parker, Michael Green, Raymond Thertulien, Benjamin Parsons, Pankaj Kumar, Prashant Kapoor, Aaron Rosenberg, Elie Dib, Daniel Almquist, Jeffrey Zonder, Edward Faber, Zihan Wei, Kenneth Anderson, Sagar Lonial, Paul Richardson, Robert Orlowski, Lynne Wagner, S. Vincent Rajkumar</p>
+  <p class="article-summary">The ENDURANCE trial shows that 2 years of lenalidomide maintenance therapy achieves similar 7-year overall survival compared to indefinite therapy in multiple myeloma, while causing fewer adverse events and second cancers.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>天啊！終於可以告訴病人「少即是多」的好消息了，這對生活品質真的是大贏家！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>哈哈，原來我們花這麼多年給無限療法，結果才發現兩年就夠了，真是「多此一舉」呢。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-16</span><span class="badge">DOI: 10.1056/NEJMe2604761?r</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMe2604761?rss=searchAndBrowse" target="_blank" rel="noopener">Time to Stop? Rethinking the Duration of Maintenance Treatment in Multiple Myeloma</a>
+  </div>
+  <p class="article-authors">Hira Mian, Luciano J. Costa</p>
+  <p class="article-summary">This editorial commentary challenges the dogma that longer maintenance therapy is inherently superior in multiple myeloma, contextualizing the ENDURANCE trial's findings within the therapeutic revolution that has transformed MM outcomes.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太對了！是時候重新思考我們對多發性骨髓瘤的治療哲學，這種批判性思維真令人欣慰！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>社論又來說教了，都知道要「反思」，可惜大多數人早就在做無限治療了啦。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-thrombosis-and-haemostasis">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Thrombosis and Haemostasis</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-15</span><span class="badge">DOI: 10.1055/a-2905-2494</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1055/a-2905-2494" target="_blank" rel="noopener">Pharmacodynamics of Caplacizumab in Healthy Volunteers and Phase 2/3 Trial Patients with Immune-mediated Thrombotic Thrombocytopenic Purpura</a>
+  </div>
+  <p class="article-authors">Coppo P, Scully M, de la Rubia J, Peyvandi F et al.</p>
+  <p class="article-summary">Pharmacodynamic analyses of caplacizumab in healthy volunteers and iTTP patients demonstrate its rapid and sustained inhibition of von Willebrand factor-platelet interactions, supporting its use in immune-mediated thrombotic thrombocytopenic purpura.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太棒了！caplacizumab的藥動學在真實世界中完全符合預期，TTP患者有了更快速的救兵！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>Post hoc分析證實了有效性，但患者錢包的血小板數量卻在直線下降啊。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-03</span><span class="badge">DOI: 10.1055/a-2906-7109</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1055/a-2906-7109" target="_blank" rel="noopener">Discontinuation of Oral Anticoagulation After Successful Catheter Ablation for Atrial Fibrillation: Meta-Analysis of Randomized Clinical Trials</a>
+  </div>
+  <p class="article-authors">Kaisaier W, Chen Y, Dong Y, He J et al.</p>
+  <p class="article-summary">This meta-analysis of randomized trials suggests that discontinuing oral anticoagulation may be feasible after successful catheter ablation of atrial fibrillation, challenging current guidelines that recommend indefinite anticoagulation.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太有希望了！終於有RCT證據支持可以在消融成功後停止抗凝，患者出血風險降低真的很振奮！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以之前十年我們都讓病人吃著抗凝血劑，現在才發現可能不用，真是「多年無用功」呢。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-transplantation-and-cellular-therapy">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Transplantation and Cellular Therapy</span>
+    <span class="journal-count">3</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtct.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.07.012" target="_blank" rel="noopener">Discontinuing Ciprofloxacin Prophylaxis in Allogeneic Stem Cell Transplantation Does Not Result in Inferior Outcomes</a>
+  </div>
+  <p class="article-authors">Braitsch K, Möbius V, Koch K, Rothe K et al.</p>
+  <p class="article-summary">Discontinuing ciprofloxacin prophylaxis during neutropenia in allogeneic stem cell transplantation does not compromise outcomes and may preserve microbiome integrity and reduce resistance concerns.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太令人振奮了！不用無限期給氟喹諾酮，既能保護腸道菌群又能減少抗藥性，真是一舉兩得！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>原來fluoroquinolone也可以不用，那我們那些年的感染預防指南是寫著玩的嗎？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtct.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.07.005" target="_blank" rel="noopener">Impact of a Long-Term Follow-Up Program on Adherence to Screening and Prevention Guidelines in Survivors of Allogeneic Bone Marrow Transplantation</a>
+  </div>
+  <p class="article-authors">de Araujo M, Lijeron M, dos Santos J, Moschen L et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtct.2026.06</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.06.052" target="_blank" rel="noopener">Impact of prior CAR T-cell treatment on graft-vs-host disease and non-relapse mortality after allogeneic transplantation</a>
+  </div>
+  <p class="article-authors">Othman T, Yang D, Shouse G, Pourhassan H et al.</p>
+  <p class="article-summary">This study evaluates whether prior CAR T-cell therapy increases the risk of graft-versus-host disease or non-relapse mortality following allogeneic transplantation, addressing an important clinical question for sequenced multi-modal therapy.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太棒了！終於有人研究CAR-T後接受異體移植的預後風險，這對聯合治療策略的制定很關鍵呢！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又是another sequencing question，看來醫生們要開始玩「積木遊戲」決定先做哪個治療才對啦。</div></div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-07-16 01:19 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · Springer RSS · CrossRef API
+</footer>
+</body>
+</html>
