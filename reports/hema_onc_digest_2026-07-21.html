@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-07-21</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-07-21 01:21 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>14</b> articles</span>
+  <span>📚 <b>5</b> journals</span>
+  <span>⏱ Past <b>24h</b></span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-american-journal-of-hematology">American Journal of Hematology <span style="opacity:.6">(1)</span></a><a href="#j-blood-advances">Blood Advances <span style="opacity:.6">(6)</span></a><a href="#j-clinical-lymphoma-myeloma-leukemia">Clinical Lymphoma Myeloma &amp; Leukemia <span style="opacity:.6">(2)</span></a><a href="#j-hemasphere">HemaSphere <span style="opacity:.6">(2)</span></a><a href="#j-transplantation-and-cellular-therapy">Transplantation and Cellular Therapy <span style="opacity:.6">(3)</span></a></div>
+</div>
+<div class="journal-section" id="j-american-journal-of-hematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">American Journal of Hematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-20</span><span class="badge">DOI: 10.1002/ajh.70415</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/ajh.70415" target="_blank" rel="noopener">Upfront Autologous Stem Cell Transplantation in First Complete Remission for Advanced‐Stage Extra‐Nodal NK /T‐Cell Lymphoma: A Multicenter Retrospective Study</a>
+  </div>
+  <p class="article-authors">Hu S, Liu W, Zhao L, Huang W et al.</p>
+  <p class="article-summary">Upfront autologous stem cell transplantation in first remission improves outcomes for advanced-stage extranodal NK/T-cell lymphoma patients, supporting this intensified approach for eligible patients.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>NK/T淋巴瘤患者終於有希望了！提前移植真的能改善預後，這是個好消息！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>這麼激進的治療能改善預後，看來NK/T淋巴瘤真的是個慘兮兮的疾病啊。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-blood-advances">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Advances</span>
+    <span class="journal-count">6</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-20</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025018558" target="_blank" rel="noopener">Venous thromboembolism is not associated with plasmin(ogen): Re-evaluating plasmin and mechanisms that degrade fibrin</a>
+  </div>
+  <p class="article-authors">Sang Y, Shapiro A, Wolberg A</p>
+  <p class="article-summary">Contrary to conventional wisdom, reduced plasminogen activation does not predispose to venous thrombosis, challenging the long-held paradigm that the plasmin system is essential for preventing thromboembolism.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太刺激了！這篇論文直接推翻了我們教科書裡的老古董理論，真的很解氣！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以我們之前對著學生講了十年的plasmin故事，原來都是在唱空城計？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-28</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020691" target="_blank" rel="noopener">Continuous or fixed-duration BTK inhibitor treatment for WM</a>
+  </div>
+  <p class="article-authors">Yi S, Qiu L</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-28</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025017073" target="_blank" rel="noopener">American Society of Hematology 2026 guidelines on diagnosis of light chain amyloidosis</a>
+  </div>
+  <p class="article-authors">Kukreti V, Seftel M, Aguirre M, Azzam M et al.</p>
+  <p class="article-summary">The ASH 2026 guidelines provide updated diagnostic criteria and recommendations for light chain amyloidosis, emphasizing the importance of timely and accurate diagnosis to prevent irreversible organ damage.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有新指南了！這下我們可以更快速準確地揪出那些狡猾的澱粉樣蛋白患者！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又是一份新指南要背，不過至少這次是官方認證的，偷懶不了啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-28</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025017237" target="_blank" rel="noopener">Clinical features of systemic amyloidosis: a scoping review</a>
+  </div>
+  <p class="article-authors">Cook J, Shaikh H, Azzam M, Aguirre M et al.</p>
+  <p class="article-summary">This scoping review highlights the diagnostic challenges of systemic amyloidosis due to vague, nonspecific symptoms that mimic other disorders, often resulting in late diagnosis with irreversible organ damage.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>這篇綜述把澱粉樣變性的狡猾本質寫得淋漓盡致，真的值得一讀！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以說，澱粉樣變性就是醫學界的偽裝大師，專門來為難我們診斷醫生。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-28</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025017533" target="_blank" rel="noopener">LyP vs advanced-stage CTCLs: single-cell profiling reveals markers of self-limited vs aggressive disease behavior</a>
+  </div>
+  <p class="article-authors">Meledathu S, Chennareddy S, Naidu M, Meehan S et al.</p>
+  <p class="article-summary">Single-cell RNA sequencing reveals distinct molecular markers differentiating self-limited lymphomatoid papulosis from aggressive cutaneous T-cell lymphomas, providing insights into disease behavior.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>單細胞測序真的是解開淋巴瘤秘密的金鑰匙，這些標記物超有前景！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>花這麼多錢做單細胞測序，就為了分出誰乖誰壞，效費比感覺一般般。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-28</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025019280" target="_blank" rel="noopener">Successful gene therapy for transfusion-dependent α-thalassemia: a case report</a>
+  </div>
+  <p class="article-authors">Yin X, Qian L, Dong G, Chen Y et al.</p>
+  <p class="article-summary">First-in-human lentiviral α-globin gene therapy successfully treated a 14-year-old girl with transfusion-dependent α-thalassemia HbH disease, offering hope for gene therapy in severe thalassemia.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>天啊！基因治療終於在地中海貧血這裡開花結果了，這是個歷史時刻！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>一個病例就敢叫「成功」，不過如果真的能擺脫輸血，那確實值得吹噓一下。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-clinical-lymphoma-myeloma-leukemia">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Clinical Lymphoma Myeloma &amp; Leukemia</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.clml.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.07.009" target="_blank" rel="noopener">Geographic Variation and Inequities in Burden and Access to CAR T-Cell Therapies for Multiple Myeloma in the US</a>
+  </div>
+  <p class="article-authors">Blue B, ElHabr A, Derman B, Ray A et al.</p>
+  <p class="article-summary">Geographic analysis reveals significant disparities in CAR-T cell therapy access for multiple myeloma across the US, with certain regions having substantially limited availability despite clinical benefits.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>這篇論文戳中了醫療不平等的痛點，我們真的需要想辦法縮小這些差距！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又是老生常談的醫療不平等問題，光說沒用，誰來真正解決這些地區差異呢？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.clml.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.07.007" target="_blank" rel="noopener">Treatment modalities and the impact of granulocyte colony-stimulating factor in AML patients treated with venetoclax and azacitidine: A DATAML registry study</a>
+  </div>
+  <p class="article-authors">Lapierre L, Laemmel L, Bérard E, Rigolot L et al.</p>
+  <p class="article-summary">Real-world data from the DATAML registry shows that AML patients treated with azacitidine-venetoclax have variable outcomes influenced by treatment modalities and G-CSF use, often underperforming the registration trial results.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>真實世界的數據終於來了！這樣我們就知道診所裡實際情況到底怎樣！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>原來我們診所的療效這麼差，不是因為我們菜，而是因為現實就是這麼殘酷啊。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-hemasphere">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">HemaSphere</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1002/hem3.70439</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/hem3.70439" target="_blank" rel="noopener">Combined inhibition of de novo pyrimidine synthesis and ATR promotes ATF4‐mediated cell death in TP53 ‐deficient ALL</a>
+  </div>
+  <p class="article-authors">Grünewald K, Kes M, Stoll G, Cox W et al.</p>
+  <p class="article-summary">Combined inhibition of de novo pyrimidine synthesis and ATR checkpoint signaling triggers ATF4-mediated apoptosis in TP53-deficient ALL cells, offering a novel therapeutic strategy for this high-risk population.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>針對p53缺失型急淋的新策略出現了，這個組合拳感覺威力十足！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又是一個聯合療法，不知道臨床上會不會太毒了，畢竟ALL患者都是小朋友啊。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1002/hem3.70415</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/hem3.70415" target="_blank" rel="noopener">The tale of a transposition error</a>
+  </div>
+  <p class="article-authors">Hibbs S</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-transplantation-and-cellular-therapy">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Transplantation and Cellular Therapy</span>
+    <span class="journal-count">3</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtct.2026.06</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.06.053" target="_blank" rel="noopener">A Simplified Frailty Score Predicts Outcomes in Newly Diagnosed Multiple Myeloma Patients Undergoing Upfront Autologous Hematopoietic Stem Cell Transplantation</a>
+  </div>
+  <p class="article-authors">Wakefield C, Marcoux C, Milton D, Tanner M et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtct.2026.06</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.06.055" target="_blank" rel="noopener">Comment on “Poor Graft Function (PGF) Following In Vivo T Cell-depleted Allogeneic Stem Cell Transplantation: The Role of Delayed Immune Reconstitution”</a>
+  </div>
+  <p class="article-authors">Zhu Y, Tian S</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtct.2026.06</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.06.047" target="_blank" rel="noopener">Harnessing the Power of Two: High-Dose Stem Cell Haploidentical Transplant in Hematologic Malignancies: A Prospective Trial</a>
+  </div>
+  <p class="article-authors">Bi X, Gattas B, Grosso D, Alpdogan O et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-07-21 01:21 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · Springer RSS · CrossRef API
+</footer>
+</body>
+</html>
