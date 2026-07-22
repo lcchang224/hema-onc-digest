@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-07-22</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-07-22 01:19 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>14</b> articles</span>
+  <span>📚 <b>5</b> journals</span>
+  <span>⏱ Past <b>24h</b></span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-blood-advances">Blood Advances <span style="opacity:.6">(8)</span></a><a href="#j-blood-cancer-discovery">Blood Cancer Discovery <span style="opacity:.6">(1)</span></a><a href="#j-british-journal-of-haematology">British Journal of Haematology <span style="opacity:.6">(2)</span></a><a href="#j-journal-of-thrombosis-and-haemostasis">Journal of Thrombosis and Haemostasis <span style="opacity:.6">(1)</span></a><a href="#j-transplantation-and-cellular-therapy">Transplantation and Cellular Therapy <span style="opacity:.6">(2)</span></a></div>
+</div>
+<div class="journal-section" id="j-blood-advances">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Advances</span>
+    <span class="journal-count">8</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-21</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020732" target="_blank" rel="noopener">Genetic and Laboratory Predictors of Bleeding Severity in FVII Deficiency: Insights from PRO-RBDD and EN-RBD Databases</a>
+  </div>
+  <p class="article-authors">Mohsenian S, Cairo A, Palla R, Menegatti M et al.</p>
+  <p class="article-summary">FVII coagulant activity levels and genetic variants show limited discriminative ability for predicting bleeding severity in Factor VII deficiency, highlighting the complexity of genotype-phenotype correlations in this rare bleeding disorder.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有人認真研究FVII了，這些基因變異的故事一定超精彩！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>看來我們還是得靠水晶球預測出血程度，基因組學也救不了我們。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-21</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020655" target="_blank" rel="noopener">Chronic graft vs. host disease following post-transplant cyclophosphamide (PTCy) based prophylaxis vs. non-PTCy prophylaxis</a>
+  </div>
+  <p class="article-authors">Pidala J, Kim J, Laborde J, Knott S et al.</p>
+  <p class="article-summary">Chronic GVHD develops less frequently after post-transplant cyclophosphamide (PTCy) prophylaxis compared to non-PTCy approaches, though the clinical characteristics of PTCy-related chronic GVHD warrant further investigation.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>PTCy真的是移植預防的救星，減少慢性GVHD的發生率根本是大贏！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以PTCy就是魔法藥水？那我們之前幾十年都在做什麼呢？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-21</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026019933" target="_blank" rel="noopener">Performance of Western HA-VTE Risk Models in East Asian Populations: A Prospective Multicenter Study</a>
+  </div>
+  <p class="article-authors">Li M, Duan Y, Chen Z, Li J et al.</p>
+  <p class="article-summary">Western-developed venous thromboembolism risk prediction models show variable performance in East Asian hospital populations, suggesting the need for population-specific validation or model refinement.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有人檢驗這些預測模型在亞洲人身上是否真的好用，跨文化研究萬歲！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>原來西方模型在東方也水土不服，果然一體適用的醫學真的不存在。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-21</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026019843" target="_blank" rel="noopener">Evolution of Real-World Front-Line Treatment Patterns in Multiple Myeloma</a>
+  </div>
+  <p class="article-authors">Lazzaro A, Nannini K, Yildirim C, Huhmann L et al.</p>
+  <p class="article-summary">Multiple myeloma treatment patterns have evolved dramatically with expanding FDA approvals, showing improved survival trends and variable adoption of novel agents across clinical practice.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>MM的治療選項爆炸性增長，患者的希望也跟著水漲船高，真的太令人振奮了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>新藥這麼多，醫生現在選藥時一定眼花撩亂，感覺complexity才是真正的敵人。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-21</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026019670" target="_blank" rel="noopener">Long-acting pegylated Interferon Gamma (pegIFNG) sensitizes AML cells to killing by donor T cells.</a>
+  </div>
+  <p class="article-authors">Basu V, Mannino G, Mpofu L, Struthers H et al.</p>
+  <p class="article-summary">Pegylated interferon-gamma restores MHC class II expression on AML cells and enhances their susceptibility to donor T cell-mediated killing, offering a potential strategy to prevent AML relapse post-transplant.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>pegIFNG喚醒AML細胞的「身份證」讓T細胞認出來，這個免疫升級真的天才！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>只要加點IFN就能解決MHC-II loss的問題，那為什麼我們不早點想到呢？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-21</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025018580" target="_blank" rel="noopener">Selinexor Combined With R-CHOP Achieved a High Response Rate in Newly Diagnosed Double/Triple Hit Lymphoma</a>
+  </div>
+  <p class="article-authors">Li C, Chen X, Xu J, Lei T et al.</p>
+  <p class="article-summary">Selinexor combined with R-CHOP achieves high response rates in newly diagnosed double/triple-hit lymphoma, presenting a promising first-line therapy for this aggressive malignancy.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>S-RCHOP在DH/THL患者身上的反應率超高，這個組合真的是強強聯手！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>看來搞死XPO1就能搞定DH/THL了，那就是說以前我們都沒搞對方向囉。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-21</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025017791" target="_blank" rel="noopener">Donor-Targeted Anti-HLA-A2 Antibody Shows Nanogram-Level Efficacy in a Novel GVHD Mouse Model</a>
+  </div>
+  <p class="article-authors">Niizuma K, Chang A, Okamoto Y, Kim J et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-21</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025018733" target="_blank" rel="noopener">In vivo and ex vivo impact of THBD and PROCR polymorphisms on the anticoagulant response of the protein C pathway</a>
+  </div>
+  <p class="article-authors">Reda S, Schwarz N, Eckert S, Müller J et al.</p>
+  <p class="article-summary">THBD and PROCR gene polymorphisms significantly modulate the anticoagulant response of the protein C pathway both in vivo and ex vivo, contributing to individual variation in VTE risk.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>THBD和PROCR多態性影響蛋白C通路的效率，這些基因變異真的是血栓形成的幕後黑手！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又發現了兩個基因變異，但距離真正解釋遺傳性血栓風險還是差十萬八千里。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-blood-cancer-discovery">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Cancer Discovery</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-21</span><span class="badge">DOI: 10.1158/2643-3230.bcd-</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1158/2643-3230.bcd-25-0498" target="_blank" rel="noopener">The Nicotinamide Salvage Pathway is a Metabolic Vulnerability of High-Risk MDS Stem Cells</a>
+  </div>
+  <p class="article-authors">Patel S, Moskop D, Moreira S, Gipson S et al.</p>
+  <p class="article-summary">High-risk MDS stem cells exhibit metabolic vulnerability through dependence on the nicotinamide salvage pathway, providing a potential therapeutic target for improving outcomes in HR-MDS.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>菸鹼醯胺代謝途徑是HR-MDS幹細胞的致命弱點，這個發現可能改寫治療策略！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又發現了一個代謝弱點，但真正把它變成有效藥物恐怕還需要再等五年。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-british-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">British Journal of Haematology</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-21</span><span class="badge">DOI: 10.1111/bjh.70709</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70709" target="_blank" rel="noopener">Avatrombopag for persistent and chronic immune thrombocytopenia in children: A post hoc analysis of clinical characteristics of response from a phase 3b clinical trial</a>
+  </div>
+  <p class="article-authors">Grace R, Leblebisatan G, Aydinok Y, Unal S et al.</p>
+  <p class="article-summary">Avatrombopag demonstrates significantly higher platelet response rates compared to placebo in pediatric immune thrombocytopenia, with response being influenced by baseline clinical characteristics.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>小朋友的ITP患者用avatrombopag的反應率真的棒，終於有針對兒童ITP的好藥了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又多了一個TPO受體激動劑，我都搞不清楚eltrombopag和avatrombopag哪個更好用了。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-21</span><span class="badge">DOI: 10.1111/bjh.70704</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70704" target="_blank" rel="noopener">Prognostic significance of dynamic minimal residual disease trajectories in newly diagnosed multiple myeloma</a>
+  </div>
+  <p class="article-authors">Yu J, Chen Q, Shi M, Liu L et al.</p>
+  <p class="article-summary">Dynamic MRD trajectories during treatment, rather than single MRD timepoints, provide superior prognostic information in newly diagnosed multiple myeloma, suggesting MRD-driven therapy adjustments could optimize outcomes.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>追蹤MRD的動態變化比單一時間點更有預測力，這個追蹤策略真的靈巧！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以現在醫生還要當算命師看MRD的變化趨勢？工作量又增加了。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-journal-of-thrombosis-and-haemostasis">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Thrombosis and Haemostasis</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtha.2026.04</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.04.002" target="_blank" rel="noopener">Risk of thrombosis in adults with primary immune thrombocytopenia treated with eltrombopag vs romiplostim: a target trial emulation in the French Adult Immune Thrombocytopenia (FAITH) cohort</a>
+  </div>
+  <p class="article-authors">Zordan J, Zadro Y, Sommet A, Lapeyre-Mestre M et al.</p>
+  <p class="article-summary">Eltrombopag and romiplostim show similar thrombosis risk profiles in adults with primary immune thrombocytopenia, suggesting pharmacological differences may not significantly impact thrombotic complications despite theoretical concerns.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>eltrombopag和romiplostim在血栓風險上竟然差不多，這下醫生的藥物選擇就自由多了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>花了這麼大力氣比較兩個藥，結果發現它們血栓風險一樣，感覺有點浪費資源呢。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-transplantation-and-cellular-therapy">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Transplantation and Cellular Therapy</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtct.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.07.023" target="_blank" rel="noopener">Significance of CD34+ Cell Dose on Outcomes of Non-Myeloablative Allogeneic Hematopoietic Cell Transplantation in AML: An Analysis Stratified by MRD Status</a>
+  </div>
+  <p class="article-authors">Gang M, Othus M, Olix A, Kaur G et al.</p>
+  <p class="article-summary">Higher CD34+ cell doses in non-myeloablative allogeneic HCT improve outcomes in AML, with benefits stratified by MRD status, providing guidance for optimizing graft composition in dose-reduced transplants.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>CD34+ cell dose對非消融異體移植的AML患者真的關鍵，這下我們知道怎麼調配更好的移植物了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>原來CD34+ cell dose這麼重要，那以前低劑量移植的患者豈不是吃了大虧？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtct.2026.06</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.06.050" target="_blank" rel="noopener">System-level Redesign of an Allogeneic Hematopoietic Cell Transplantation Program Associated With High One-year Survival and Reduced Cost</a>
+  </div>
+  <p class="article-authors">Holtan S, Herr M, Mallhi K, Boersch T et al.</p>
+  <p class="article-summary">Standardized system-level redesign of an allogeneic HCT program improves one-year survival and reduces costs while minimizing preventable toxicity and non-relapse mortality.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>程序化改革讓存活率上升、成本下降，這才是真正的系統優化，太棒了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>只要把流程標準化就能同時improve survival和reduce cost，怎麼沒人早點想到？</div></div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-07-22 01:19 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · Springer RSS · CrossRef API
+</footer>
+</body>
+</html>
