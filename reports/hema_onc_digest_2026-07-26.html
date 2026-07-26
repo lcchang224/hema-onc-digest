@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-07-26</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-07-26 01:26 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>10</b> articles</span>
+  <span>📚 <b>5</b> journals</span>
+  <span>⏱ Past <b>24h</b></span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-annals-of-oncology">Annals of Oncology <span style="opacity:.6">(1)</span></a><a href="#j-clinical-lymphoma-myeloma-leukemia">Clinical Lymphoma Myeloma &amp; Leukemia <span style="opacity:.6">(2)</span></a><a href="#j-european-journal-of-haematology">European Journal of Haematology <span style="opacity:.6">(1)</span></a><a href="#j-journal-of-thrombosis-and-haemostasis">Journal of Thrombosis and Haemostasis <span style="opacity:.6">(4)</span></a><a href="#j-transplantation-and-cellular-therapy">Transplantation and Cellular Therapy <span style="opacity:.6">(2)</span></a></div>
+</div>
+<div class="journal-section" id="j-annals-of-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Annals of Oncology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.05.697" target="_blank" rel="noopener">Ovarian reserve as a measure of adjuvant chemotherapy benefit in hormone receptor positive (HR-positive), HER2-negative, node-positive breast cancer in SWOG S1007 (RxPONDER)</a>
+  </div>
+  <p class="article-authors">Kalinsky K, Barlow W, Pathak H, Puri R et al.</p>
+  <p class="article-summary">The RxPONDER trial shows that ovarian reserve (a measure of reproductive potential) predicts chemotherapy benefit in premenopausal women with HR+ HER2- breast cancer, suggesting biological differences between premenopausal and postmenopausal patients.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>用卵巢儲備量呢個巧妙嘅生物標記嚟預測邊個需要化療，真係創意十足啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>話咩卵巢儲備量，其實講穿咗都係年齡同激素狀態嘅另一種講法，咁點解唔直接講呢？</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-clinical-lymphoma-myeloma-leukemia">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Clinical Lymphoma Myeloma &amp; Leukemia</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.clml.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.07.012" target="_blank" rel="noopener">SOHO State of the Art Updates and Next Questions | Predictive Markers for Ruxolitinib in Myelofibrosis</a>
+  </div>
+  <p class="article-authors">Palandri F, Branzanti F</p>
+  <p class="article-summary">This review examines predictive biomarkers that help identify which myelofibrosis patients will benefit most from ruxolitinib therapy, a JAK1/JAK2 inhibitor that remains standard frontline treatment for intermediate and high-risk disease.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有人認真研究點解有啲病人對魯索利尼單抗反應咁好，呢啲預測標誌物真係幫到大忙啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>咁多年對付骨髓纖維化，到依家先好好研究邊啲人先係真正會受惠，係咪有啲遲呢？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.clml.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.07.010" target="_blank" rel="noopener">SOHO State of the Art Updates and Next Questions | Individualizing Treatment Selection in Myelofibrosis</a>
+  </div>
+  <p class="article-authors">Hunter A, Bose P</p>
+  <p class="article-summary">This article discusses treatment selection strategies for myelofibrosis patients by personalizing therapy based on individual disease biology and clinical features driven by JAK-STAT pathway activation.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>個性化治療方案靚到不得了，終於唔洗一刀切咁對待所有骨髓纖維化病人啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又係講個性化、又係講精準醫療，但實際病房裡還係逐個病人慢慢摸索，係咪講得比做得多啦？</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-european-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">European Journal of Haematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07-24</span><span class="badge">DOI: 10.1111/ejh.70270</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/ejh.70270" target="_blank" rel="noopener">KRAS Mutations Predict Inferior Post‐Remission Outcomes in Newly Diagnosed Acute Myeloid Leukemia With MAPK Pathway Mutations</a>
+  </div>
+  <p class="article-authors">Takaoka K, Mott S, Yodsuwan R, Saowapa S et al.</p>
+  <p class="article-summary">KRAS mutations in MAPK-mutated acute myeloid leukemia patients are associated with inferior post-remission survival and treatment resistance, identifying a high-risk molecular subset.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>搵到KRAS突變係AML嘅預後殺手，呢啲基因組數據真係寶貴啊！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又係KRAS呢隻基因惹禍，係咪全身上下都要怪佢啦，都唔知有冇得治。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-journal-of-thrombosis-and-haemostasis">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Thrombosis and Haemostasis</span>
+    <span class="journal-count">4</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtha.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.07.015" target="_blank" rel="noopener">Rab31 promotes platelet activation and arterial thrombosis via ERK–PLCβ3 signaling and regulation of CD151</a>
+  </div>
+  <p class="article-authors">Wang Y, Luo J, Liu J, Yang Q et al.</p>
+  <p class="article-summary">Rab31 protein promotes platelet activation and arterial thrombosis through ERK-PLCβ3 signaling pathway and CD151 regulation, identifying a potential therapeutic target for thrombotic disorders.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>揾到Rab31呢個細胞中嘅隱藏英雄，話佢點樣推動血小板激活，真係精采！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又係一個小分子蛋白質，又係一條長長嘅信號通路，等等先睇到藥物上市啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtha.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.07.017" target="_blank" rel="noopener">Carbon tetrachloride (CCl4)-induced liver injury activates hepatocyte-independent tissue factor-driven coagulation</a>
+  </div>
+  <p class="article-authors">Patel A, Capece G, Hazel B, Roychowdhury T et al.</p>
+  <p class="article-summary">This study reveals that CCl4-induced liver injury activates coagulation independently of hepatocytes by engaging tissue factor-driven pathways, demonstrating the importance of non-hepatocyte sources in liver injury-associated thrombosis.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>原來肝臟損傷引起嘅凝血唔係完全靠肝細胞，呢個發現超有意思啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>咁多年研究肝臟功能，依家先發現個故仔冇講完全，係咪時間浪費咗啦？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtha.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.07.019" target="_blank" rel="noopener">Acute Stress Activates Piezo1 to Drive NETs Formation and Aggravated Arterial Thrombosis.</a>
+  </div>
+  <p class="article-authors">Yu C, Liu X, Li S, Meng X et al.</p>
+  <p class="article-summary">Acute stress activates the mechanosensor protein Piezo1, which drives neutrophil extracellular trap (NET) formation and exacerbates arterial thrombosis through neuro-immune signaling.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>壓力大會引發血栓，個中機制涉及Piezo1同NETs，真係身心一體啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又係壓力、又係免疫、又係血栓，咁多啲嘢疊埋一齊，臨床上點樣分得開呀？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtha.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.07.007" target="_blank" rel="noopener">Internal lysis of contracted clots is accelerated by fiber alignment and bundling</a>
+  </div>
+  <p class="article-authors">Risman R, Iungbliudt E, Packard J, Novikov I et al.</p>
+  <p class="article-summary">Fiber alignment and bundling during clot contraction accelerate internal fibrinolysis but restrict external thrombolytic agent penetration, revealing mechanical factors that regulate clot dissolution.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>血凝塊收縮嗰陣纖維對齊咗，原來對內部溶栓咁有幫助，機械學問咁深呀！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>查咗半日原來都係物理問題，咁多生物學家研究凝血，有冇人諗過問工程師呢？</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-transplantation-and-cellular-therapy">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Transplantation and Cellular Therapy</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtct.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.07.022" target="_blank" rel="noopener">Exercise Duration During a Brief Step Test Independently Predicts Outcomes After Hematopoietic Cell Transplantation</a>
+  </div>
+  <p class="article-authors">Zhang Z, Torghabeh M, Hogan W, Alkhateeb H et al.</p>
+  <p class="article-summary">A simple 3-minute step exercise test, specifically exercise duration measured during pre-transplant assessment, independently predicts outcomes after hematopoietic cell transplantation better than traditional pulmonary function tests alone.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>原來一個簡單嘅三分鐘踩樓梯測試就能預測造血幹細胞移植嘅成敗，咁平靚正啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>費盡心機做緊傳統肺功能檢查，結果一個踩樓梯就贏咗，係咪之前都係做緊多餘嘢呀？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-07</span><span class="badge">DOI: 10.1016/j.jtct.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.07.018" target="_blank" rel="noopener">Eligibility Matched Benchmarking of Second-Line Anti-CD19 CAR-T and Glofit-GemOx (STARGLO) Outcomes in Large B-Cell Lymphoma.</a>
+  </div>
+  <p class="article-authors">Fridberg G, Amit O, Ganayem M, Perry C et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-07-26 01:26 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · Springer RSS · CrossRef API
+</footer>
+</body>
+</html>
