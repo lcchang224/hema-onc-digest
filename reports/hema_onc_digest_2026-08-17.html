@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-08-17</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-08-17 00:30 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>12</b> articles</span>
+  <span>📚 <b>5</b> journals</span>
+  <span>⏱ Past <b>24h</b></span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-british-journal-of-haematology">British Journal of Haematology <span style="opacity:.6">(2)</span></a><a href="#j-european-journal-of-haematology">European Journal of Haematology <span style="opacity:.6">(1)</span></a><a href="#j-journal-of-thrombosis-and-haemostasis">Journal of Thrombosis and Haemostasis <span style="opacity:.6">(1)</span></a><a href="#j-lancet-oncology">Lancet Oncology <span style="opacity:.6">(2)</span></a><a href="#j-transplantation-and-cellular-therapy">Transplantation and Cellular Therapy <span style="opacity:.6">(6)</span></a></div>
+</div>
+<div class="journal-section" id="j-british-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">British Journal of Haematology</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-16</span><span class="badge">DOI: 10.1111/bjh.70749</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70749" target="_blank" rel="noopener">Effect of efgartigimod IV on immature platelet fraction in primary immune thrombocytopenia in the ADVANCE IV trial</a>
+  </div>
+  <p class="article-authors">Al‐Samkari H, Matthijssens F, Nishiwaki K, Zaja F et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-16</span><span class="badge">DOI: 10.1111/bjh.70767</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70767" target="_blank" rel="noopener">Deep molecular remission and encouraging survival without transplantation: V‐ CAG for arsenic‐resistant relapsed APL</a>
+  </div>
+  <p class="article-authors">Zhou Y, Shi T, Geng C, Huang L et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-european-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">European Journal of Haematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-16</span><span class="badge">DOI: 10.1111/ejh.70297</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/ejh.70297" target="_blank" rel="noopener">Zero Confirmed Transmissions Require a Denominator</a>
+  </div>
+  <p class="article-authors">Rodríguez López M, Alvarez Román M, Calviño Suarez M, Nuñez Vázquez R et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-journal-of-thrombosis-and-haemostasis">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Thrombosis and Haemostasis</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtha.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.08.004" target="_blank" rel="noopener">CHARACTERIZATION OF A SERIES OF PATIENTS WITH GNE-RELATED THROMBOCYTOPENIA: INSIGHTS INTO PATHOGENESIS, DIAGNOSIS, AND TREATMENT</a>
+  </div>
+  <p class="article-authors">Barozzi S, Di Buduo C, Zampieri S, Isidori F et al.</p>
+  <p class="article-summary">This study characterizes GNE-related thrombocytopenia, a rare genetic disorder from GNE variants affecting sialic acid synthesis, presenting with severe thrombocytopenia and bleeding, and proposes diagnostic and treatment approaches.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>把這麼罕見的疾病整理成一篇系統性報告，真的很有幫助，讓我們這些血液科醫生又多認識了一個稀有怪物啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>極度罕見的疾病加上診斷工具缺乏，病人想要找到答案的困難度應該堪比大海撈針吧？</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-lancet-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Lancet Oncology</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00130-0" target="_blank" rel="noopener">Single, early intravesical instillation of pirarubicin in the prevention of bladder recurrence after radical nephroureterectomy for upper tract urothelial carcinoma (JCOG1403): a multicentre, open-label, randomised, phase 3 trial</a>
+  </div>
+  <p class="article-authors">Ito A, Arai Y, Kakehi Y, Yokoyama M et al.</p>
+  <p class="article-summary">A phase 3 Japanese trial demonstrated that single early intravesical pirarubicin after radical nephroureterectomy significantly reduces bladder recurrence in upper tract urothelial carcinoma compared to control.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太棒了！用一次膀胱內灌注就能降低膀胱復發，這根本是上路癌患者的一大福音啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>一次藥物就想解決問題，感覺太樂觀了，實際臨床執行應該沒這麼簡單吧？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00144-0" target="_blank" rel="noopener">Systemic therapy, gastrectomy, cytoreductive surgery, and hyperthermic intraperitoneal chemotherapy versus systemic therapy alone for gastric cancer with limited peritoneal metastases (PERISCOPE II): final results of a multicentre, randomised, controlled, phase 3 trial after an unplanned commissioned interim analysis</a>
+  </div>
+  <p class="article-authors">Quik J, Vollebergh M, Retèl V, van der Sluis K et al.</p>
+  <p class="article-summary">The PERISCOPE II trial's final results suggest that adding cytoreductive surgery and HIPEC to systemic therapy for gastric cancer with limited peritoneal metastases did not provide significant survival benefit over systemic therapy alone.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>總算有一個大型試驗認真檢驗了HIPEC的真實效果，這種實證精神值得肯定呢！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>花這麼多力氣做手術和腹熱化療，結果跟吃藥差不多，那開刀房的同事們應該會有點失望囉。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-transplantation-and-cellular-therapy">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Transplantation and Cellular Therapy</span>
+    <span class="journal-count">6</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtct.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.08.019" target="_blank" rel="noopener">Clinical relevance of TCI score-based refinement of conditioning intensity in cord blood transplantation for myelodysplastic syndrome</a>
+  </div>
+  <p class="article-authors">Fujioka M, Itonaga H, Miyazaki Y, Shimomura Y et al.</p>
+  <p class="article-summary">Using the TCI (Transplant Conditioning Intensity) score to refine conditioning intensity in cord blood transplantation for MDS patients demonstrates differential outcomes and optimizes transplant strategy selection.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>根據TCI分數客製化移植前準備強度，根本是精準醫療的好示範，替臍帶血移植患者增加了選擇啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又一個新的分數系統要背，臨床醫生的腦容量看來真的得升級了喔。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtct.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.08.026" target="_blank" rel="noopener">Timing of Allogeneic Hematopoietic Cell Transplantation After Inotuzumab Ozogamicin Influences Sinusoidal Obstruction Syndrome and Survival in Relapsed/Refractory B-ALL</a>
+  </div>
+  <p class="article-authors">Balaguer-Roselló A, Javier E, Martínez-Cibrian N, Montoro J et al.</p>
+  <p class="article-summary">The timing of allogeneic HCT after inotuzumab ozogamicin significantly influences post-transplant sinusoidal obstruction syndrome risk and overall survival in relapsed/refractory B-ALL patients.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於找到了InO和移植間隔時間的最佳平衡點，這對復發難治B-ALL患者來說真的是及時雨耶！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>感覺就是在玩時間拿捏遊戲，選錯時間點就容易發生SOS，臨床執行的難度應該不低嘛。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtct.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.08.012" target="_blank" rel="noopener">Epigenetic Priming with Azacitidine Prior to Allogeneic Hematopoietic Stem Cell Transplantation for Myeloid Malignancies</a>
+  </div>
+  <p class="article-authors">Alhomoud M, Tokumori F, Chokr N, Fein J et al.</p>
+  <p class="article-summary">Pre-transplant epigenetic priming with azacitidine prior to allogeneic HCT for high-risk myeloid malignancies shows promise in reducing post-transplant relapse by targeting epigenetic dysregulation.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>用azacitidine先做epigenetic預處理來降低復發，這個創新策略根本是在打造移植前的防火牆啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又多一個移植前要做的事，患者光是排隊檢查可能就要花不少時間，簡化流程什麼時候才輪得上呢？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtct.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.08.021" target="_blank" rel="noopener">Early Mortality and Conditional Long-Term Survival After Adult Umbilical Cord Blood Transplantation: A 1-Year Landmark Analysis</a>
+  </div>
+  <p class="article-authors">Akbari A, Braun M, Chao N, Horwitz M et al.</p>
+  <p class="article-summary">A landmark analysis of adult umbilical cord blood transplantation reveals that while early mortality is substantial, conditional long-term survival for those surviving the initial high-risk period is more favorable than conventional estimates suggest.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>原來只要挺過前面那段高風險期，成人臍帶血移植患者的長期預後其實還不錯嘛，這個發現很鼓舞人心呢！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>這等於是在說「只要不死就活得滿久的」，廢話文學的最佳示範吧？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtct.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.08.025" target="_blank" rel="noopener">Dengue Fever in Patients with Hematological Malignancies and Hematopoietic Stem Cell Transplantation Recipients: Clinical Characteristics and Outcomes</a>
+  </div>
+  <p class="article-authors">Brandão L, Cortez A, Balthazar J, Chaves H et al.</p>
+  <p class="article-summary">Dengue fever in immunocompromised patients including those with hematological malignancies and HCT recipients shows distinct clinical characteristics and outcomes compared to immunocompetent populations.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>把登革熱在血液惡性腫瘤和移植患者的表現整理出來，幫我們這些免疫不全患者的醫師補了一堂重要課程啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>台灣登革熱每年都在流行，偏偏免疫不全患者最容易中招但資訊最少，這篇文章來得真是時候囉。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtct.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.08.027" target="_blank" rel="noopener">Incidence of Human Leukocyte Antigen (HLA) Class I Antibodies and Impact on Platelet Engraftment, Transfusions and Bleeding in Recipients of Gene Therapy for Sickle Cell Disease and Transfusion Dependent Beta Thalassemia</a>
+  </div>
+  <p class="article-authors">Frangoul H, McManus M, Carroll C, Fossey S et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-08-17 00:30 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · Springer RSS · CrossRef API
+</footer>
+</body>
+</html>
