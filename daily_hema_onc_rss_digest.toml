@@ -36,17 +36,10 @@
   name = "npj Precision Oncology (Nature)"
   url  = "https://www.nature.com/npjprecisiononcology/articles.rss"
 
-  [[rss.feeds]]
-  name = "Annals of Hematology (Springer)"
-  url  = "https://link.springer.com/search.rss?facet-journal-id=277&channel-name=Annals+of+Hematology"
-
-  [[rss.feeds]]
-  name = "International Journal of Hematology (Springer)"
-  url  = "https://link.springer.com/search.rss?facet-journal-id=12185&channel-name=International+Journal+of+Hematology"
-
-  [[rss.feeds]]
-  name = "Journal of Hematology & Oncology (BMC)"
-  url  = "https://jhoonline.biomedcentral.com/articles/most-recent/rss.xml"
+  # Annals of Hematology, International Journal of Hematology and
+  # Journal of Hematology & Oncology used to be fetched here. All three
+  # endpoints now answer HTTP 200 with an empty feed, so they silently
+  # contributed nothing. They are fetched via CrossRef below instead.
 
   [[rss.feeds]]
   name = "NEJM Hematology-Oncology"
@@ -58,7 +51,12 @@
   # url  = "https://pubmed.ncbi.nlm.nih.gov/rss/search/1L5AT7N6rGvBm3-KX3KlG8UZrXSOhP8AGNCuYYH-ucz8SijUCJ/?limit=50&utm_campaign=pubmed-2&fc=20240727041330"
 
   [rss.content_rules]
-  filter_window_hours = 24
+  # Must exceed 24h. The workflow is scheduled for 00:00 UTC but GitHub Actions
+  # queues it (observed ~30 min late), and several publishers stamp articles
+  # with a date only, which parses as 00:00 UTC. With a flat 24h window those
+  # articles land just below the cutoff on every run and are never picked up.
+  # The extra 4h is the overlap buffer; the seen-DOI ledger absorbs repeats.
+  filter_window_hours = 28
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CrossRef API  (bypasses Cloudflare — fetches by ISSN)
@@ -152,3 +150,16 @@ issn = "2572-9241"
 [[crossref.journals]]
 name = "Transplantation and Cellular Therapy"
 issn = "2666-6367"
+
+# ── Springer / BMC (moved here from [rss]; those feed URLs are retired) ──────
+[[crossref.journals]]
+name = "Annals of Hematology"
+issn = "1432-0584"
+
+[[crossref.journals]]
+name = "International Journal of Hematology"
+issn = "1865-3774"
+
+[[crossref.journals]]
+name = "Journal of Hematology & Oncology"
+issn = "1756-8722"

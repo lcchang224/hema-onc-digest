@@ -2,8 +2,8 @@
 """
 generate_digest.py
 ==================
-Fetches hematology/oncology journal articles from RSS (Nature/Springer)
-and CrossRef API, filters to the past 28 hours, optionally summarises
+Fetches hematology/oncology journal articles from RSS (Nature, NEJM)
+and the CrossRef API, filters to a recent lookback window, optionally summarises
 each article via Claude API, and renders a mobile-friendly responsive
 HTML report. The report is published to digest.lcchema.cc via CF Pages.
 
@@ -69,11 +69,19 @@ PUBMED_ESEARCH  = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 PUBMED_EFETCH   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 PUBMED_BATCH    = 50          # DOIs per esearch query
 RSS_TIMEOUT     = 20
-CROSSREF_TIMEOUT= 30
+CROSSREF_TIMEOUT= 60
 ELSEVIER_TIMEOUT= 25
 PUBMED_TIMEOUT  = 30
 CLAUDE_MODEL    = "claude-haiku-4-5-20251001"
 CHUNK_SIZE      = 30                        # articles per Claude call
+
+# CrossRef paging bounds. See fetch_crossref for why paging is needed at all.
+CROSSREF_PAGE_ROWS = 200                    # rows=1000 times out on deep paging
+CROSSREF_MAX_PAGES = 8                      # safety bound: 1600 works per journal
+CROSSREF_PUB_FLOOR = 14                     # days: oldest publication date accepted
+
+SEEN_DOIS_FILE  = _SCRIPT_DIR / "manifests" / "seen_dois.json"
+SEEN_DOIS_TTL   = 21                        # days to remember a DOI
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -103,6 +111,14 @@ def fetch_rss_feed(feed: dict, cutoff: datetime) -> list[dict]:
         print(f"  [WARN] RSS '{name}': {exc}", file=sys.stderr)
         return []
 
+    if not parsed.entries:
+        # HTTP 200 with an empty feed is how a retired feed URL fails. Without
+        # this warning the journal just silently stops appearing in the digest.
+        print(f"  [WARN] RSS '{name}': feed returned 0 entries "
+              f"(HTTP {resp.status_code}) - endpoint may be retired",
+              file=sys.stderr)
+        return []
+
     articles = []
     for entry in parsed.entries:
         pub = _entry_datetime(entry)
@@ -121,41 +137,125 @@ def fetch_rss_feed(feed: dict, cutoff: datetime) -> list[dict]:
     return articles
 
 
+def _indexed_dt(item: dict):
+    """Parse a CrossRef item's index timestamp; None when unavailable."""
+    raw = item.get("indexed", {}).get("date-time", "")
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except Exception:
+        return None
+
+
+def _crossref_pub_dt(item: dict):
+    """Return (datetime, display_string) for a CrossRef item's publication date.
+
+    CrossRef often deposits partial dates. Year+month only is treated as the
+    last day of that month so current-month articles are not wrongly excluded
+    by the floor check. Returns (None, "") when no usable date is present."""
+    dp = item.get("published", {}).get("date-parts", [[]])
+    if not dp or not dp[0] or not dp[0][0]:
+        return None, ""
+    parts = dp[0]
+    year  = parts[0]
+    month = parts[1] if len(parts) > 1 else 1
+    day   = parts[2] if len(parts) > 2 else 1
+    try:
+        if len(parts) >= 3:
+            pub_dt = datetime(year, month, day, tzinfo=timezone.utc)
+        else:
+            next_m = month % 12 + 1
+            next_y = year + (1 if month == 12 else 0)
+            pub_dt = datetime(next_y, next_m, 1, tzinfo=timezone.utc) - timedelta(days=1)
+    except Exception:
+        pub_dt = None
+    return pub_dt, "-".join(str(p).zfill(2) for p in parts)
+
+
+def _crossref_page(client, filt: str, cutoff: datetime, email: str,
+                   journal_name: str) -> tuple[list[dict], bool]:
+    """Page a CrossRef filter, index-date descending, until the index date
+    drops below *cutoff*. Returns (items, reached_cutoff)."""
+    items: list[dict] = []
+    cursor = "*"
+    reached = False
+    for _ in range(CROSSREF_MAX_PAGES):
+        params = {
+            "filter": filt,
+            "rows":   CROSSREF_PAGE_ROWS,
+            "sort":   "indexed",
+            "order":  "desc",
+            "cursor": cursor,
+            "mailto": email,
+            "select": "DOI,title,author,published,abstract,URL,indexed,type",
+        }
+        resp = client.get(CROSSREF_BASE, params=params)
+        resp.raise_for_status()
+        message = resp.json().get("message", {})
+        page = message.get("items", [])
+        if not page:
+            reached = True
+            break
+        items.extend(page)
+
+        # Sorted by index date descending: once the last item on a page
+        # predates the cutoff, every later item does too.
+        last_dt = _indexed_dt(page[-1])
+        if last_dt is not None and last_dt < cutoff:
+            reached = True
+            break
+        cursor = message.get("next-cursor")
+        if not cursor:
+            reached = True
+            break
+
+    if not reached:
+        print(f"  [WARN] CrossRef '{journal_name}': stopped at the "
+              f"{CROSSREF_MAX_PAGES}-page bound after {len(items)} works without "
+              f"reaching the cutoff; some articles may be missed", file=sys.stderr)
+    return items, reached
+
+
 def fetch_crossref(journal: dict, cutoff: datetime,
                    rows: int, email: str) -> list[dict]:
-    """Fetch recent works from CrossRef by ISSN; filter to after *cutoff*."""
-    from_date = (cutoff - timedelta(hours=1)).strftime("%Y-%m-%d")
-    params = {
-        "filter":  f"issn:{journal['issn']},from-index-date:{from_date}",
-        "rows":    rows,
-        "sort":    "indexed",
-        "order":   "desc",
-        "mailto":  email,
-        "select":  "DOI,title,author,published,abstract,URL,indexed,type",
-    }
+    """Fetch recent works from CrossRef by ISSN; filter to after *cutoff*.
+
+    Publishers re-index back-catalogue in bulk, so a recent index date is not
+    evidence of a recent article: Blood alone had ~4,500 works re-indexed over
+    three days, nearly all published years earlier. Taking a single small page
+    of the index-date-sorted result set therefore returns only re-indexed
+    legacy articles, which the publication-date floor then discards, leaving
+    nothing at all for the highest-churn journals.
+
+    Two paths are used. Where the publisher deposits a usable publication date,
+    filtering on it server-side shrinks the result set to a handful of works.
+    Elsevier and Lippincott titles do not answer that filter (it matches none
+    of their recent articles), so for those we page the index-date window and
+    apply the floor locally."""
+    from_index = (cutoff - timedelta(hours=1)).strftime("%Y-%m-%d")
+    pub_date_floor = cutoff - timedelta(days=CROSSREF_PUB_FLOOR)
+    from_pub = pub_date_floor.strftime("%Y-%m-%d")
+    base = f"issn:{journal['issn']},from-index-date:{from_index},type:journal-article"
+
     try:
         with httpx.Client(timeout=CROSSREF_TIMEOUT) as client:
-            resp = client.get(CROSSREF_BASE, params=params)
-            resp.raise_for_status()
-        data = resp.json()
+            raw_items, _ = _crossref_page(
+                client, f"{base},from-pub-date:{from_pub}", cutoff, email, journal["name"])
+            if not raw_items:
+                # Publisher does not answer the publication-date filter (or has
+                # genuinely published nothing). Fall back to the index-date
+                # window and filter locally.
+                raw_items, _ = _crossref_page(
+                    client, base, cutoff, email, journal["name"])
     except Exception as exc:
         print(f"  [WARN] CrossRef '{journal['name']}': {exc}", file=sys.stderr)
         return []
 
-    # CrossRef re-indexes old articles when publishers update metadata.
-    # 30-day floor blocks decade-old re-indexed articles while still allowing
-    # genuinely recent papers. For partial dates (year+month only) we use the
-    # last day of that month so April articles aren't wrongly excluded.
-    pub_date_floor = cutoff - timedelta(days=14)
-
     articles = []
-    for item in data.get("message", {}).get("items", []):
+    for item in raw_items:
         # ── Indexed-date filter ───────────────────────────────────────────────
-        idx_str = item.get("indexed", {}).get("date-time", "")
-        try:
-            indexed_dt = datetime.fromisoformat(idx_str.replace("Z", "+00:00"))
-        except Exception:
-            indexed_dt = cutoff  # unknown → treat as borderline, let pub-date decide
+        indexed_dt = _indexed_dt(item)
+        if indexed_dt is None:
+            indexed_dt = cutoff  # unknown -> treat as borderline, let pub-date decide
         if indexed_dt < cutoff:
             continue
 
@@ -164,28 +264,9 @@ def fetch_crossref(journal: dict, cutoff: datetime,
             continue
 
         # ── Publication-date filter (guards against re-indexed legacy articles) ─
-        dp = item.get("published", {}).get("date-parts", [[]])
-        pub_str = ""
-        if dp and dp[0]:
-            parts_list = dp[0]
-            year  = parts_list[0] if len(parts_list) > 0 else None
-            month = parts_list[1] if len(parts_list) > 1 else 1
-            day   = parts_list[2] if len(parts_list) > 2 else 1
-            if year:
-                try:
-                    if len(parts_list) >= 3:
-                        pub_dt = datetime(year, month, day, tzinfo=timezone.utc)
-                    else:
-                        # Year+month only: assume end of that month so current-month
-                        # articles aren't wrongly excluded by the floor check.
-                        next_m = month % 12 + 1
-                        next_y = year + (1 if month == 12 else 0)
-                        pub_dt = datetime(next_y, next_m, 1, tzinfo=timezone.utc) - timedelta(days=1)
-                    if pub_dt < pub_date_floor:
-                        continue
-                except Exception:
-                    pass
-            pub_str = "-".join(str(p).zfill(2) for p in parts_list)
+        pub_dt, pub_str = _crossref_pub_dt(item)
+        if pub_dt is not None and pub_dt < pub_date_floor:
+            continue
         if not pub_str:
             pub_str = indexed_dt.strftime("%Y-%m-%d")
 
@@ -874,6 +955,44 @@ def _extract_doi(entry) -> str:
     return ""
 
 
+def _article_key(a: dict) -> str:
+    """Stable identity for cross-run deduplication."""
+    doi = (a.get("doi") or "").strip().lower()
+    return doi if doi else "title:" + _slug(a.get("title", ""))[:120]
+
+
+def load_seen_dois() -> dict:
+    """Load the cross-run ledger of article keys already sent.
+
+    The lookback window overlaps consecutive runs on purpose, so without this
+    an article near the boundary is reported two days running."""
+    try:
+        with open(SEEN_DOIS_FILE, encoding="utf-8") as fh:
+            data = json.load(fh)
+        return data if isinstance(data, dict) else {}
+    except FileNotFoundError:
+        return {}
+    except Exception as exc:
+        print(f"  [WARN] could not read {SEEN_DOIS_FILE.name}: {exc} - "
+              f"starting a fresh ledger", file=sys.stderr)
+        return {}
+
+
+def save_seen_dois(seen: dict, articles: list[dict], today: datetime) -> None:
+    """Record this run's keys and drop entries older than SEEN_DOIS_TTL days."""
+    stamp = today.strftime("%Y-%m-%d")
+    for a in articles:
+        seen[_article_key(a)] = stamp
+    floor = (today - timedelta(days=SEEN_DOIS_TTL)).strftime("%Y-%m-%d")
+    pruned = {k: v for k, v in seen.items() if v >= floor}
+    try:
+        SEEN_DOIS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        SEEN_DOIS_FILE.write_text(
+            json.dumps(pruned, indent=0, sort_keys=True), encoding="utf-8")
+    except Exception as exc:
+        print(f"  [WARN] could not write {SEEN_DOIS_FILE.name}: {exc}", file=sys.stderr)
+
+
 def _slug(s: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
 
@@ -890,12 +1009,15 @@ def main() -> None:
                         help=f"TOML config path (default: {DEFAULT_CONFIG})")
     parser.add_argument("--output",  default=str(DEFAULT_OUTPUT),
                         help=f"Output directory (default: {DEFAULT_OUTPUT})")
-    parser.add_argument("--hours",   type=int, default=DEFAULT_HOURS,
-                        help=f"Lookback window in hours (default: {DEFAULT_HOURS})")
+    parser.add_argument("--hours",   type=int, default=None,
+                        help=f"Lookback window in hours "
+                             f"(default: config value, else {DEFAULT_HOURS})")
     parser.add_argument("--no-ai",   action="store_true",
                         help="Skip Claude AI summaries")
     parser.add_argument("--demo",    action="store_true",
                         help=f"Use {DEMO_HOURS}h window to ensure articles for demo")
+    parser.add_argument("--no-ledger", action="store_true",
+                        help="Ignore and do not update the cross-run seen-DOI ledger")
     args = parser.parse_args()
 
     # ── Load config ──────────────────────────────────────────────────────────
@@ -909,7 +1031,7 @@ def main() -> None:
     toml_hours = (cfg.get("rss", {})
                      .get("content_rules", {})
                      .get("filter_window_hours", DEFAULT_HOURS))
-    hours = DEMO_HOURS if args.demo else (args.hours if args.hours != DEFAULT_HOURS else toml_hours)
+    hours = DEMO_HOURS if args.demo else (args.hours if args.hours is not None else toml_hours)
     run_at = datetime.now(timezone.utc)
     cutoff = run_at - timedelta(hours=hours)
     print(f"\n{'='*60}")
@@ -958,6 +1080,16 @@ def main() -> None:
         print(f"  Deduplicated: {len(all_articles)} → {len(deduped)} articles")
     all_articles = deduped
 
+    # ── Cross-run dedup: drop what a previous run already reported ───────────
+    seen_ledger: dict = {} if args.no_ledger else load_seen_dois()
+    if seen_ledger:
+        before = len(all_articles)
+        all_articles = [a for a in all_articles
+                        if _article_key(a) not in seen_ledger]
+        if len(all_articles) < before:
+            print(f"  Already reported in a previous run: "
+                  f"{before - len(all_articles)} dropped")
+
     print(f"\n  Total articles collected: {len(all_articles)}")
 
     # ── Abstract backfill: PubMed first (all publishers), Elsevier fallback ──
@@ -1001,6 +1133,9 @@ def main() -> None:
     fname    = f"hema_onc_digest_{run_at.strftime('%Y-%m-%d')}.html"
     out_path = out_dir / fname
     out_path.write_text(html, encoding="utf-8")
+
+    if not args.no_ledger:
+        save_seen_dois(seen_ledger, all_articles, run_at)
 
     print(f"\n✓ Report saved → {out_path}")
     print(f"  Articles: {len(all_articles)}  |  Journals: {len(set(a['journal'] for a in all_articles))}")
