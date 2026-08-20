@@ -59,7 +59,5 @@ JCO, NEJM and the Nature titles had been contributing at or near zero.
 - Expect higher and lumpier daily volume now that batch deposits are no longer
   truncated (some journals deposit a whole issue at once). Watch the AI-summary
   token cost for a week or two.
-- The full New England Journal of Medicine ISSN is in the CrossRef list and now
-  actually returns content, most of which is general medicine rather than
-  heme/onc. The `NEJM Hematology-Oncology` RSS feed already covers the relevant
-  subset. Decide whether to keep both.
+- *(resolved 2026-08-20)* The full NEJM ISSN was dropped from the CrossRef list;
+  the `NEJM Hematology-Oncology` RSS feed covers the relevant subset.
