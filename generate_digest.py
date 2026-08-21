@@ -2,8 +2,8 @@
 """
 generate_digest.py
 ==================
-Fetches hematology/oncology journal articles from RSS (Nature/Springer)
-and CrossRef API, filters to the past 28 hours, optionally summarises
+Fetches hematology/oncology journal articles from RSS (Nature, NEJM)
+and the CrossRef API, filters to a recent lookback window, optionally summarises
 each article via Claude API, and renders a mobile-friendly responsive
 HTML report. The report is published to digest.lcchema.cc via CF Pages.
 
@@ -69,11 +69,19 @@ PUBMED_ESEARCH  = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 PUBMED_EFETCH   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 PUBMED_BATCH    = 50          # DOIs per esearch query
 RSS_TIMEOUT     = 20
-CROSSREF_TIMEOUT= 30
+CROSSREF_TIMEOUT= 60
 ELSEVIER_TIMEOUT= 25
 PUBMED_TIMEOUT  = 30
 CLAUDE_MODEL    = "claude-haiku-4-5-20251001"
 CHUNK_SIZE      = 30                        # articles per Claude call
+
+# CrossRef paging bounds. See fetch_crossref for why paging is needed at all.
+CROSSREF_PAGE_ROWS = 200                    # rows=1000 times out on deep paging
+CROSSREF_MAX_PAGES = 8                      # safety bound: 1600 works per journal
+CROSSREF_PUB_FLOOR = 14                     # days: oldest publication date accepted
+
+SEEN_DOIS_FILE  = _SCRIPT_DIR / "manifests" / "seen_dois.json"
+SEEN_DOIS_TTL   = 21                        # days to remember a DOI
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -103,6 +111,14 @@ def fetch_rss_feed(feed: dict, cutoff: datetime) -> list[dict]:
         print(f"  [WARN] RSS '{name}': {exc}", file=sys.stderr)
         return []
 
+    if not parsed.entries:
+        # HTTP 200 with an empty feed is how a retired feed URL fails. Without
+        # this warning the journal just silently stops appearing in the digest.
+        print(f"  [WARN] RSS '{name}': feed returned 0 entries "
+              f"(HTTP {resp.status_code}) - endpoint may be retired",
+              file=sys.stderr)
+        return []
+
     articles = []
     for entry in parsed.entries:
         pub = _entry_datetime(entry)
@@ -121,41 +137,125 @@ def fetch_rss_feed(feed: dict, cutoff: datetime) -> list[dict]:
     return articles
 
 
+def _indexed_dt(item: dict):
+    """Parse a CrossRef item's index timestamp; None when unavailable."""
+    raw = item.get("indexed", {}).get("date-time", "")
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except Exception:
+        return None
+
+
+def _crossref_pub_dt(item: dict):
+    """Return (datetime, display_string) for a CrossRef item's publication date.
+
+    CrossRef often deposits partial dates. Year+month only is treated as the
+    last day of that month so current-month articles are not wrongly excluded
+    by the floor check. Returns (None, "") when no usable date is present."""
+    dp = item.get("published", {}).get("date-parts", [[]])
+    if not dp or not dp[0] or not dp[0][0]:
+        return None, ""
+    parts = dp[0]
+    year  = parts[0]
+    month = parts[1] if len(parts) > 1 else 1
+    day   = parts[2] if len(parts) > 2 else 1
+    try:
+        if len(parts) >= 3:
+            pub_dt = datetime(year, month, day, tzinfo=timezone.utc)
+        else:
+            next_m = month % 12 + 1
+            next_y = year + (1 if month == 12 else 0)
+            pub_dt = datetime(next_y, next_m, 1, tzinfo=timezone.utc) - timedelta(days=1)
+    except Exception:
+        pub_dt = None
+    return pub_dt, "-".join(str(p).zfill(2) for p in parts)
+
+
+def _crossref_page(client, filt: str, cutoff: datetime, email: str,
+                   journal_name: str) -> tuple[list[dict], bool]:
+    """Page a CrossRef filter, index-date descending, until the index date
+    drops below *cutoff*. Returns (items, reached_cutoff)."""
+    items: list[dict] = []
+    cursor = "*"
+    reached = False
+    for _ in range(CROSSREF_MAX_PAGES):
+        params = {
+            "filter": filt,
+            "rows":   CROSSREF_PAGE_ROWS,
+            "sort":   "indexed",
+            "order":  "desc",
+            "cursor": cursor,
+            "mailto": email,
+            "select": "DOI,title,author,published,abstract,URL,indexed,type",
+        }
+        resp = client.get(CROSSREF_BASE, params=params)
+        resp.raise_for_status()
+        message = resp.json().get("message", {})
+        page = message.get("items", [])
+        if not page:
+            reached = True
+            break
+        items.extend(page)
+
+        # Sorted by index date descending: once the last item on a page
+        # predates the cutoff, every later item does too.
+        last_dt = _indexed_dt(page[-1])
+        if last_dt is not None and last_dt < cutoff:
+            reached = True
+            break
+        cursor = message.get("next-cursor")
+        if not cursor:
+            reached = True
+            break
+
+    if not reached:
+        print(f"  [WARN] CrossRef '{journal_name}': stopped at the "
+              f"{CROSSREF_MAX_PAGES}-page bound after {len(items)} works without "
+              f"reaching the cutoff; some articles may be missed", file=sys.stderr)
+    return items, reached
+
+
 def fetch_crossref(journal: dict, cutoff: datetime,
                    rows: int, email: str) -> list[dict]:
-    """Fetch recent works from CrossRef by ISSN; filter to after *cutoff*."""
-    from_date = (cutoff - timedelta(hours=1)).strftime("%Y-%m-%d")
-    params = {
-        "filter":  f"issn:{journal['issn']},from-index-date:{from_date}",
-        "rows":    rows,
-        "sort":    "indexed",
-        "order":   "desc",
-        "mailto":  email,
-        "select":  "DOI,title,author,published,abstract,URL,indexed,type",
-    }
+    """Fetch recent works from CrossRef by ISSN; filter to after *cutoff*.
+
+    Publishers re-index back-catalogue in bulk, so a recent index date is not
+    evidence of a recent article: Blood alone had ~4,500 works re-indexed over
+    three days, nearly all published years earlier. Taking a single small page
+    of the index-date-sorted result set therefore returns only re-indexed
+    legacy articles, which the publication-date floor then discards, leaving
+    nothing at all for the highest-churn journals.
+
+    Two paths are used. Where the publisher deposits a usable publication date,
+    filtering on it server-side shrinks the result set to a handful of works.
+    Elsevier and Lippincott titles do not answer that filter (it matches none
+    of their recent articles), so for those we page the index-date window and
+    apply the floor locally."""
+    from_index = (cutoff - timedelta(hours=1)).strftime("%Y-%m-%d")
+    pub_date_floor = cutoff - timedelta(days=CROSSREF_PUB_FLOOR)
+    from_pub = pub_date_floor.strftime("%Y-%m-%d")
+    base = f"issn:{journal['issn']},from-index-date:{from_index},type:journal-article"
+
     try:
         with httpx.Client(timeout=CROSSREF_TIMEOUT) as client:
-            resp = client.get(CROSSREF_BASE, params=params)
-            resp.raise_for_status()
-        data = resp.json()
+            raw_items, _ = _crossref_page(
+                client, f"{base},from-pub-date:{from_pub}", cutoff, email, journal["name"])
+            if not raw_items:
+                # Publisher does not answer the publication-date filter (or has
+                # genuinely published nothing). Fall back to the index-date
+                # window and filter locally.
+                raw_items, _ = _crossref_page(
+                    client, base, cutoff, email, journal["name"])
     except Exception as exc:
         print(f"  [WARN] CrossRef '{journal['name']}': {exc}", file=sys.stderr)
         return []
 
-    # CrossRef re-indexes old articles when publishers update metadata.
-    # 30-day floor blocks decade-old re-indexed articles while still allowing
-    # genuinely recent papers. For partial dates (year+month only) we use the
-    # last day of that month so April articles aren't wrongly excluded.
-    pub_date_floor = cutoff - timedelta(days=14)
-
     articles = []
-    for item in data.get("message", {}).get("items", []):
+    for item in raw_items:
         # ── Indexed-date filter ───────────────────────────────────────────────
-        idx_str = item.get("indexed", {}).get("date-time", "")
-        try:
-            indexed_dt = datetime.fromisoformat(idx_str.replace("Z", "+00:00"))
-        except Exception:
-            indexed_dt = cutoff  # unknown → treat as borderline, let pub-date decide
+        indexed_dt = _indexed_dt(item)
+        if indexed_dt is None:
+            indexed_dt = cutoff  # unknown -> treat as borderline, let pub-date decide
         if indexed_dt < cutoff:
             continue
 
@@ -164,28 +264,9 @@ def fetch_crossref(journal: dict, cutoff: datetime,
             continue
 
         # ── Publication-date filter (guards against re-indexed legacy articles) ─
-        dp = item.get("published", {}).get("date-parts", [[]])
-        pub_str = ""
-        if dp and dp[0]:
-            parts_list = dp[0]
-            year  = parts_list[0] if len(parts_list) > 0 else None
-            month = parts_list[1] if len(parts_list) > 1 else 1
-            day   = parts_list[2] if len(parts_list) > 2 else 1
-            if year:
-                try:
-                    if len(parts_list) >= 3:
-                        pub_dt = datetime(year, month, day, tzinfo=timezone.utc)
-                    else:
-                        # Year+month only: assume end of that month so current-month
-                        # articles aren't wrongly excluded by the floor check.
-                        next_m = month % 12 + 1
-                        next_y = year + (1 if month == 12 else 0)
-                        pub_dt = datetime(next_y, next_m, 1, tzinfo=timezone.utc) - timedelta(days=1)
-                    if pub_dt < pub_date_floor:
-                        continue
-                except Exception:
-                    pass
-            pub_str = "-".join(str(p).zfill(2) for p in parts_list)
+        pub_dt, pub_str = _crossref_pub_dt(item)
+        if pub_dt is not None and pub_dt < pub_date_floor:
+            continue
         if not pub_str:
             pub_str = indexed_dt.strftime("%Y-%m-%d")
 
@@ -350,6 +431,22 @@ For EVERY article in the list, produce:
   1. A 1-2 sentence English plain-text summary of the key finding.
   2. 「嘻嘻」- a warm, enthusiastic comment (1 sentence, fun and encouraging).
   3. 「不嘻嘻」- a playfully sarcastic or teasing comment (1 sentence, humorous, not mean).
+  4. "heme": true or false - whether the article is relevant to a hematologist.
+
+RELEVANCE ("heme") - READ CAREFULLY:
+true  = blood and bone marrow disease of any kind. Leukemia, lymphoma, myeloma,
+        MDS/MPN, aplastic anemia, hemoglobinopathies, cytopenias, coagulation
+        and thrombosis, transfusion medicine, stem cell transplant, cell
+        therapy, benign hematology, normal and malignant hematopoiesis.
+false = solid-tumor oncology with no hematologic angle (lung, breast, colorectal,
+        prostate, melanoma, glioma and so on), and general medicine, health
+        policy, workforce, or news commentary.
+
+When an article touches both, answer true. A CAR-T or bispecific study in a
+solid tumor is true, because the platform matters to a hematologist. Chemo-
+induced cytopenia, febrile neutropenia and cancer-associated thrombosis are
+true even in a solid-tumor population. Immune-checkpoint toxicity is true only
+when the toxicity is hematologic. If you are unsure, answer true.
 
 LANGUAGE FOR THE 嘻嘻 / 不嘻嘻 COMMENTS - READ CAREFULLY:
 Write them in **Taiwanese Mandarin (台灣華語)**, in Traditional Chinese script.
@@ -370,7 +467,7 @@ doctor in Hong Kong writes.
   in a group chat. Standard medical terms stay as-is (HR、PFS、OS、CR、MRD…).
 
 Reply with a valid JSON array, one object per article in the same order:
-  [{"idx": <int>, "summary": "...", "hehe": "...", "nohehe": "..."}, ...]
+  [{"idx": <int>, "summary": "...", "hehe": "...", "nohehe": "...", "heme": true}, ...]
 
 Rules:
 - Cover EVERY article; do not skip any.
@@ -653,6 +750,26 @@ a:hover { text-decoration: underline; }
 .comment-card.hehe .comment-label { color: var(--hehe-bdr); }
 .comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
 
+/* ── Collapsed non-heme tail ────────────────── */
+.other-block {
+  margin-top: 2.5rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 1.25rem;
+}
+.other-block > summary {
+  cursor: pointer;
+  font-size: .84rem;
+  color: var(--muted);
+  padding: .55rem .8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  list-style-position: inside;
+}
+.other-block > summary:hover { color: var(--accent2); border-color: var(--accent2); }
+.other-block > summary b { color: var(--accent2); }
+.other-block[open] > summary { margin-bottom: 1.25rem; }
+
 /* ── Empty state ────────────────────────────── */
 .empty-state {
   text-align: center; padding: 4rem 1rem;
@@ -693,73 +810,72 @@ def _e(s: str) -> str:
 
 def render_html(articles: list[dict], summaries: dict[int, dict],
                 run_at: datetime, hours: int) -> str:
-    by_journal: dict[str, list] = defaultdict(list)
-    for i, a in enumerate(articles):
-        by_journal[a["journal"]].append((i, a))
+    def _is_heme(idx: int) -> bool:
+        """Whether an article belongs in the main section.
 
-    total = len(articles)
-    n_journals = len(by_journal)
+        Defaults to True, and every uncertain case resolves to True. An article
+        the model never saw (no abstract, so it was never sent) or one whose AI
+        chunk failed has no verdict at all, and must stay in the main section
+        rather than disappear into the collapsed one. Only an unambiguous
+        negative demotes, so the worst failure is a filter that does nothing
+        rather than one that hides papers.
+
+        Both a real boolean and a stringified one are accepted, since the model
+        is not schema-constrained and occasionally quotes its booleans."""
+        v = summaries.get(idx, {}).get("heme", True)
+        if isinstance(v, str):
+            return v.strip().lower() not in ("false", "no", "0")
+        return v is not False
+
+    main_pairs  = [(i, a) for i, a in enumerate(articles) if _is_heme(i)]
+    other_pairs = [(i, a) for i, a in enumerate(articles) if not _is_heme(i)]
+
     has_ai = bool(summaries)
     run_str = run_at.strftime("%Y-%m-%d %H:%M UTC")
 
-    # ── TOC links ──────────────────────────────────────────────────────────
-    toc_links = "".join(
-        f'<a href="#j-{_slug(j)}">{_e(j)} <span style="opacity:.6">({len(items)})</span></a>'
-        for j, items in sorted(by_journal.items())
-    )
-    toc_html = f"""
-<div class="toc">
-  <div class="toc-title">📚 Journals in this digest</div>
-  <div class="toc-links">{toc_links}</div>
-</div>""" if toc_links else ""
+    def _card(i: int, a: dict) -> str:
+        s = summaries.get(i, {})
 
-    # ── Journal sections ────────────────────────────────────────────────────
-    sections = []
-    for journal, items in sorted(by_journal.items()):
-        cards = []
-        for i, a in items:
-            s = summaries.get(i, {})
+        pub_badge = (
+            f'<span class="badge">📅 {_e(a["published"][:10])}</span>'
+            if a.get("published") else ""
+        )
+        doi_badge = (
+            f'<span class="badge">DOI: {_e(a["doi"][:22])}</span>'
+            if a.get("doi") else ""
+        )
+        src_badge = (
+            '<span class="badge">RSS</span>'
+            if a["source"] == "rss"
+            else '<span class="badge">CrossRef</span>'
+        )
 
-            pub_badge = (
-                f'<span class="badge">📅 {_e(a["published"][:10])}</span>'
-                if a.get("published") else ""
-            )
-            doi_badge = (
-                f'<span class="badge">DOI: {_e(a["doi"][:22])}</span>'
-                if a.get("doi") else ""
-            )
-            src_badge = (
-                '<span class="badge">RSS</span>'
-                if a["source"] == "rss"
-                else '<span class="badge">CrossRef</span>'
-            )
+        authors_html = (
+            f'<p class="article-authors">{_e(a["authors"])}</p>'
+            if a.get("authors") else ""
+        )
 
-            authors_html = (
-                f'<p class="article-authors">{_e(a["authors"])}</p>'
-                if a.get("authors") else ""
-            )
+        if s.get("summary"):
+            summary_html = f'<p class="article-summary">{_e(s["summary"])}</p>'
+        elif not a.get("abstract"):
+            summary_html = ('<p class="article-summary" style="font-style:italic;opacity:.55">'
+                            'No abstract available — AI summary skipped.</p>')
+        else:
+            summary_html = ""
 
-            if s.get("summary"):
-                summary_html = f'<p class="article-summary">{_e(s["summary"])}</p>'
-            elif not a.get("abstract"):
-                summary_html = ('<p class="article-summary" style="font-style:italic;opacity:.55">'
-                                'No abstract available — AI summary skipped.</p>')
-            else:
-                summary_html = ""
+        ai_html = ""
+        if s.get("hehe") or s.get("nohehe"):
+            hh = (f'<div class="comment-card hehe">'
+                  f'<span class="comment-label">嘻嘻 😄</span>{_e(s["hehe"])}</div>'
+                  if s.get("hehe") else "")
+            nh = (f'<div class="comment-card nohehe">'
+                  f'<span class="comment-label">不嘻嘻 🙄</span>{_e(s["nohehe"])}</div>'
+                  if s.get("nohehe") else "")
+            ai_html = f'<div class="ai-box">{hh}{nh}</div>'
 
-            ai_html = ""
-            if s.get("hehe") or s.get("nohehe"):
-                hh = (f'<div class="comment-card hehe">'
-                      f'<span class="comment-label">嘻嘻 😄</span>{_e(s["hehe"])}</div>'
-                      if s.get("hehe") else "")
-                nh = (f'<div class="comment-card nohehe">'
-                      f'<span class="comment-label">不嘻嘻 🙄</span>{_e(s["nohehe"])}</div>'
-                      if s.get("nohehe") else "")
-                ai_html = f'<div class="ai-box">{hh}{nh}</div>'
+        url = a.get("url") or (f"https://doi.org/{a['doi']}" if a.get("doi") else "#")
 
-            url = a.get("url") or (f"https://doi.org/{a['doi']}" if a.get("doi") else "#")
-
-            cards.append(f"""
+        return f"""
 <div class="article-card">
   <div class="article-meta">{pub_badge}{doi_badge}{src_badge}</div>
   <div class="article-title">
@@ -768,21 +884,52 @@ def render_html(articles: list[dict], summaries: dict[int, dict],
   {authors_html}
   {summary_html}
   {ai_html}
-</div>""")
+</div>"""
 
-        sections.append(f"""
-<div class="journal-section" id="j-{_slug(journal)}">
+    def _group(pairs: list, prefix: str):
+        by_journal: dict[str, list] = defaultdict(list)
+        for i, a in pairs:
+            by_journal[a["journal"]].append((i, a))
+        sections = []
+        for journal, items in sorted(by_journal.items()):
+            cards = "".join(_card(i, a) for i, a in items)
+            sections.append(f"""
+<div class="journal-section" id="{prefix}-{_slug(journal)}">
   <div class="journal-header">
     <span class="journal-icon">📋</span>
     <span class="journal-title">{_e(journal)}</span>
     <span class="journal-count">{len(items)}</span>
   </div>
-  {"".join(cards)}
+  {cards}
 </div>""")
+        return "".join(sections), by_journal
+
+    main_html, main_journals = _group(main_pairs, "j")
+    other_html, other_journals = _group(other_pairs, "o")
+    n_journals = len(main_journals)
+
+    # TOC covers the main section only.
+    toc_links = "".join(
+        f'<a href="#j-{_slug(j)}">{_e(j)} <span style="opacity:.6">({len(items)})</span></a>'
+        for j, items in sorted(main_journals.items())
+    )
+    toc_html = f"""
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links">{toc_links}</div>
+</div>""" if toc_links else ""
+
+    # Solid-tumor and non-hematology items, collapsed rather than dropped.
+    other_block = f"""
+<details class="other-block">
+  <summary><b>{len(other_pairs)}</b> more, judged not hematology-related (solid-tumor
+    oncology, general medicine, policy and news)</summary>
+  {other_html}
+</details>""" if other_pairs else ""
 
     content = (
-        toc_html + "\n".join(sections)
-        if sections
+        toc_html + main_html + other_block
+        if (main_html or other_block)
         else '<div class="empty-state">🔍 No new articles found in the past '
              + str(hours) + ' hours.</div>'
     )
@@ -805,9 +952,10 @@ def render_html(articles: list[dict], summaries: dict[int, dict],
 </header>
 
 <div class="stats-bar">
-  <span>📰 <b>{total}</b> articles</span>
+  <span>📰 <b>{len(main_pairs)}</b> articles</span>
   <span>📚 <b>{n_journals}</b> journals</span>
   <span>⏱ Past <b>{hours}h</b></span>
+  {f"<span>📉 <b>{len(other_pairs)}</b> set aside</span>" if other_pairs else ""}
   {"<span>🤖 AI-summarized</span>" if has_ai else ""}
 </div>
 
@@ -817,7 +965,7 @@ def render_html(articles: list[dict], summaries: dict[int, dict],
 
 <footer class="site-footer">
   Generated {run_str}{ai_note}<br>
-  Sources: Nature RSS · Springer RSS · CrossRef API
+  Sources: Nature RSS · NEJM RSS · CrossRef API
 </footer>
 </body>
 </html>"""
@@ -874,6 +1022,44 @@ def _extract_doi(entry) -> str:
     return ""
 
 
+def _article_key(a: dict) -> str:
+    """Stable identity for cross-run deduplication."""
+    doi = (a.get("doi") or "").strip().lower()
+    return doi if doi else "title:" + _slug(a.get("title", ""))[:120]
+
+
+def load_seen_dois() -> dict:
+    """Load the cross-run ledger of article keys already sent.
+
+    The lookback window overlaps consecutive runs on purpose, so without this
+    an article near the boundary is reported two days running."""
+    try:
+        with open(SEEN_DOIS_FILE, encoding="utf-8") as fh:
+            data = json.load(fh)
+        return data if isinstance(data, dict) else {}
+    except FileNotFoundError:
+        return {}
+    except Exception as exc:
+        print(f"  [WARN] could not read {SEEN_DOIS_FILE.name}: {exc} - "
+              f"starting a fresh ledger", file=sys.stderr)
+        return {}
+
+
+def save_seen_dois(seen: dict, articles: list[dict], today: datetime) -> None:
+    """Record this run's keys and drop entries older than SEEN_DOIS_TTL days."""
+    stamp = today.strftime("%Y-%m-%d")
+    for a in articles:
+        seen[_article_key(a)] = stamp
+    floor = (today - timedelta(days=SEEN_DOIS_TTL)).strftime("%Y-%m-%d")
+    pruned = {k: v for k, v in seen.items() if v >= floor}
+    try:
+        SEEN_DOIS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        SEEN_DOIS_FILE.write_text(
+            json.dumps(pruned, indent=0, sort_keys=True), encoding="utf-8")
+    except Exception as exc:
+        print(f"  [WARN] could not write {SEEN_DOIS_FILE.name}: {exc}", file=sys.stderr)
+
+
 def _slug(s: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
 
@@ -890,12 +1076,15 @@ def main() -> None:
                         help=f"TOML config path (default: {DEFAULT_CONFIG})")
     parser.add_argument("--output",  default=str(DEFAULT_OUTPUT),
                         help=f"Output directory (default: {DEFAULT_OUTPUT})")
-    parser.add_argument("--hours",   type=int, default=DEFAULT_HOURS,
-                        help=f"Lookback window in hours (default: {DEFAULT_HOURS})")
+    parser.add_argument("--hours",   type=int, default=None,
+                        help=f"Lookback window in hours "
+                             f"(default: config value, else {DEFAULT_HOURS})")
     parser.add_argument("--no-ai",   action="store_true",
                         help="Skip Claude AI summaries")
     parser.add_argument("--demo",    action="store_true",
                         help=f"Use {DEMO_HOURS}h window to ensure articles for demo")
+    parser.add_argument("--no-ledger", action="store_true",
+                        help="Ignore and do not update the cross-run seen-DOI ledger")
     args = parser.parse_args()
 
     # ── Load config ──────────────────────────────────────────────────────────
@@ -909,7 +1098,7 @@ def main() -> None:
     toml_hours = (cfg.get("rss", {})
                      .get("content_rules", {})
                      .get("filter_window_hours", DEFAULT_HOURS))
-    hours = DEMO_HOURS if args.demo else (args.hours if args.hours != DEFAULT_HOURS else toml_hours)
+    hours = DEMO_HOURS if args.demo else (args.hours if args.hours is not None else toml_hours)
     run_at = datetime.now(timezone.utc)
     cutoff = run_at - timedelta(hours=hours)
     print(f"\n{'='*60}")
@@ -958,6 +1147,16 @@ def main() -> None:
         print(f"  Deduplicated: {len(all_articles)} → {len(deduped)} articles")
     all_articles = deduped
 
+    # ── Cross-run dedup: drop what a previous run already reported ───────────
+    seen_ledger: dict = {} if args.no_ledger else load_seen_dois()
+    if seen_ledger:
+        before = len(all_articles)
+        all_articles = [a for a in all_articles
+                        if _article_key(a) not in seen_ledger]
+        if len(all_articles) < before:
+            print(f"  Already reported in a previous run: "
+                  f"{before - len(all_articles)} dropped")
+
     print(f"\n  Total articles collected: {len(all_articles)}")
 
     # ── Abstract backfill: PubMed first (all publishers), Elsevier fallback ──
@@ -1001,6 +1200,9 @@ def main() -> None:
     fname    = f"hema_onc_digest_{run_at.strftime('%Y-%m-%d')}.html"
     out_path = out_dir / fname
     out_path.write_text(html, encoding="utf-8")
+
+    if not args.no_ledger:
+        save_seen_dois(seen_ledger, all_articles, run_at)
 
     print(f"\n✓ Report saved → {out_path}")
     print(f"  Articles: {len(all_articles)}  |  Journals: {len(set(a['journal'] for a in all_articles))}")
