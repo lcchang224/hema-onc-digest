@@ -38,6 +38,24 @@ multiple journals every day.
   with a date only (parsed as 00:00 UTC) and GitHub Actions starts the job
   late, so a flat 24h window drops those articles permanently.
 
+## Relevance demotion
+There is still no keyword topic filter. The Claude call that writes the
+summaries also returns a `heme` boolean per article, and articles it marks
+false (solid-tumor oncology, general medicine, policy, news) are moved into a
+collapsed `<details>` block at the bottom of the report instead of being
+dropped.
+
+Every uncertain case resolves to *keep in the main section*, on purpose:
+- articles with no abstract are never sent to the model, so they have no verdict
+- a failed or unparseable AI chunk leaves its 30 articles with no verdict
+- `--no-ai` produces no verdicts at all
+- a stringified or unexpected value is treated as keep unless it unambiguously
+  reads false
+
+So the worst failure mode is a filter that quietly does nothing, never one that
+hides papers. If the collapsed block is always empty, suspect the AI reply
+shape before assuming there was nothing to demote.
+
 ## Key files
 - `generate_digest.py` — main script (fetch → dedup → AI summarize → render HTML)
 - `daily_hema_onc_rss_digest.toml` — journal config (which feeds, which CrossRef endpoints)
@@ -88,6 +106,9 @@ per-journal counts against the report `reports/` holds for the same date.
   but noisy, and one of the tracked files is stale Python 3.10 bytecode.
 - `design/` (three palette previews from 2026-05-15) is untracked, so it exists
   only in OneDrive and not in git history.
+- The `heme` demotion has not been exercised against the live API. There is no
+  ANTHROPIC_API_KEY on the Windows laptop, so only the render logic is tested.
+  Check the collapsed block looks sane on the first real run.
 - The 14-day publication-date floor is a reject filter, not a lookback window.
   It never widens what a run collects; the 28h index-date window does that.
   Articles missed while the bugs were live are gone unless a publisher

@@ -431,6 +431,22 @@ For EVERY article in the list, produce:
   1. A 1-2 sentence English plain-text summary of the key finding.
   2. 「嘻嘻」- a warm, enthusiastic comment (1 sentence, fun and encouraging).
   3. 「不嘻嘻」- a playfully sarcastic or teasing comment (1 sentence, humorous, not mean).
+  4. "heme": true or false - whether the article is relevant to a hematologist.
+
+RELEVANCE ("heme") - READ CAREFULLY:
+true  = blood and bone marrow disease of any kind. Leukemia, lymphoma, myeloma,
+        MDS/MPN, aplastic anemia, hemoglobinopathies, cytopenias, coagulation
+        and thrombosis, transfusion medicine, stem cell transplant, cell
+        therapy, benign hematology, normal and malignant hematopoiesis.
+false = solid-tumor oncology with no hematologic angle (lung, breast, colorectal,
+        prostate, melanoma, glioma and so on), and general medicine, health
+        policy, workforce, or news commentary.
+
+When an article touches both, answer true. A CAR-T or bispecific study in a
+solid tumor is true, because the platform matters to a hematologist. Chemo-
+induced cytopenia, febrile neutropenia and cancer-associated thrombosis are
+true even in a solid-tumor population. Immune-checkpoint toxicity is true only
+when the toxicity is hematologic. If you are unsure, answer true.
 
 LANGUAGE FOR THE 嘻嘻 / 不嘻嘻 COMMENTS - READ CAREFULLY:
 Write them in **Taiwanese Mandarin (台灣華語)**, in Traditional Chinese script.
@@ -451,7 +467,7 @@ doctor in Hong Kong writes.
   in a group chat. Standard medical terms stay as-is (HR、PFS、OS、CR、MRD…).
 
 Reply with a valid JSON array, one object per article in the same order:
-  [{"idx": <int>, "summary": "...", "hehe": "...", "nohehe": "..."}, ...]
+  [{"idx": <int>, "summary": "...", "hehe": "...", "nohehe": "...", "heme": true}, ...]
 
 Rules:
 - Cover EVERY article; do not skip any.
@@ -734,6 +750,26 @@ a:hover { text-decoration: underline; }
 .comment-card.hehe .comment-label { color: var(--hehe-bdr); }
 .comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
 
+/* ── Collapsed non-heme tail ────────────────── */
+.other-block {
+  margin-top: 2.5rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 1.25rem;
+}
+.other-block > summary {
+  cursor: pointer;
+  font-size: .84rem;
+  color: var(--muted);
+  padding: .55rem .8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  list-style-position: inside;
+}
+.other-block > summary:hover { color: var(--accent2); border-color: var(--accent2); }
+.other-block > summary b { color: var(--accent2); }
+.other-block[open] > summary { margin-bottom: 1.25rem; }
+
 /* ── Empty state ────────────────────────────── */
 .empty-state {
   text-align: center; padding: 4rem 1rem;
@@ -774,73 +810,72 @@ def _e(s: str) -> str:
 
 def render_html(articles: list[dict], summaries: dict[int, dict],
                 run_at: datetime, hours: int) -> str:
-    by_journal: dict[str, list] = defaultdict(list)
-    for i, a in enumerate(articles):
-        by_journal[a["journal"]].append((i, a))
+    def _is_heme(idx: int) -> bool:
+        """Whether an article belongs in the main section.
 
-    total = len(articles)
-    n_journals = len(by_journal)
+        Defaults to True, and every uncertain case resolves to True. An article
+        the model never saw (no abstract, so it was never sent) or one whose AI
+        chunk failed has no verdict at all, and must stay in the main section
+        rather than disappear into the collapsed one. Only an unambiguous
+        negative demotes, so the worst failure is a filter that does nothing
+        rather than one that hides papers.
+
+        Both a real boolean and a stringified one are accepted, since the model
+        is not schema-constrained and occasionally quotes its booleans."""
+        v = summaries.get(idx, {}).get("heme", True)
+        if isinstance(v, str):
+            return v.strip().lower() not in ("false", "no", "0")
+        return v is not False
+
+    main_pairs  = [(i, a) for i, a in enumerate(articles) if _is_heme(i)]
+    other_pairs = [(i, a) for i, a in enumerate(articles) if not _is_heme(i)]
+
     has_ai = bool(summaries)
     run_str = run_at.strftime("%Y-%m-%d %H:%M UTC")
 
-    # ── TOC links ──────────────────────────────────────────────────────────
-    toc_links = "".join(
-        f'<a href="#j-{_slug(j)}">{_e(j)} <span style="opacity:.6">({len(items)})</span></a>'
-        for j, items in sorted(by_journal.items())
-    )
-    toc_html = f"""
-<div class="toc">
-  <div class="toc-title">📚 Journals in this digest</div>
-  <div class="toc-links">{toc_links}</div>
-</div>""" if toc_links else ""
+    def _card(i: int, a: dict) -> str:
+        s = summaries.get(i, {})
 
-    # ── Journal sections ────────────────────────────────────────────────────
-    sections = []
-    for journal, items in sorted(by_journal.items()):
-        cards = []
-        for i, a in items:
-            s = summaries.get(i, {})
+        pub_badge = (
+            f'<span class="badge">📅 {_e(a["published"][:10])}</span>'
+            if a.get("published") else ""
+        )
+        doi_badge = (
+            f'<span class="badge">DOI: {_e(a["doi"][:22])}</span>'
+            if a.get("doi") else ""
+        )
+        src_badge = (
+            '<span class="badge">RSS</span>'
+            if a["source"] == "rss"
+            else '<span class="badge">CrossRef</span>'
+        )
 
-            pub_badge = (
-                f'<span class="badge">📅 {_e(a["published"][:10])}</span>'
-                if a.get("published") else ""
-            )
-            doi_badge = (
-                f'<span class="badge">DOI: {_e(a["doi"][:22])}</span>'
-                if a.get("doi") else ""
-            )
-            src_badge = (
-                '<span class="badge">RSS</span>'
-                if a["source"] == "rss"
-                else '<span class="badge">CrossRef</span>'
-            )
+        authors_html = (
+            f'<p class="article-authors">{_e(a["authors"])}</p>'
+            if a.get("authors") else ""
+        )
 
-            authors_html = (
-                f'<p class="article-authors">{_e(a["authors"])}</p>'
-                if a.get("authors") else ""
-            )
+        if s.get("summary"):
+            summary_html = f'<p class="article-summary">{_e(s["summary"])}</p>'
+        elif not a.get("abstract"):
+            summary_html = ('<p class="article-summary" style="font-style:italic;opacity:.55">'
+                            'No abstract available — AI summary skipped.</p>')
+        else:
+            summary_html = ""
 
-            if s.get("summary"):
-                summary_html = f'<p class="article-summary">{_e(s["summary"])}</p>'
-            elif not a.get("abstract"):
-                summary_html = ('<p class="article-summary" style="font-style:italic;opacity:.55">'
-                                'No abstract available — AI summary skipped.</p>')
-            else:
-                summary_html = ""
+        ai_html = ""
+        if s.get("hehe") or s.get("nohehe"):
+            hh = (f'<div class="comment-card hehe">'
+                  f'<span class="comment-label">嘻嘻 😄</span>{_e(s["hehe"])}</div>'
+                  if s.get("hehe") else "")
+            nh = (f'<div class="comment-card nohehe">'
+                  f'<span class="comment-label">不嘻嘻 🙄</span>{_e(s["nohehe"])}</div>'
+                  if s.get("nohehe") else "")
+            ai_html = f'<div class="ai-box">{hh}{nh}</div>'
 
-            ai_html = ""
-            if s.get("hehe") or s.get("nohehe"):
-                hh = (f'<div class="comment-card hehe">'
-                      f'<span class="comment-label">嘻嘻 😄</span>{_e(s["hehe"])}</div>'
-                      if s.get("hehe") else "")
-                nh = (f'<div class="comment-card nohehe">'
-                      f'<span class="comment-label">不嘻嘻 🙄</span>{_e(s["nohehe"])}</div>'
-                      if s.get("nohehe") else "")
-                ai_html = f'<div class="ai-box">{hh}{nh}</div>'
+        url = a.get("url") or (f"https://doi.org/{a['doi']}" if a.get("doi") else "#")
 
-            url = a.get("url") or (f"https://doi.org/{a['doi']}" if a.get("doi") else "#")
-
-            cards.append(f"""
+        return f"""
 <div class="article-card">
   <div class="article-meta">{pub_badge}{doi_badge}{src_badge}</div>
   <div class="article-title">
@@ -849,21 +884,52 @@ def render_html(articles: list[dict], summaries: dict[int, dict],
   {authors_html}
   {summary_html}
   {ai_html}
-</div>""")
+</div>"""
 
-        sections.append(f"""
-<div class="journal-section" id="j-{_slug(journal)}">
+    def _group(pairs: list, prefix: str):
+        by_journal: dict[str, list] = defaultdict(list)
+        for i, a in pairs:
+            by_journal[a["journal"]].append((i, a))
+        sections = []
+        for journal, items in sorted(by_journal.items()):
+            cards = "".join(_card(i, a) for i, a in items)
+            sections.append(f"""
+<div class="journal-section" id="{prefix}-{_slug(journal)}">
   <div class="journal-header">
     <span class="journal-icon">📋</span>
     <span class="journal-title">{_e(journal)}</span>
     <span class="journal-count">{len(items)}</span>
   </div>
-  {"".join(cards)}
+  {cards}
 </div>""")
+        return "".join(sections), by_journal
+
+    main_html, main_journals = _group(main_pairs, "j")
+    other_html, other_journals = _group(other_pairs, "o")
+    n_journals = len(main_journals)
+
+    # TOC covers the main section only.
+    toc_links = "".join(
+        f'<a href="#j-{_slug(j)}">{_e(j)} <span style="opacity:.6">({len(items)})</span></a>'
+        for j, items in sorted(main_journals.items())
+    )
+    toc_html = f"""
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links">{toc_links}</div>
+</div>""" if toc_links else ""
+
+    # Solid-tumor and non-hematology items, collapsed rather than dropped.
+    other_block = f"""
+<details class="other-block">
+  <summary><b>{len(other_pairs)}</b> more, judged not hematology-related (solid-tumor
+    oncology, general medicine, policy and news)</summary>
+  {other_html}
+</details>""" if other_pairs else ""
 
     content = (
-        toc_html + "\n".join(sections)
-        if sections
+        toc_html + main_html + other_block
+        if (main_html or other_block)
         else '<div class="empty-state">🔍 No new articles found in the past '
              + str(hours) + ' hours.</div>'
     )
@@ -886,9 +952,10 @@ def render_html(articles: list[dict], summaries: dict[int, dict],
 </header>
 
 <div class="stats-bar">
-  <span>📰 <b>{total}</b> articles</span>
+  <span>📰 <b>{len(main_pairs)}</b> articles</span>
   <span>📚 <b>{n_journals}</b> journals</span>
   <span>⏱ Past <b>{hours}h</b></span>
+  {f"<span>📉 <b>{len(other_pairs)}</b> set aside</span>" if other_pairs else ""}
   {"<span>🤖 AI-summarized</span>" if has_ai else ""}
 </div>
 
@@ -898,7 +965,7 @@ def render_html(articles: list[dict], summaries: dict[int, dict],
 
 <footer class="site-footer">
   Generated {run_str}{ai_note}<br>
-  Sources: Nature RSS · Springer RSS · CrossRef API
+  Sources: Nature RSS · NEJM RSS · CrossRef API
 </footer>
 </body>
 </html>"""
