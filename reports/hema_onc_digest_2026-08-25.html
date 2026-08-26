@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-08-25</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-08-25 00:31 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>32</b> articles</span>
+  <span>📚 <b>5</b> journals</span>
+  <span>⏱ Past <b>24h</b></span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-annals-of-oncology">Annals of Oncology <span style="opacity:.6">(1)</span></a><a href="#j-clinical-lymphoma-myeloma-leukemia">Clinical Lymphoma Myeloma &amp; Leukemia <span style="opacity:.6">(2)</span></a><a href="#j-lancet-haematology">Lancet Haematology <span style="opacity:.6">(1)</span></a><a href="#j-lancet-oncology">Lancet Oncology <span style="opacity:.6">(24)</span></a><a href="#j-transplantation-and-cellular-therapy">Transplantation and Cellular Therapy <span style="opacity:.6">(4)</span></a></div>
+</div>
+<div class="journal-section" id="j-annals-of-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Annals of Oncology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.08.002" target="_blank" rel="noopener">Sustained benefit of adjuvant olaparib in women with germline BRCA1- and BRCA2- -associated high-risk HER2-negative early breast cancer: Updated results from the OlympiA phase III trial</a>
+  </div>
+  <p class="article-authors">Garber J, Cameron D, Campbell C, Yothers G et al.</p>
+  <p class="article-summary">The phase 3 OlympiA trial demonstrates sustained benefit of adjuvant olaparib over placebo in germline BRCA1/2-mutated, HER2-negative early breast cancer with durable disease-free survival.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>BRCA 基因突變乳癌病人用上 olaparib 真的有夠幸福的，效果持續超讚！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>一年的藥要吃那麼久，副作用累積下來到底怎麼樣還真不好說呢。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-clinical-lymphoma-myeloma-leukemia">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Clinical Lymphoma Myeloma &amp; Leukemia</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.clml.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.07.019" target="_blank" rel="noopener">Targeting the Menin–KMT2A Axis in AML: Translating Molecular Insights into Therapeutic Success</a>
+  </div>
+  <p class="article-authors">Simio C, Vatteroni A</p>
+  <p class="article-summary">Menin inhibitors represent a promising targeted therapy class disrupting the menin-KMT2A interaction, showing robust preclinical efficacy in AML with KMT2A rearrangements and NPM1 mutations.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>Menin 抑制劑靶向 NPM1 突變 AML 的成果真的越來越令人振奮啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>前臨床數據漂亮歸漂亮，臨床療效怎麼樣還要再看看啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.clml.2026.06</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.clml.2026.06.008" target="_blank" rel="noopener">The Prognostic Role of Interim [18F]FDG PET/CT in Diffuse Large B-Cell Lymphoma: An Updated Systematic Review and Meta-analysis</a>
+  </div>
+  <p class="article-authors">Albano D, Chauvie S, Rizzo A, Bertagna F et al.</p>
+  <p class="article-summary">An updated systematic review and meta-analysis clarifies the prognostic value of interim FDG-PET/CT in DLBCL, addressing previous inconsistencies in timing and interpretation protocols.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>中期 PET 在 DLBCL 的預後價值終於有系統性的整理了，讚啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>大家用法不一樣，數據當然就混亂，這根本是標準化的問題沒解決啦。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-lancet-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Lancet Haematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00147-x" target="_blank" rel="noopener">Haematopoietic stem cell transplantation in hepatosplenic T-cell lymphoma: a retrospective analysis of the EBMT Lymphoma Working Party</a>
+  </div>
+  <p class="article-authors">Karsten I, Schmitz N, Fekom M, de Leval L et al.</p>
+  <p class="article-summary">In rare hepatosplenic T-cell lymphoma, allogeneic HSCT offered superior disease control and survival compared to autologous HSCT or chemotherapy alone in this EBMT retrospective analysis.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有人把這個惡魔級淋巴瘤的治療策略說清楚了，allo-HSCT 真的是救星啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以說咧，化療根本沒用，我們之前有多少病人白白浪費時間喔。</div></div>
+</div>
+</div>
+
+<div class="journal-section" id="j-lancet-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Lancet Oncology</span>
+    <span class="journal-count">24</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00400-6" target="_blank" rel="noopener">New liver cancer medicine fast-tracked by UK Government</a>
+  </div>
+  <p class="article-authors">Gourd E</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00352-9" target="_blank" rel="noopener">Cancer care in Canada</a>
+  </div>
+  <p class="article-authors">Simms C</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00175-0" target="_blank" rel="noopener">Ifebemtinib plus garsorasib in previously treated metastatic colorectal cancer with KRASG12C mutation: a multicentre, randomised, phase 1b/2 trial</a>
+  </div>
+  <p class="article-authors">Song Z, Zhu L, Liu Y, Lin R et al.</p>
+  <p class="article-summary">The combination of ifebemtinib (FAK inhibitor) plus garsorasib (KRASG12C inhibitor) demonstrated clinical activity in previously treated metastatic colorectal cancer with KRASG12C mutations.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>雙靶點合體，KRAS G12C 病人終於有新選擇了，真的有夠期待的啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又是一個 phase 1b/2 的組合療法，到底要等到民國幾年才能真的用在病人身上呢？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00303-7" target="_blank" rel="noopener">A polycrisis in cancer care: Cuba's system under the oil blockade</a>
+  </div>
+  <p class="article-authors">Castro A</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00296-2" target="_blank" rel="noopener">Challenges in the use of the European Society for Radiotherapy and Oncology–European Organisation for Research and Treatment of Cancer oligometastatic disease classification system in ovarian cancer</a>
+  </div>
+  <p class="article-authors">Macchia G, Morganti A, Taylor A, Concin N et al.</p>
+  <p class="article-summary">The ESTRO-EORTC oligometastatic disease classification system faces significant challenges when applied to ovarian cancer due to disease biology and clinical heterogeneity differences.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>總算有人把卵巢癌套用系統分類的眉眉角角講出來了，真心讚啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>花那麼多時間設計分類系統，結果到卵巢癌就沒轍，有夠尷尬的呢。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00255-x" target="_blank" rel="noopener">Tumour-infiltrating lymphocytes and breast radiotherapy: perspectives from the International Immuno-Oncology Biomarker Working Group</a>
+  </div>
+  <p class="article-authors">Gunster J, Tramm T, Machiels M, Demaria S et al.</p>
+  <p class="article-summary">Tumor-infiltrating lymphocytes (TILs) are established prognostic markers in breast cancer, but their role in predicting radiotherapy response remains largely unexplored with limited clinical evidence.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>TILs 在乳癌的預後價值越來越清楚，下一步就看放療怎麼搭配了，加油喔！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>我們把 TIL 當寶貝研究了這麼久，結果在放療這一塊根本沒有數據可言。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00277-9" target="_blank" rel="noopener">High-dose radiotherapy in patients with high-risk prostate cancers treated with long-term androgen deprivation therapy (GETUG AFU 18): a randomised, phase 3 trial</a>
+  </div>
+  <p class="article-authors">Hennequin C, Sargos P, Roca L, Silva M et al.</p>
+  <p class="article-summary">A phase 3 trial testing whether escalating prostate radiotherapy from 70 Gy to 80 Gy improves progression-free survival in high-risk patients on long-term androgen deprivation therapy.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>高風險攝護腺癌病人終於有機會驗証高劑量放療的真實效果，值得期待啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>劑量升高十 Gy，但沒證據說一定會更好，這樣賭下去到底划不划算還真難說呢。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00339-6" target="_blank" rel="noopener">Artificial intelligence-based tumour infiltrating lymphocyte quantification in patients with triple-negative breast cancer: an independent validation study</a>
+  </div>
+  <p class="article-authors">Dixon-Douglas J, Drubay D, Salgado R, Acs B et al.</p>
+  <p class="article-summary">AI-based computational tools for quantifying tumor-infiltrating lymphocytes in triple-negative breast cancer show comparable or superior prognostic performance to manual assessment when independently validated.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>人工智慧終於來救場了，TIL 計數從此不用靠眼睛，效率直直上升囉！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>AI 說自己跟人類一樣厲害，但等真的用在臨床就會發現問題，老話一句。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00399-2" target="_blank" rel="noopener">Beyond cancer: The Right to be Forgotten</a>
+  </div>
+  <p class="article-authors">The Lancet Oncology</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00375-x" target="_blank" rel="noopener">UK study to report cancer risk in armed services personnel</a>
+  </div>
+  <p class="article-authors">Kirby T</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00401-8" target="_blank" rel="noopener">Saint Lucia launches national cancer registry</a>
+  </div>
+  <p class="article-authors">Adepoju P</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00393-1" target="_blank" rel="noopener">2030 hepatitis elimination targets might be missed in Europe</a>
+  </div>
+  <p class="article-authors">Devi S</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00282-2" target="_blank" rel="noopener">Ivonescimab plus chemotherapy versus placebo plus chemotherapy in patients with advanced EGFR-mutated non-small-cell lung cancer after disease progression on EGFR tyrosine kinase inhibitor therapy (HARMONi): a multicentre, randomised, double-blind, phase 3 trial</a>
+  </div>
+  <p class="article-authors">Le X, Passaro A, Zhao Y, Huang Y et al.</p>
+  <p class="article-summary">Ivonescimab (bispecific antibody) combined with chemotherapy improved outcomes versus placebo-chemotherapy in advanced EGFR-mutated NSCLC patients with disease progression on third-generation TKI therapy.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>雙特異性抗體加化療在後線 TKI 失敗病人看起來真的有一套，病人有福啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又是一個雙特異性抗體加回化療，看來我們已經沒有其他絕招了是不是？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00283-4" target="_blank" rel="noopener">Adjuvant alectinib versus chemotherapy in resected ALK-positive non-small-cell lung cancer (ALINA): health-related quality-of-life and safety outcomes from a randomised, open-label, phase 3 trial</a>
+  </div>
+  <p class="article-authors">Dziadziuszko R, Ahn J, Barlesi F, Solomon B et al.</p>
+  <p class="article-summary">Adjuvant alectinib significantly improved disease-free survival over chemotherapy in resected ALK-positive NSCLC with manageable safety and preserved quality of life in the phase 3 ALINA trial.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>輔助 alectinib 不只活得久還活得好，ALK 陽性病人真的是撿到寶囉！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>化療真的被秒殺了，那我們以前為什麼還一直在用呀，早知道就好。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00177-4" target="_blank" rel="noopener">Local management of second ipsilateral breast cancer events after primary breast-conserving therapy: an international Delphi consensus</a>
+  </div>
+  <p class="article-authors">Hannoun-Levi J, Margenthaler J, Anderson B, Di Micco R et al.</p>
+  <p class="article-summary">An international Delphi consensus project gathered expert recommendations on patient selection and local management strategies for second ipsilateral breast cancer events after breast-conserving therapy.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>同側乳癌復發的治療策略終於有國際共識了，臨床決策會清楚多了啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>花了這麼多專家時間開會，最後可能還是 case by case 各自判斷啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00403-1" target="_blank" rel="noopener">Correction to Lancet Oncol 2026; 27: 686–98</a>
+  </div>
+  
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00395-5" target="_blank" rel="noopener">Beyond visual tumour-infiltrating lymphocytes assessment</a>
+  </div>
+  <p class="article-authors">Bae S, Jeong J</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00251-2" target="_blank" rel="noopener">STAR-TREC and TESAR trials: strengthening the evidence for organ preservation in rectal cancer</a>
+  </div>
+  <p class="article-authors">Fokas E, Hofheinz R</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00238-x" target="_blank" rel="noopener">SHR-A2102, a nectin-4 directed antibody–drug conjugate, in patients with pretreated advanced solid tumours: a multicentre, single-arm, phase 1 trial</a>
+  </div>
+  <p class="article-authors">Zhong R, Hong H, Yan M, Wang Q et al.</p>
+  <p class="article-summary">SHR-A2102, a novel nectin-4-directed antibody-drug conjugate with topoisomerase I inhibitor payload, demonstrated safety and preliminary anti-tumor activity in a phase 1 trial of advanced solid tumors.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>新的 ADC 來報到了，nectin-4 這個靶點被開發得越來越多，有夠熱門啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又是一個 phase 1 試驗，距離真正能用在病人還有十萬八千里遠啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00343-8" target="_blank" rel="noopener">Afghan women's cancer crisis deserves its own response</a>
+  </div>
+  <p class="article-authors">Nasari A, Nasari A, Langer A, Safi N</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00346-3" target="_blank" rel="noopener">Radiotherapy dose intensification for high-risk prostate cancer—what is gained?</a>
+  </div>
+  <p class="article-authors">Seibert T</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00247-0" target="_blank" rel="noopener">Manual, digital, and AI tumour-infiltrating lymphocyte scoring: a secondary analysis of the APHINITY randomised trial</a>
+  </div>
+  <p class="article-authors">Lara González L, Giudici F, Salgado R, Yan H et al.</p>
+  <p class="article-summary">Manual, digital, and AI-based stromal TIL quantification methods show comparable prognostic value in early HER2-positive breast cancer, with AI-derived spatial metrics offering additional insight.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>AI、數位、人工三管齐下評估 sTIL，乳癌預後評估越來越精準囉！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>AI 再厲害也就是跟人類一樣，那我們何必浪費錢買那些軟體呢？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00278-0" target="_blank" rel="noopener">Durvalumab and tremelimumab, with or without lenvatinib, combined with transarterial chemoembolisation in participants with embolisation-eligible hepatocellular carcinoma (EMERALD-3): a global, randomised, open-label, sponsor-blinded, phase 3 study</a>
+  </div>
+  <p class="article-authors">Kudo M, Abou-Alfa G, Ren Z, Heo J et al.</p>
+  <p class="article-summary">A phase 3 trial evaluated the efficacy and safety of durvalumab plus tremelimumab (STRIDE) with or without lenvatinib combined with TACE in embolization-eligible hepatocellular carcinoma.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>STRIDE 加 lenvatinib 搭配 TACE，肝癌多管齐下的治療策略真的很令人期待呀！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>藥物越堆越多，副作用會不會也一起堆上去啊，這誰敢說呢。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00376-1" target="_blank" rel="noopener">Closing the gap in southeast Asia's diagnostic molecular oncology testing</a>
+  </div>
+  <p class="article-authors">Poon K, Abdul Murad N</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+
+<div class="journal-section" id="j-transplantation-and-cellular-therapy">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Transplantation and Cellular Therapy</span>
+    <span class="journal-count">4</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtct.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.08.037" target="_blank" rel="noopener">Observational Comparison of Overall Survival between Phase 1b Orca-T and Registry-Based Post-Transplant Cyclophosphamide Patients</a>
+  </div>
+  <p class="article-authors">Oliai C, Gandhi A, Hoeg R, Muffly L et al.</p>
+  <p class="article-summary">An observational comparison suggests Orca-T (purified HSPCs, Tregs, and Tcons) achieves comparable or superior overall survival to post-transplant cyclophosphamide-based GVHD prevention strategies.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>Orca-T 這個新寶貝有機會挑戰 PTCy 的地位，移植的新希望啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>觀察性研究的數據永遠比不上隨機試驗，要不要這麼相信還得想想喔。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtct.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.08.038" target="_blank" rel="noopener">Donor HLA-E*01:06 Confers Protection from Relapse and Improved Survival after T cell depleted Matched Unrelated Donor Haematopoietic Cell Transplantation</a>
+  </div>
+  <p class="article-authors">Lucas J, Hewerdine S, Voiniciuc D, Turner T et al.</p>
+  <p class="article-summary">HLA-E*01:06 on donor cells confers protection from disease relapse and improves survival outcomes after T-cell depleted matched unrelated donor hematopoietic cell transplantation.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>非經典 HLA-E 基因型能預防復發，移植配對時又多了一層厲害的考量啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>HLA-E 的角色這麼重要，那之前怎麼都沒人發現呢，真是奇怪欸。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtct.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.08.009" target="_blank" rel="noopener">Impact of Conditioning Regimen Intensity and Total Body Irradiation on Outcomes of Allogeneic Hematopoietic Cell Transplantation for Mature T-Cell Lymphomas: A Multicenter Analysis</a>
+  </div>
+  <p class="article-authors">Vanegas Y, Durani U, Khera N, Hilal T et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtct.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.08.008" target="_blank" rel="noopener">Impact of Donor Weight and Age on Bone-Marrow Stem-Cell Yield in Healthy Bone-Marrow Donors</a>
+  </div>
+  <p class="article-authors">Hamideh D, Visentin S, Fahd M, Dalle J et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-08-25 00:31 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · Springer RSS · CrossRef API
+</footer>
+</body>
+</html>
