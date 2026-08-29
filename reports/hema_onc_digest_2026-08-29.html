@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-08-29</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Collapsed non-heme tail ────────────────── */
+.other-block {
+  margin-top: 2.5rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 1.25rem;
+}
+.other-block > summary {
+  cursor: pointer;
+  font-size: .84rem;
+  color: var(--muted);
+  padding: .55rem .8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  list-style-position: inside;
+}
+.other-block > summary:hover { color: var(--accent2); border-color: var(--accent2); }
+.other-block > summary b { color: var(--accent2); }
+.other-block[open] > summary { margin-bottom: 1.25rem; }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-08-29 04:31 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>62</b> articles</span>
+  <span>📚 <b>12</b> journals</span>
+  <span>⏱ Past <b>28h</b></span>
+  <span>📉 <b>2</b> set aside</span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-american-journal-of-hematology">American Journal of Hematology <span style="opacity:.6">(2)</span></a><a href="#j-annals-of-hematology">Annals of Hematology <span style="opacity:.6">(3)</span></a><a href="#j-blood">Blood <span style="opacity:.6">(1)</span></a><a href="#j-blood-advances">Blood Advances <span style="opacity:.6">(20)</span></a><a href="#j-blood-reviews">Blood Reviews <span style="opacity:.6">(1)</span></a><a href="#j-british-journal-of-haematology">British Journal of Haematology <span style="opacity:.6">(5)</span></a><a href="#j-european-journal-of-haematology">European Journal of Haematology <span style="opacity:.6">(2)</span></a><a href="#j-journal-of-thrombosis-and-haemostasis">Journal of Thrombosis and Haemostasis <span style="opacity:.6">(5)</span></a><a href="#j-lancet-haematology">Lancet Haematology <span style="opacity:.6">(16)</span></a><a href="#j-lancet-oncology">Lancet Oncology <span style="opacity:.6">(1)</span></a><a href="#j-thrombosis-and-haemostasis">Thrombosis and Haemostasis <span style="opacity:.6">(1)</span></a><a href="#j-transplantation-and-cellular-therapy">Transplantation and Cellular Therapy <span style="opacity:.6">(5)</span></a></div>
+</div>
+<div class="journal-section" id="j-american-journal-of-hematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">American Journal of Hematology</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-28</span><span class="badge">DOI: 10.1002/ajh.70457</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/ajh.70457" target="_blank" rel="noopener">HOPE Kids 2: Phase 3, Randomized Trial of Voxelotor in Children With SCD and Conditional Cerebral Blood Flow Velocities</a>
+  </div>
+  <p class="article-authors">Bello‐Manga H, Abdullahi S, Hassab H, Brown B et al.</p>
+  <p class="article-summary">The HOPE Kids 2 phase 3 trial demonstrates that voxelotor reduces cerebral blood flow velocity in children with sickle cell disease and conditional elevated CBFV, potentially reducing stroke risk in this vulnerable population.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>鐮刀型細胞病的小患者終於有辦法降低中風風險了，voxelotor 用在預防性角色上真的超重要！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>一個讓紅血球氧合更好的藥物，靠著改善血流量來降低中風，感覺有點繞圈子但又滿有意思。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-28</span><span class="badge">DOI: 10.1002/ajh.70460</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/ajh.70460" target="_blank" rel="noopener">Targeting B‐Cell‐Activating Factor and Its Receptor in Immune Thrombocytopenia and Warm Autoimmune Hemolytic Anemia</a>
+  </div>
+  <p class="article-authors">Mahévas M, Cooper N, McDonald V, Yazdanbakhsh K et al.</p>
+  <p class="article-summary">Targeting B-cell-activating factor and its receptor shows promise in immune thrombocytopenia and warm autoimmune hemolytic anemia, potentially providing more durable responses and sustained remission compared to current treatments.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>ITP 和自體免疫溶血性貧血患者終於可能靠 BAFF 標靶治療取得更持久的緩解，根本是改寫自體免疫治療的新時代！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>只要把 B 細胞救星給堵住，患者就能活下去，簡單粗暴但好像還滿有效的。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-annals-of-hematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Annals of Hematology</span>
+    <span class="journal-count">3</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-29</span><span class="badge">DOI: 10.1007/s00277-026-072</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1007/s00277-026-07253-0" target="_blank" rel="noopener">Predictors and prognostic stratification of bronchiolitis obliterans syndrome after pediatric allogeneic hematopoietic stem cell transplantation</a>
+  </div>
+  <p class="article-authors">Wang C, Ding G, Zhang X, Li H et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-28</span><span class="badge">DOI: 10.1007/s00277-026-072</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1007/s00277-026-07259-8" target="_blank" rel="noopener">Dynamic on-treatment prognosis refinement in molecularly defined lower-risk myelofibrosis</a>
+  </div>
+  <p class="article-authors">Palandri F, Branzanti F, Sartor C, Kuykendall A et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-28</span><span class="badge">DOI: 10.1007/s00277-026-072</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1007/s00277-026-07248-x" target="_blank" rel="noopener">Efficacy of rituximab plus lenalidomide regimens in follicular lymphoma: a meta-analysis of randomized controlled trials</a>
+  </div>
+  <p class="article-authors">Khan I, Habib H, Butt A, Hafeez A et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+<div class="journal-section" id="j-blood">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-28</span><span class="badge">DOI: 10.1182/blood.20260340</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/blood.2026034036" target="_blank" rel="noopener">Nipocalimab for warm autoimmune hemolytic anemia: results from the phase 2/3 randomized, double-blind ENERGY study</a>
+  </div>
+  <p class="article-authors">Fattizzo B, Murakhovskaya I, Ueda Y, Schlichting D et al.</p>
+  <p class="article-summary">Nipocalimab, an FcRn blocker that reduces circulating IgG autoantibodies, showed efficacy in the ENERGY phase 2/3 trial for warm autoimmune hemolytic anemia, a rare disease previously without approved treatments.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有人把自體免疫溶血性貧血放在心上啦，nipocalimab 這個新希望真的很讚欸！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>只要 FcRn 一堵住，IgG 就乖乖掉下來，感覺好像在玩免疫系統的大富翁遊戲。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-blood-advances">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Advances</span>
+    <span class="journal-count">20</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-28</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026021835" target="_blank" rel="noopener">Umbilical Cord Blood Donor Outcomes in BMTCTN1702</a>
+  </div>
+  <p class="article-authors">Bashey A, Lee S, Devine S, Shaw B et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-28</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020989" target="_blank" rel="noopener">Neutropenia Duration During AZA-VEN Induction for AML Is Bimodal and Correlates With Infection Risk</a>
+  </div>
+  <p class="article-authors">Higué J, Batterham E, Bajel A, Tiong I et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-28</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020029" target="_blank" rel="noopener">Comprehensive genetic characterization of adult BCR::ABL1-negative B-ALL by Optical Genome Mapping and Targeted NGS</a>
+  </div>
+  <p class="article-authors">Navas Acosta J, Hernández Sánchez A, Villaverde Ramiro Á, Santos-Mínguez S et al.</p>
+  <p class="article-summary">A combined workflow of Optical Genome Mapping and targeted NGS successfully classified many previously unclassified adult B-ALL patients, providing comprehensive genetic characterization beyond standard methods.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>光學基因組製圖搭配標靶 NGS，終於能把那些神祕的 B-ALL 患者好好分類了，根本基因診斷的超級英雄！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>看起來我們終於可以停止猜謎遊戲，開始用科學說話了（只是流程有點複雜就是）。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026021341" target="_blank" rel="noopener">CAR T before the storm: early consolidation in B-ALL</a>
+  </div>
+  <p class="article-authors">Shouval R, Muffly L</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020870" target="_blank" rel="noopener">When endurance running leads to functional iron deficiency</a>
+  </div>
+  <p class="article-authors">Njoku F, Gordeuk V</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020504" target="_blank" rel="noopener">A machine learning–derived sarcopenia index is associated with survival and nonrelapse mortality in DLBCL</a>
+  </div>
+  <p class="article-authors">Ullrich F, Hosch R, Kocakavuk E, Zieger H et al.</p>
+  <p class="article-summary">A machine learning-derived sarcopenia index from CT imaging independently predicts survival and nonrelapse mortality in newly diagnosed DLBCL, offering a novel prognostic tool beyond traditional factors.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>用機器學習挖掘肌肉量數據來預測 DLBCL 預後，根本是把身體檢查升級成 AI 算法啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以看來 DLBCL 病人的肌肉量比我們想像的還要決定他的命運，健身房的會員要開心了。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026021127" target="_blank" rel="noopener">Heestermans R, Olsen C, Ameli S, et al. Blood-derived cell-free DNA is a superior biomarker for noninvasive DNA methylation profiling in multiple myeloma. Blood Adv . 2025;9(16):4306-4310.</a>
+  </div>
+  
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026021569" target="_blank" rel="noopener">Doing more with less in hemophilia B gene therapy</a>
+  </div>
+  <p class="article-authors">Miesbach W</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025018827" target="_blank" rel="noopener">Myelodysplasia in VEXAS syndrome</a>
+  </div>
+  <p class="article-authors">Patel B, Calvo K, Reichard K, Patnaik M</p>
+  <p class="article-summary">VEXAS syndrome, a clonal hematoinflammatory disorder caused by somatic UBA1 mutations in older males, frequently presents with myelodysplasia and progressive bone marrow failure alongside systemic inflammation.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>VEXAS 症候群這個稀有疾病終於被好好研究了，原來骨髓衰竭和發炎症狀都跟它有關係，長知識！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>一個 X 染色體上的小突變，就能搞出這麼大的麻煩，真的覺得基因有夠皮的。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020826" target="_blank" rel="noopener">Real-world outcomes with BCMA- and GPRC5D-targeting bispecific antibodies in plasma cell leukemia</a>
+  </div>
+  <p class="article-authors">Gaballa M, Julian K, Afrough A, Hansen D et al.</p>
+  <p class="article-summary">Real-world data from 122 patients with primary or secondary plasma cell leukemia showed meaningful outcomes with BCMA- and GPRC5D-targeting bispecific antibodies, a population typically excluded from pivotal trials.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>PCL 患者終於有雙特異性抗體可以用了，而且真實世界的成效看起來不錯欸，替難纏的患者開了新大門！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>看來臨床試驗排除的病人其實也滿能受益的，制度設計果然永遠趕不上臨床現實。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020518" target="_blank" rel="noopener">TNFRSF17 genomic profiling guides retreatment with alternative BCMA-directed immunotherapies in multiple myeloma</a>
+  </div>
+  <p class="article-authors">Podvin B, Lee H, Tilmont R, Decool G et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025018389" target="_blank" rel="noopener">KIT mutation and AHN-associated oncogenic profiles in systemic mastocytosis with an associated hematological neoplasm</a>
+  </div>
+  <p class="article-authors">Navarro-Navarro P, Fernández-Giménez C, García-Montero A, Álvarez-Twose I et al.</p>
+  <p class="article-summary">In systemic mastocytosis with associated hematological neoplasm, most patients carry KIT mutations alongside AHN-related alterations; this multicenter study clarifies the frequency and clinical significance of dual genetic drivers.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>SM-AHN 的遺傳特徵終於被好好梳理清楚了，KIT 突變加上其他癌症基因的組合真的滿複雜的！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>肥大細胞要造反還要找個朋友幫忙，一起帶來雙重基因打擊，根本是血液腫瘤界的 buddy cop 電影。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025019368" target="_blank" rel="noopener">Real-world safety profile of twice a day deferiprone in patients with thalassemia, sickle cell disease, or other anemias</a>
+  </div>
+  <p class="article-authors">Sheth S, Lal A, Appiah-Kubi A, Peslak S et al.</p>
+  <p class="article-summary">A real-world safety analysis of twice-daily deferiprone in thalassemia, sickle cell disease, and other transfusion-dependent anemias confirms the oral chelator's safety profile with improved dosing convenience.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>從一天三次改成一天兩次，deferiprone 讓鐵質螯合治療變得更親民了，患者遵從性肯定大提升！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>鐵質超載這種慢性毒害，我們終於能用更方便的方式來對付它，只是還是得持續服用啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025018891" target="_blank" rel="noopener">Increased gene therapy efficacy through the use of extended half-life clotting factors</a>
+  </div>
+  <p class="article-authors">De Wolf D, Nguyen P, Nair N, Gao F et al.</p>
+  <p class="article-summary">Extended half-life clotting factors improve gene therapy efficacy and durability in hemophilia B, addressing the significant interpatient variability and relapse to prophylaxis seen in AAV-based approaches.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>長效凝血因子基因療法讓血友病患者更能長期受益，終於能減少那種打完基因療法又要回去打因子的尷尬狀況！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>看起來 AAV 載體可能滿有脾氣的，還要配上長效因子才肯乖乖工作。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020963" target="_blank" rel="noopener">CAR T-cell therapy as a definitive consolidation for older adults with B-ALL in first complete remission</a>
+  </div>
+  <p class="article-authors">Aldoss I, Goldberg L, Zhang J, Artz A et al.</p>
+  <p class="article-summary">A phase 1 study demonstrates that CD19 CAR-T cell therapy is a safe and effective definitive consolidation strategy for older adults (≥55 years) with B-ALL in first complete remission.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>年長 B-ALL 患者也能享受 CAR-T 療法的好處，把第一次緩解鞏固做得更紮實，這根本是精準醫療的勝利啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>五十五歲以上才能玩 CAR-T，看來年齡不是問題，只是我們得多花點工夫確保安全性就是。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020321" target="_blank" rel="noopener">Secondary anticoagulation prophylaxis for children with antiphospholipid syndrome: a systematic review and meta-analysis</a>
+  </div>
+  <p class="article-authors">Kawtharany H, Azzam M, Khawandi J, Hamarsha Q et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026019765" target="_blank" rel="noopener">EuroNet-PHL-LP1: complete resection or low-dose chemotherapy for pediatric low-risk nodular lymphocyte–predominant Hodgkin lymphoma</a>
+  </div>
+  <p class="article-authors">Shankar A, Landman-Parker J, Mascarin M, Attarbaschi A et al.</p>
+  <p class="article-summary">The EuroNet-PHL-LP1 trial investigates whether early-stage pediatric nodular lymphocyte-predominant Hodgkin lymphoma can be successfully managed with surgical resection alone or low-dose chemotherapy instead of standard anthracycline-containing regimens.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>小朋友的 nLPHL 有機會逃脫強力化療的魔掌，用手術或低劑量治療就能搞定，真的是一大進展欸！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>五十年來都在打高劑量化療，現在才想到有沒有可能輕一點，成長曲線總算開始向上囉。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2025019051" target="_blank" rel="noopener">American Society of Hematology 2026 guidelines for the diagnosis and management of severe and very severe acquired aplastic anemia</a>
+  </div>
+  <p class="article-authors">Scheinberg P, O’Neal D, Basquiera A, Byrne M et al.</p>
+  <p class="article-summary">The ASH 2026 guidelines provide comprehensive, evidence-based recommendations for diagnosing and managing severe and very severe acquired aplastic anemia, addressing persistent clinical uncertainties.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>ASH 新指南終於幫我們把重度再生不良性貧血的診療步驟整理得清清楚楚，臨床實踐有標準可循囉！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>一個稀有病要多稀有才能把美國血液學會逼出來寫指南，顯見大家之前確實是各自為政。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026019753" target="_blank" rel="noopener">E-lesion or stage IV disease? An ongoing unsettled issue in pediatric Hodgkin lymphoma</a>
+  </div>
+  <p class="article-authors">Seelisch J, Mauz-Koerholz C, Kelly K, Link M et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020372" target="_blank" rel="noopener">Outcomes of adolescents and young adults with AML treated on pediatric vs adult protocols</a>
+  </div>
+  <p class="article-authors">Krayem B, Biswas J, Derkach A, Rafizadeh M et al.</p>
+  <p class="article-summary">A single-center retrospective analysis of 81 adolescents and young adults with newly diagnosed AML showed differing outcomes based on whether patients were treated on pediatric versus adult protocols.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>AYA 族群的 AML 治療終於有人好好比較一下，到底該跟大人走還是跟小孩走，這個研究超實用！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>十四到二十九歲那群人真的命苦，不知道該站在哪邊，現在終於有數據幫忙決定了。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-blood-reviews">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Reviews</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.blre.2026.10</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.blre.2026.101430" target="_blank" rel="noopener">Non-transfusion-dependent β-thalassemia: A disease of clinical paradoxes</a>
+  </div>
+  <p class="article-authors">Musallam K, Sheth S, Forni G, Shah F et al.</p>
+  <p class="article-summary">Non-transfusion-dependent β-thalassemia is increasingly recognized as a disease with substantial morbidity and premature mortality driven by chronic anemia, iron overload, and hypercoagulability, challenging the perception of it being a mild form.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>非輸血依賴的 β-地中海貧血患者終於被正視了，原來看似溫和的病背後暗藏著慢性毒害，得好好監控！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>以前大家以為不用輸血就很幸運，現在才發現自體產生的貧血一樣會慢慢謀殺患者，命運的諷刺啦。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-british-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">British Journal of Haematology</span>
+    <span class="journal-count">5</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-28</span><span class="badge">DOI: 10.1111/bjh.70811</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70811" target="_blank" rel="noopener">NFкB pathway suppression as a key driver of pacritinib response in high‐risk myelofibrosis</a>
+  </div>
+  <p class="article-authors">Van Dijck R, ter Borg M, van der Holt B, Broers A et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-28</span><span class="badge">DOI: 10.1111/bjh.70799</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70799" target="_blank" rel="noopener">Functional assessment of inherited myeloid neoplasm‐associated SAMD9L germline variants via Monoallelic CRISPR modelling</a>
+  </div>
+  <p class="article-authors">Vuelta E, Liquori A, Morín M, Soletto L et al.</p>
+  <p class="article-summary">Functional assessment using monoallelic CRISPR modeling validates that SAMD9L germline variants are associated with inherited myeloid neoplasm predisposition, supporting the WHO designation of myeloid malignancies with germline predisposition.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>用 CRISPR 模型驗證 SAMD9L 基因變異的致病性，終於讓遺傳性骨髓瘤有了紮實的分子基礎，科學漂亮！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>敲掉一個基因拷貝就能讓細胞走上腫瘤之路，看來我們的基因組確實是靠著平衡才不至於爆炸。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-18</span><span class="badge">DOI: 10.1111/bjh.70766</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70766" target="_blank" rel="noopener">Efficacy of a virtual reality headset in the management of severe pain during a vaso‐occlusive crisis: A single‐centre study in adults with sickle cell disease</a>
+  </div>
+  <p class="article-authors">Cheminet G, Corbasson A, Al Kudsee K, Charmettan M et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-28</span><span class="badge">DOI: 10.1111/bjh.70744</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70744" target="_blank" rel="noopener">Myeloid sarcoma ‘invading’ a dedifferentiated liposarcoma: A rare collision tumour</a>
+  </div>
+  <p class="article-authors">He C, Chen Y, Sun Y, Li B et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-28</span><span class="badge">DOI: 10.1111/bjh.70636</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70636" target="_blank" rel="noopener">First‐line hetrombopag combined with immunosuppressive therapy for paediatric severe aplastic anaemia: A prospective randomized controlled trial</a>
+  </div>
+  <p class="article-authors">Fu L, Yang B, Wang R, Li H et al.</p>
+  <p class="article-summary">A prospective randomized controlled trial in pediatric severe aplastic anemia demonstrates that hetrombopag combined with immunosuppressive therapy improves response rates compared to IST alone.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>小朋友的重症再生不良性貧血患者有新藥了，hetrombopag 搭配 IST 的效果看起來比單用 IST 好，太讚了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>小孩本來就難照顧，再加上一個罕見病，幸好成人的成功經驗能移植到兒科患者身上。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-european-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">European Journal of Haematology</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-28</span><span class="badge">DOI: 10.1111/ejh.70307</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/ejh.70307" target="_blank" rel="noopener">InflaMix Predicts Severe CRS , ICU Admission, and Progression‐Free Survival After CAR ‐T Therapy in LBCL</a>
+  </div>
+  <p class="article-authors">Galli E, Mannina D, Corrente A, De Philippis C et al.</p>
+  <p class="article-summary">The InflaMix inflammatory biomarker model predicts severe cytokine release syndrome, ICU admission, and progression-free survival after CD19 CAR-T therapy in large B-cell lymphoma patients.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>InflaMix 這個發炎指數能預測 CAR-T 療法的嚴重毒性和長期成效，終於有工具可以預先評估高風險患者了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又一個新的生物標記要記起來，臨床醫生的記憶體容量看來快滿了。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-28</span><span class="badge">DOI: 10.1111/ejh.70306</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/ejh.70306" target="_blank" rel="noopener">Diagnostic Accuracy of Fluorodeoxyglucose Positron Emission Tomography–Computed Tomography in Differentiating Tumor and Bland Thrombus in Patients With Cancer: A Systematic Review and Meta‐Analysis</a>
+  </div>
+  <p class="article-authors">Eltaher B, Mahmoud A, Balusu K, Manshahia P et al.</p>
+  <p class="article-summary">A systematic review and meta-analysis evaluates PET/CT imaging performance in differentiating tumor thrombus from bland thrombus in cancer patients, clarifying diagnostic accuracy across studies.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>癌症患者的血栓到底是惡性的還是善良的，終於有系統性的影像診斷方法可以分辨了，臨床很需要啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>血栓長在有癌症的患者身上本來就難判斷，靠 PET/CT 來區分也只能說是聰明的折衷方案。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-journal-of-thrombosis-and-haemostasis">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Thrombosis and Haemostasis</span>
+    <span class="journal-count">5</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtha.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.08.023" target="_blank" rel="noopener">Pretest DOAC removal is highly effective in lupus anticoagulant testing while on direct oral anticoagulants: a real-life experience</a>
+  </div>
+  <p class="article-authors">Słaboszewski M, Ząbczyk M, Papuga-Szela E, Wypasek E et al.</p>
+  <p class="article-summary">A real-world study confirms that pretest DOAC removal is highly effective in resolving false-positive lupus anticoagulant results during direct oral anticoagulant therapy.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>DOAC 患者檢查 LA 時的假陽性問題終於有簡單的解決辦法了，移除抗凝血劑干擾一招搞定！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>繞過干擾最直接的方法就是先把干擾源拿掉，我們怎麼沒早點想到呢？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtha.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.08.020" target="_blank" rel="noopener">Preserving Expertise in Vitamin K Antagonists in the Era of Direct Oral Anticoagulants: Avoiding Therapeutic Segregation</a>
+  </div>
+  <p class="article-authors">Everard C, Lambert C, Hermans C</p>
+  <p class="article-summary">An opinion article warns against therapeutic segregation and the loss of clinical expertise in managing vitamin K antagonists as DOACs rapidly replace VKAs, noting that several patient populations remain VKA-dependent.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>香豆素類藥物不應該被遺忘啊，機械心臟瓣膜的患者還是得靠它，我們要保護這些珍貴的醫療技能！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>新藥再好也不是萬靈丹，舊藥的專業知識卻在迅速流失，醫學教育的弔詭之處啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtha.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.08.022" target="_blank" rel="noopener">Successful immune tolerance induction using efanesoctocog alfa in severe hemophilia A: A case series</a>
+  </div>
+  <p class="article-authors">Ashraf A, Kuhlman R, Khan O, Nusrat S</p>
+  <p class="article-summary">Two patients with complex hemophilia A inhibitor histories achieved rapid and sustained inhibitor eradication using efanesoctocog alfa for immune tolerance induction.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>太厲害了！新的 FVIII 製品幫助這些困難個案突破瓶頸，真的是病人的福音啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>就兩個 case series 啦，慢著，先別急著當成金標準欸，我們還是乖乖等大型試驗吧囉。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtha.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.07.029" target="_blank" rel="noopener">Socioeconomic Status and its Association with Venous Thromboembolism During Pregnancy and Postpartum: Results from a Dutch Population-Based Study.</a>
+  </div>
+  <p class="article-authors">ten Have S, Nazir M, Huisman M, Korevaar T et al.</p>
+  <p class="article-summary">A Dutch population-based study examines the association between socioeconomic status and pregnancy-related venous thromboembolism risk.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>好棒喔，終於有人認真看社會經濟因素對孕期 VTE 的影響，這對高危群體很重要耶！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>觀察型研究啦，SES 關聯 VTE 的機制還是霧煞煞，改善社會階級比較實際啦哈哈。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtha.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.07.030" target="_blank" rel="noopener">Use of Factor Concentrates for the Management of Perioperative Bleeding: Guidance from the ISTH SSC Subcommittee on Perioperative and Critical Care Thrombosis and Hemostasis</a>
+  </div>
+  <p class="article-authors">Levy J, Shaw J, Siegal D, Callum J et al.</p>
+  <p class="article-summary">The ISTH SSC Subcommittee provides comprehensive guidance on using factor concentrates to manage perioperative bleeding across major surgical specialties.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>ISTH 出手就是權威，有這份指引醫療團隊在手術房就心安啦，讚讚讚！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>指引歸指引，臨床上還是要依據當下現場狀況隨機應變，永遠沒有一成不變的 cookbook 啦。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-lancet-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Lancet Haematology</span>
+    <span class="journal-count">16</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00126-2" target="_blank" rel="noopener">Beyond maximum grade: the role of real-world digital health technologies to capture, predict, and manage treatment toxicity in haematological cancers</a>
+  </div>
+  <p class="article-authors">El-Galaly T, Buvat I, Córdoba R, Porta M et al.</p>
+  <p class="article-summary">Digital health technologies such as electronic patient-reported outcomes and wearables enable real-time, granular capture and prediction of treatment-related toxicities in hematological cancer patients, surpassing limitations of traditional CTCAE grading.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>穿戴式裝置和電子回報系統讓我們終於能全天候監控血液腫瘤患者的毒性狀況，根本是毒性管理的革命！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>以前靠患者回診時說「醫生，我這兩週有點不舒服」，現在要 24/7 被監控，不知道患者會不會覺得有點窒息。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00113-4" target="_blank" rel="noopener">Beyond maximum grade: long-term toxicity and survivorship in haematological malignancies</a>
+  </div>
+  <p class="article-authors">Wästerlid T, Valcarcel B, Presno D, Stemmelin G et al.</p>
+  <p class="article-summary">A Lancet Haematology series article addresses the need for improved survivorship monitoring and long-term toxicity assessment as more potent and novel treatments yield increasing numbers of cured hematological malignancy patients.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>血液惡性腫瘤患者活得更久了，我們得好好追蹤他們的長期毒性和生活品質，這絕對是個重要課題啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>治療成功率提高了以後，才發現原來最難的部分是照顧那些活著的人，真是有點措手不及。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00198-5" target="_blank" rel="noopener">Epcoritamab with rituximab and lenalidomide as first-line treatment for follicular lymphoma (EPCORE NHL-2): an open-label, multicentre, phase 1/2 b trial</a>
+  </div>
+  <p class="article-authors">Falchi L, Vermaat J, Brody J, Leslie L et al.</p>
+  <p class="article-summary">The EPCORE NHL-2 phase 1/2b trial demonstrates that epcoritamab (CD3×CD20 bispecific antibody) combined with rituximab and lenalidomide achieves deeper, more durable responses as first-line treatment for follicular lymphoma without chemotherapy.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>濾泡淋巴瘤患者終於可以擺脫化療了，用雙特異性抗體配合免疫療法和 lenalidomide，效果看起來超讚欸！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>三個藥物組合在一起，每個都有各自的副作用，我看後面要研究的 toxicity 管理又更複雜了。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00191-2" target="_blank" rel="noopener">Venetoclax added to dose-adjusted EPOCH-R for newly diagnosed double-hit lymphomas: phase 2 results from ALLIANCE A051701, an open-label, randomised, controlled, phase 2–3 trial</a>
+  </div>
+  <p class="article-authors">Abramson J, Geyer S, Giri S, Pederson L et al.</p>
+  <p class="article-summary">Adding venetoclax to dose-adjusted EPOCH-R improves outcomes in newly diagnosed double-hit lymphoma patients, a highly aggressive disease with poor prognosis under standard chemoimmunotherapy.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>雙重打擊淋巴瘤患者有新希望了！venetoclax 加上 EPOCH-R 的組合看起來滿有威力的，終於能改善他們黑暗的預後！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>MYC 和 BCL2 同時亂搞的患者原本就很難救，現在要再加上 venetoclax，得確保心肌毒性不會爆表才行。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00192-4" target="_blank" rel="noopener">CD19 CAR T-cell therapy (GLPG5101) for relapsed or refractory B-cell non-Hodgkin lymphoma (ATALANTA-1): phase 1 results from a single-arm, multicentre, phase 1/2 study</a>
+  </div>
+  <p class="article-authors">Kersten M, Kuipers M, Mutsaers P, Willems E et al.</p>
+  <p class="article-summary">GLPG5101, a fresh CD19 CAR-T cell product manufactured through decentralized processes, demonstrates feasibility and safety in relapsed/refractory B-cell non-Hodgkin lymphoma, potentially improving accessibility and reducing logistical barriers.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>分散式 CAR-T 細胞製造終於成真了，不用非得寄到中央工廠，患者有機會更快取得治療，超便利！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>當每個醫院都能自己製造 CAR-T 的時候，品質管制會不會成為下一個頭痛的問題呢？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00105-5" target="_blank" rel="noopener">Concurrent BCR::ABL1 and CBFA2T3::GLIS2 fusions in an adult patient with acute leukaemia</a>
+  </div>
+  <p class="article-authors">Huang J, Wu T, Zhu H, Li J et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00225-5" target="_blank" rel="noopener">ISTH 2026 Congress</a>
+  </div>
+  <p class="article-authors">Smith L, Cookson E</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00220-6" target="_blank" rel="noopener">Building stronger blood systems</a>
+  </div>
+  <p class="article-authors">Burki T</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00138-9" target="_blank" rel="noopener">Menstruation in Nepal: tradition, stigma, and transition</a>
+  </div>
+  <p class="article-authors">Joshi A, Giri A</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00200-0" target="_blank" rel="noopener">FAIR(er) treatment of non-anaemic iron deficiency during pregnancy: clarifying the evidence – Authors' reply</a>
+  </div>
+  <p class="article-authors">Cano-Ibáñez N, Wasim T, Bushra N, Zamora J et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00147-x" target="_blank" rel="noopener">Haematopoietic stem cell transplantation in hepatosplenic T-cell lymphoma: a retrospective analysis of the EBMT Lymphoma Working Party</a>
+  </div>
+  <p class="article-authors">Karsten I, Schmitz N, Fekom M, de Leval L et al.</p>
+  <p class="article-summary">A retrospective EBMT analysis of allogeneic and autologous HSCT in hepatosplenic T-cell lymphoma clarifies the role of transplantation in this rare, aggressive malignancy without established standard therapy.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>肝脾 T 細胞淋巴瘤患者終於有人好好研究幹細胞移植的效果了，算是這種罕見病的一大福音啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>一個這麼兇悍的淋巴瘤，化療也不行，只能靠移植來賭一把，患者的心態肯定滿糾結的。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00150-x" target="_blank" rel="noopener">Living with a bleeding disorder as a woman</a>
+  </div>
+  <p class="article-authors">Robledo A</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00148-1" target="_blank" rel="noopener">Reproductive health in Ireland: moving forward as others roll back</a>
+  </div>
+  <p class="article-authors">Doherty D, Lavin M</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00199-7" target="_blank" rel="noopener">Beyond maximum grade: making toxicity count</a>
+  </div>
+  <p class="article-authors">Li G, Hermiston M</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00168-7" target="_blank" rel="noopener">Beyond maximum grade: key regulatory considerations in adverse event reporting</a>
+  </div>
+  <p class="article-authors">Tzogani K, El-Galaly T, Everest N, Gisselbrecht C et al.</p>
+  <p class="article-summary">A Lancet Haematology consensus paper identifies regulatory and methodological gaps in adverse event reporting for hematological malignancies, advocating for updated approaches beyond traditional maximum-grade CTCAE assessments.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>血液腫瘤的毒性回報標準終於要與時俱進了，新藥新療法帶來的新毒性，確實得用新方法來追蹤！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>CTCAE 用了幾十年，直到出現一堆新療法後才想起它可能不夠用，改制永遠慢一拍。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/s2352-3026(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s2352-3026(26)00226-7" target="_blank" rel="noopener">Beyond maximum grade: a decade in the making</a>
+  </div>
+  <p class="article-authors">The Lancet Haematology</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+<div class="journal-section" id="j-lancet-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Lancet Oncology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00443-2" target="_blank" rel="noopener">Delays in cancer referrals and care lead to harm and missed diagnoses in England</a>
+  </div>
+  <p class="article-authors">Devi S</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+<div class="journal-section" id="j-thrombosis-and-haemostasis">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Thrombosis and Haemostasis</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-28</span><span class="badge">DOI: 10.1055/a-2945-4864</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1055/a-2945-4864" target="_blank" rel="noopener">Divergent Effects of Estradiol Regimens on Protein S and Global Coagulation in Transgender Women</a>
+  </div>
+  <p class="article-authors">Bar-On S, Barzilai M, Greenman Y, Spectre G et al.</p>
+  <p class="article-summary">A study compares hemostatic effects between oral estradiol plus cyproterone acetate and sublingual estradiol monotherapy in transgender women receiving gender-affirming hormone therapy.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>很讚耶，認真研究跨性別醫療對凝血功能的影響，這是被忽視的重要健康議題啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>激素用藥對凝血的影響本來就複雜，這邊還要加上性別認同的變數，分析起來八卦得很囉。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-transplantation-and-cellular-therapy">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Transplantation and Cellular Therapy</span>
+    <span class="journal-count">5</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtct.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.08.042" target="_blank" rel="noopener">Donor-derived distinct neutrophil subsets in the G-CSF-mobilized peripheral blood grafts predict acute GVHD development</a>
+  </div>
+  <p class="article-authors">Dai H, Zhang C, Zhang H, Jiang C et al.</p>
+  <p class="article-summary">Donor-derived neutrophil subsets in G-CSF-mobilized peripheral blood grafts are associated with acute GVHD development following allogeneic hematopoietic stem cell transplantation.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>探索中性粒細胞在急性 GVHD 的角色真的超有趣，預測生物標誌有助於預防策略啦，讚！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>要把這些 neutrophil subset 分類轉成臨床可用的工具才是真功夫，目前還在發現階段啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtct.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.08.047" target="_blank" rel="noopener">Belumosudil Demonstrates Steroid-Sparing, Safety and Efficacy in Pediatric Chronic Graft Versus Host Disease</a>
+  </div>
+  <p class="article-authors">Anerao A, Morris J, Cheng G, Djassemi N et al.</p>
+  <p class="article-summary">Belumosudil demonstrates steroid-sparing efficacy and safety in pediatric patients with chronic graft-versus-host disease.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>哇塞，能減少類固醇劑量對小朋友太重要了，belumosudil 真的是兒童 cGVHD 的救星欸！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>單中心經驗還是要謹慎，真正要看多中心隨機試驗才能拍板定案啦，別急著改guideline 喔。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtct.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.08.050" target="_blank" rel="noopener">Impact Of Conditioning Intensity on Outcomes After Unrelated Donor Hematopoietic Cell Transplantation Using Post-Transplant Cyclophosphamide-Based GVHD Prophylaxis</a>
+  </div>
+  <p class="article-authors">Amin M, Shahzad M, Gandicheruvu H, Noor N et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtct.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.08.044" target="_blank" rel="noopener">Adaptive bridging and holding therapy frequently reduces tumor burden and is associated with reduced toxicity after CAR-T cell therapy in multiple myeloma: A single-center real-world experience</a>
+  </div>
+  <p class="article-authors">Artzenroth J, Kosch R, Al-Bazaz M, Bartke L et al.</p>
+  <p class="article-summary">Adaptive bridging and holding therapy prior to CAR-T cell infusion for multiple myeloma reduces tumor burden and toxicity in a real-world single-center cohort.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>多發性骨髓瘤病人能用 bridging 策略來降低 CAR-T 毒性，真的是智慧之舉啦，很聰明欸！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>實務經驗歸實務經驗，單一中心資料容易有選擇偏差，多中心驗證之前先別太樂觀囉。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/j.jtct.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.08.008" target="_blank" rel="noopener">Impact of Donor Weight and Age on Bone-Marrow Stem-Cell Yield in Healthy Bone-Marrow Donors</a>
+  </div>
+  <p class="article-authors">Hamideh D, Visentin S, Fahd M, Dalle J et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+<details class="other-block">
+  <summary><b>2</b> more, judged not hematology-related (solid-tumor
+    oncology, general medicine, policy and news)</summary>
+  
+<div class="journal-section" id="o-journal-of-clinical-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Clinical Oncology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08-28</span><span class="badge">DOI: 10.1200/jco-25-02659</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1200/jco-25-02659" target="_blank" rel="noopener">Perioperative Durvalumab for Resectable Non–Small Cell Lung Cancer: Updated Outcomes From the Phase III AEGEAN Trial</a>
+  </div>
+  <p class="article-authors">Heymach J, He J, Harpole D, Mitsudomi T et al.</p>
+  <p class="article-summary">Updated results from the phase III AEGEAN trial confirm that perioperative durvalumab plus neoadjuvant chemotherapy improves event-free survival in resectable non-small cell lung cancer with a manageable safety profile.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>肺癌患者終於有配套的周邊期免疫療法了，durvalumab 搭化療確實能改善治療成效！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>肺癌本來就是固體瘤，跟我們血液科的事情關係不大，不過免疫療法帶來的全身毒性倒是誰都得管。</div></div>
+</div>
+</div>
+<div class="journal-section" id="o-lancet-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Lancet Oncology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-08</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00194-4" target="_blank" rel="noopener">Intravesical cretostimogene grenadenorepvec oncolytic immunotherapy in high-risk, BCG-unresponsive, non-muscle-invasive bladder cancer with carcinoma in situ (BOND-003 Cohort C): a single-arm, phase 3 trial</a>
+  </div>
+  <p class="article-authors">Tyson M, Nam J, Joshi S, Uchio E et al.</p>
+  <p class="article-summary">The BOND-003 Cohort C phase 3 trial demonstrates that intravesical cretostimogene grenadenorepvec, an oncolytic immunotherapy, is effective for high-risk BCG-unresponsive non-muscle-invasive bladder cancer with a manageable safety profile.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>膀胱癌患者有了新的溶瘤免疫療法選項，不用那麼快就得割膀胱，這真的是滿有希望的發展！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>膀胱癌本來就不屬於我們血液科的地盤，不過溶瘤病毒這個概念倒是滿有趣的技術。</div></div>
+</div>
+</div>
+</details>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-08-29 04:31 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · NEJM RSS · CrossRef API
+</footer>
+</body>
+</html>
