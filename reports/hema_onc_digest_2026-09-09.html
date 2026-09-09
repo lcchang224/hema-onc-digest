@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-09-09</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Collapsed non-heme tail ────────────────── */
+.other-block {
+  margin-top: 2.5rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 1.25rem;
+}
+.other-block > summary {
+  cursor: pointer;
+  font-size: .84rem;
+  color: var(--muted);
+  padding: .55rem .8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  list-style-position: inside;
+}
+.other-block > summary:hover { color: var(--accent2); border-color: var(--accent2); }
+.other-block > summary b { color: var(--accent2); }
+.other-block[open] > summary { margin-bottom: 1.25rem; }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-09-09 01:50 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>14</b> articles</span>
+  <span>📚 <b>8</b> journals</span>
+  <span>⏱ Past <b>28h</b></span>
+  <span>📉 <b>5</b> set aside</span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-american-journal-of-hematology">American Journal of Hematology <span style="opacity:.6">(1)</span></a><a href="#j-blood-advances">Blood Advances <span style="opacity:.6">(6)</span></a><a href="#j-blood-cancer-journal-nature">Blood Cancer Journal (Nature) <span style="opacity:.6">(1)</span></a><a href="#j-british-journal-of-haematology">British Journal of Haematology <span style="opacity:.6">(2)</span></a><a href="#j-european-journal-of-haematology">European Journal of Haematology <span style="opacity:.6">(1)</span></a><a href="#j-journal-of-hematology-oncology">Journal of Hematology &amp; Oncology <span style="opacity:.6">(1)</span></a><a href="#j-journal-of-thrombosis-and-haemostasis">Journal of Thrombosis and Haemostasis <span style="opacity:.6">(1)</span></a><a href="#j-transplantation-and-cellular-therapy">Transplantation and Cellular Therapy <span style="opacity:.6">(1)</span></a></div>
+</div>
+<div class="journal-section" id="j-american-journal-of-hematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">American Journal of Hematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-07</span><span class="badge">DOI: 10.1002/ajh.70491</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1002/ajh.70491" target="_blank" rel="noopener">Anticoagulant Therapy and Bleeding‐Related Hospitalizations in Patients With Cancer: A National Cohort Study</a>
+  </div>
+  <p class="article-authors">Afzal A, Suhong L, Mahmoud A, Gage B et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+<div class="journal-section" id="j-blood-advances">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Advances</span>
+    <span class="journal-count">6</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026022141" target="_blank" rel="noopener">Comment on spleen measurement method in PV-RR6</a>
+  </div>
+  <p class="article-authors">AlHatlani D</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026022111" target="_blank" rel="noopener">Thromboprophylaxis and the treatment paradox in HA-VTE</a>
+  </div>
+  <p class="article-authors">Zhou X, Shan N</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020609" target="_blank" rel="noopener">Age- and sex-adjusted genomic differences between Korean and Beat AML cohorts</a>
+  </div>
+  <p class="article-authors">Kim M, Song I, Park J, Lee C et al.</p>
+  <p class="article-summary">A prospective multicenter study of 603 Korean AML patients reveals age- and sex-adjusted genomic differences compared to the Beat AML cohort, with implications for risk stratification.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>人口特異性的 genomic architecture 終於有亞洲資料來支持了，對東亞 AML 風險分層真的很有幫助！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>603 例韓國 AML 個案，感覺資料量還是不夠大到能完全取代歐美隊列的預測能力啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020572" target="_blank" rel="noopener">Revisiting KIR restriction and CD94 expression in diagnostic criteria for NK–large granular lymphocytic leukemia</a>
+  </div>
+  <p class="article-authors">Seheult J, Otteson G, Jevremovic D, Morice W et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020111" target="_blank" rel="noopener">Immunophenotyping challenges in the diagnosis of NK-LGLL</a>
+  </div>
+  <p class="article-authors">Wilk A, Oak J, Ames E</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020933" target="_blank" rel="noopener">Diagnosis of NK–large granular lymphocytic leukemia</a>
+  </div>
+  <p class="article-authors">Pastoret C, Lamy T, Roussel M</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+<div class="journal-section" id="j-blood-cancer-journal-nature">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Cancer Journal (Nature)</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nature.com/articles/s41408-026-01617-5" target="_blank" rel="noopener">Safety and efficacy of birelentinib, a novel LYN/BTK dual inhibitor, in relapsed/refractory diffuse large B-cell lymphoma: a phase 2 study (TAI-SHAN9)</a>
+  </div>
+  <p class="article-authors">Yajun Li, Wei Liu, Keshu Zhou, Wenbing Qian, et al.</p>
+  <p class="article-summary">Birelentinib, a novel dual LYN/BTK inhibitor, shows promising safety and efficacy in relapsed/refractory diffuse large B-cell lymphoma in the phase 2 TAI-SHAN9 trial.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>又一個新的雙靶點抑制劑來攻克難治型淋巴瘤，臨床數據看起來不錯喔！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>LYN/BTK 雙打組合，希望這次不要又在第三期試驗裡跌跤啦。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-british-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">British Journal of Haematology</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1111/bjh.70790</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70790" target="_blank" rel="noopener">Real‐world romiplostim dosing, response and home administration in paediatric immune thrombocytopenia</a>
+  </div>
+  <p class="article-authors">Harris E, Montcrieff C, Grace R</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1111/bjh.70820</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70820" target="_blank" rel="noopener">Estimated pulse wave velocity as a marker of major adverse cardiovascular events in essential thrombocythaemia and polycythaemia vera</a>
+  </div>
+  <p class="article-authors">Costa A, Mulas O, Pilo F, Atzeni E et al.</p>
+  <p class="article-summary">Estimated pulse wave velocity (ePWV) as a marker of arterial stiffness predicts major adverse cardiovascular events and overall survival in patients with essential thrombocythaemia and polycythaemia vera.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有人系統性地看血管硬度在 MPN 患者的心血管預後角色，這個臨床應用潛力不小呢！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>664 位 MPN 病人的追蹤資料，結果發現心血管風險還是逃不過血管硬化這個宿命囉。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-european-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">European Journal of Haematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1111/ejh.70317</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/ejh.70317" target="_blank" rel="noopener">Clinical Outcomes of Younger Adults With Philadelphia‐Negative Acute Lymphoblastic Leukemia, Treated With A Pediatric‐Like Regimen Based on the GIMEMA LAL1308 Protocol. A Campus ALL Study</a>
+  </div>
+  <p class="article-authors">Forghieri F, Cordella S, Lazzarotto D, Annunziata M et al.</p>
+  <p class="article-summary">A retrospective multicenter study evaluates the real-world applicability and clinical outcomes of pediatric-like chemotherapy regimens based on GIMEMA LAL1308 in younger adults with Philadelphia-negative acute lymphoblastic leukemia.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>把兒童化療方案用在年輕成人 ALL，這種小兒科與成人血液科的結合真的改善了預後啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>校園實地試驗果然不如臨床試驗這麼理想，真實世界的毒性和耐受性肯定又是另一回事。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-journal-of-hematology-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Hematology &amp; Oncology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-09</span><span class="badge">DOI: 10.1186/s13045-026-018</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1186/s13045-026-01843-1" target="_blank" rel="noopener">Next-generation antibody-based therapeutics in cancer: antibody-drug conjugates bispecific antibodies across hematologic malignancies and solid tumors</a>
+  </div>
+  <p class="article-authors">Lou J, Lyu Y</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+<div class="journal-section" id="j-journal-of-thrombosis-and-haemostasis">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Thrombosis and Haemostasis</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.003" target="_blank" rel="noopener">Mapping the Mutational Landscape for Streptokinase Binding to Plasminogen</a>
+  </div>
+  <p class="article-authors">Baid S, Holding M, Laurin T, Siemieniak D et al.</p>
+  <p class="article-summary">The study maps mutations in streptokinase that affect its non-enzymatic activation of plasminogen, revealing how the Group A Streptococcal virulence factor manipulates the host fibrinolytic system.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>用結構生物學來解析 GAS 的致病機制，對理解細菌溶纖維蛋白酶的策略真的很深入呢！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>細菌很聰明地挾持我們的纖溶系統來逃脫，但這篇論文能不能反過來幫我們設計更好的對付方式呢？</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-transplantation-and-cellular-therapy">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Transplantation and Cellular Therapy</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/j.jtct.2026.05</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtct.2026.05.020" target="_blank" rel="noopener">ASTCT Consensus Grading for Toxicities after Immune Effector Cell Therapy</a>
+  </div>
+  <p class="article-authors">Perales M, Dietrich J, Gust J, Santomasso B et al.</p>
+  <p class="article-summary">The ASTCT updated and refined the 2019 consensus grading criteria for cytokine release syndrome (CRS) and immune effector cell-associated neurotoxicity syndrome (ICANS) following immune effector cell therapies.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>ASTCT 把 CRS 和 ICANS 的分級標準又精進了一輪，這對全球 CAR-T 和細胞治療的臨床標準化真是太重要了啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>每次更新分級就得讓全世界醫院重新學習新定義，感覺醫療行政的日子沒那麼輕鬆囉。</div></div>
+</div>
+</div>
+<details class="other-block">
+  <summary><b>5</b> more, judged not hematology-related (solid-tumor
+    oncology, general medicine, policy and news)</summary>
+  
+<div class="journal-section" id="o-annals-of-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Annals of Oncology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.05.700" target="_blank" rel="noopener">Predicting neoadjuvant breast cancer therapy response using BRIDGE from tumor transcriptomics and histopathology</a>
+  </div>
+  <p class="article-authors">Cantore T, Hoang D, Pal L, Stemmer A et al.</p>
+  <p class="article-summary">BRIDGE, an integrated model combining tumor transcriptomics and histopathology, predicts neoadjuvant breast cancer therapy response better than expression signatures alone.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>用轉錄體加組織病理的多模態資料去預測新輔助化療反應，這個整合思路很有前景喔！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又一個乳癌預測模型，等到臨床真正廣泛使用恐怕還得等個好幾年啦。</div></div>
+</div>
+</div>
+<div class="journal-section" id="o-journal-of-clinical-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Clinical Oncology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">DOI: 10.1200/jco-26-00469</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1200/jco-26-00469" target="_blank" rel="noopener">Purple Blossoms</a>
+  </div>
+  <p class="article-authors">Gopal R</p>
+  <p class="article-summary">This is a narrative piece about the personal and emotional challenges of a coach treating aggressive disease in underserved settings.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>深度人性化的故事，這種從醫療工作者視角講的真實經驗很能帶出醫療的本質啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>是個溫暖的故事沒錯，但如果想找臨床硬數據的話可能要失望了。</div></div>
+</div>
+</div>
+<div class="journal-section" id="o-nature-medicine">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Nature Medicine</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nature.com/articles/s41591-026-04641-x" target="_blank" rel="noopener">A binding ban, and its limits: Japan legislates on heritable human genome editing</a>
+  </div>
+  <p class="article-authors">Tsutomu Sawai</p>
+  <p class="article-summary">Japan has enacted legislation to ban heritable human genome editing, with exploration of practical and ethical limits to enforcement.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有國家把關鍵的倫理問題正式立法了，這對全球基因編輯的發展很重要啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>立法容易，執行難——看看日本怎樣防止科學家偷偷跑到其他國家去做呢？</div></div>
+</div>
+</div>
+<div class="journal-section" id="o-npj-precision-oncology-nature">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">npj Precision Oncology (Nature)</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nature.com/articles/s41698-026-01692-8" target="_blank" rel="noopener">A Boveri perspective on cancer biomarker testing using artificial intelligence</a>
+  </div>
+  <p class="article-authors">Esther Conde, Susana Hernandez, Marta Alonso, Daniel Curto, et al.</p>
+  <p class="article-summary">The article discusses AI approaches to cancer biomarker testing through a Boveri cytogenetic perspective.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>AI 加上古典細胞遺傳學的觀點，這個融合角度滿有意思的欸！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>拿 Boveri 的理論來講現代 AI，會不會有點「古人智慧遇上機器學習」的既視感呢？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-08</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nature.com/articles/s41698-026-01685-7" target="_blank" rel="noopener">Minigene-based characterization and classification of splice-associated variants in succinate dehydrogenase B</a>
+  </div>
+  <p class="article-authors">Anni Köhler, Alexandra A. Baumann, Natasha Lewis, Anja Richter, et al.</p>
+  <p class="article-summary">Minigene-based functional analysis characterizes splice variants in succinate dehydrogenase B, enabling better molecular classification.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>用 minigene 系統來逐個驗證剪接變異，這樣的功能性分類方式真的很嚴謹耶！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>每一個 SDHMB 變異都要過一遍 minigene 實驗，想必資料庫完成時已經是明年的事了。</div></div>
+</div>
+</div>
+</details>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-09-09 01:50 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · NEJM RSS · CrossRef API
+</footer>
+</body>
+</html>
