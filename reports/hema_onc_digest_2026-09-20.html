@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-09-20</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Collapsed non-heme tail ────────────────── */
+.other-block {
+  margin-top: 2.5rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 1.25rem;
+}
+.other-block > summary {
+  cursor: pointer;
+  font-size: .84rem;
+  color: var(--muted);
+  padding: .55rem .8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  list-style-position: inside;
+}
+.other-block > summary:hover { color: var(--accent2); border-color: var(--accent2); }
+.other-block > summary b { color: var(--accent2); }
+.other-block[open] > summary { margin-bottom: 1.25rem; }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-09-20 01:59 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>8</b> articles</span>
+  <span>📚 <b>4</b> journals</span>
+  <span>⏱ Past <b>28h</b></span>
+  
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-british-journal-of-haematology">British Journal of Haematology <span style="opacity:.6">(2)</span></a><a href="#j-international-journal-of-hematology">International Journal of Hematology <span style="opacity:.6">(1)</span></a><a href="#j-journal-of-thrombosis-and-haemostasis">Journal of Thrombosis and Haemostasis <span style="opacity:.6">(4)</span></a><a href="#j-nejm-hematology-oncology">NEJM Hematology-Oncology <span style="opacity:.6">(1)</span></a></div>
+</div>
+<div class="journal-section" id="j-british-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">British Journal of Haematology</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-19</span><span class="badge">DOI: 10.1111/bjh.70817</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70817" target="_blank" rel="noopener">Hyperdiploid multiple myeloma: A heterogeneous entity requiring refined risk stratification—Insights from chromosome count and cytogenetic abnormalities</a>
+  </div>
+  <p class="article-authors">Zeng Z, Lu J, Shang J, You H et al.</p>
+  <p class="article-summary">In 694 newly diagnosed Chinese myeloma patients, modal chromosome count &gt;49 in hyperdiploid MM predicts better overall survival, refining prognostic risk stratification in this common genetic subtype.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>用SNP陣列和FISH搭配一起看，把高二倍體MM分層分得更細緻，真的有進展欸！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>染色體數字越多活越久，這邏輯有點反直覺，但數據就是會講話囉。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-18</span><span class="badge">DOI: 10.1111/bjh.70828</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70828" target="_blank" rel="noopener">A phase IIa study of the anti‐ PD ‐ L1 antibody avelumab in relapsed/refractory PTCL : The AVAIL ‐T trial</a>
+  </div>
+  <p class="article-authors">Ahearne M, Timmins M, Gaskell C, Jackson A et al.</p>
+  <p class="article-summary">The AVAIL-T trial demonstrates that avelumab, an anti-PD-L1 antibody, is a promising novel therapy for relapsed/refractory peripheral T-cell lymphomas, which are notoriously chemoresistant.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>PTCL這麼難治的東西能有新的免疫治療選擇，患者的希望又多了一點呢！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>PD-L1在T細胞淋巴瘤這麼常見，早就應該有人試試看了吧。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-international-journal-of-hematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">International Journal of Hematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-19</span><span class="badge">DOI: 10.1007/s12185-026-042</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1007/s12185-026-04282-3" target="_blank" rel="noopener">Strategies to prevent post-transplant relapse in acute myeloid leukemia and myelodysplastic syndromes</a>
+  </div>
+  <p class="article-authors">Najima Y</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+<div class="journal-section" id="j-journal-of-thrombosis-and-haemostasis">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Thrombosis and Haemostasis</span>
+    <span class="journal-count">4</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.022" target="_blank" rel="noopener">Venous Thrombosis and Air Pollution: A Systematic Review and Meta-Analysis of 1.4 Million Adult Patients</a>
+  </div>
+  <p class="article-authors">Fang Y, Gu Y, Li G, He K et al.</p>
+  <p class="article-summary">A meta-analysis of 1.4 million adults reveals a comprehensive association between air pollutants and venous thrombosis risk, expanding understanding of environmental thrombotic risk factors.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>從環保的角度來看血栓風險，真的是個新穎而重要的切入點欸！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>空氣污染不只傷肺，還來連血管也要跟著受罪，真是應有盡有。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.024" target="_blank" rel="noopener">Diagnosis and management of subsegmental pulmonary embolism</a>
+  </div>
+  <p class="article-authors">Wang T, Le Gal G, Carrier M</p>
+  <p class="article-summary">Subsegmental pulmonary embolism accounts for 5–10% of PE diagnoses; recent studies clarify optimal diagnostic and management strategies, though the need for anticoagulation in this population remains under investigation.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>小血栓也能好好研究透徹，讓臨床決策更明確，這就是嚴謹醫學啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>都已經卡到肺動脈了還在問要不要吃抗凝血藥，真的是滿新奇的。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.023" target="_blank" rel="noopener">Long-term outcomes after heparin versus low-dose thrombolysis in patients with intermediate-high risk pulmonary embolism – a secondary analysis of the STRATIFY randomized controlled trial.</a>
+  </div>
+  <p class="article-authors">Sonne-Holm E, Bang L, Carlsen J, Winther-Jensen M et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.026" target="_blank" rel="noopener">Coagulation Dynamics During Coronary Angiography in Patients Receiving Chronic Direct Oral Anticoagulants: Insights from the Randomized POPular MEASURE Study</a>
+  </div>
+  <p class="article-authors">Verburg A, Bor W, Nagy M, Spronk H et al.</p>
+  <p class="article-summary">The POPular MEASURE study investigates whether periprocedural unfractionated heparin can be safely omitted in chronic DOAC-treated patients undergoing coronary angiography by measuring thrombin generation and coagulation dynamics.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>用凝血動力學來指導導管室裡的用藥決策，這種精準醫學做法真不錯欸！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>原來DOAC加冠動脈造影也需要做這麼多凝血檢驗，又是一個流程優化的機會啦。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-nejm-hematology-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">NEJM Hematology-Oncology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-09-19</span><span class="badge">DOI: 10.1056/NEJMp2609007?r</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMp2609007?rss=searchAndBrowse" target="_blank" rel="noopener">A Cure Out of Most Patients’ Reach — Sickle Cell Disease in the Gene-Therapy Era</a>
+  </div>
+  <p class="article-authors">Naif I. AlJohani, Sultan Almutairi</p>
+  <p class="article-summary">Gene therapy offers a cure for sickle cell disease by preventing vaso-occlusive crises, but access remains limited to wealthy populations, leaving most patients globally without a pathway to treatment.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>基因療法真的是突破性的進展欸，能夠改變鐮刀型患者的人生啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>不過看起來這個救命仙丹只有富國人民才吃得到，真是現實啊。</div></div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-09-20 01:59 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · NEJM RSS · CrossRef API
+</footer>
+</body>
+</html>
