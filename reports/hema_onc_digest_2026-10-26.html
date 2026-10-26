@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-10-26</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Collapsed non-heme tail ────────────────── */
+.other-block {
+  margin-top: 2.5rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 1.25rem;
+}
+.other-block > summary {
+  cursor: pointer;
+  font-size: .84rem;
+  color: var(--muted);
+  padding: .55rem .8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  list-style-position: inside;
+}
+.other-block > summary:hover { color: var(--accent2); border-color: var(--accent2); }
+.other-block > summary b { color: var(--accent2); }
+.other-block[open] > summary { margin-bottom: 1.25rem; }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-10-26 02:01 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>4</b> articles</span>
+  <span>📚 <b>3</b> journals</span>
+  <span>⏱ Past <b>28h</b></span>
+  <span>📉 <b>9</b> set aside</span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-annals-of-oncology">Annals of Oncology <span style="opacity:.6">(1)</span></a><a href="#j-british-journal-of-haematology">British Journal of Haematology <span style="opacity:.6">(2)</span></a><a href="#j-european-journal-of-haematology">European Journal of Haematology <span style="opacity:.6">(1)</span></a></div>
+</div>
+<div class="journal-section" id="j-annals-of-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Annals of Oncology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-10</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.1286" target="_blank" rel="noopener">From Diagnosis to Destruction: The Rise of Radioligand Therapeutics as Oncology’s New Pillar</a>
+  </div>
+  <p class="article-authors">Herrmann K</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+<div class="journal-section" id="j-british-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">British Journal of Haematology</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-10-25</span><span class="badge">DOI: 10.1111/bjh.70886</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70886" target="_blank" rel="noopener">Long‐term deepening of JAK2V617F molecular response with low‐dose ropeginterferon in low‐risk polycythaemia vera</a>
+  </div>
+  <p class="article-authors">Barbui T, Ghirardi A, Fenili F, Sannipoli D et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-10-25</span><span class="badge">DOI: 10.1111/bjh.70872</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70872" target="_blank" rel="noopener">A common PTPRC polymorphism impairs memory T‐cell enrichment by CD45RA depletion: Rationale for donor screening</a>
+  </div>
+  <p class="article-authors">Spegarova J, Carruthers K, Ogah A, Matthews E et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+<div class="journal-section" id="j-european-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">European Journal of Haematology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-10-25</span><span class="badge">DOI: 10.1111/ejh.70343</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/ejh.70343" target="_blank" rel="noopener">Efficacy and Safety of Doxorubicin–Etoposide–Methylprednisolone ( DEP )‐Based Regimens in Haemophagocytic Lymphohistiocytosis: A Systematic Review and Meta‐Analysis</a>
+  </div>
+  <p class="article-authors">Rafea M, Hassan R, Fayed A</p>
+  <p class="article-summary">A systematic review and meta-analysis evaluated the efficacy and safety of DEP-based regimens (doxorubicin–etoposide–methylprednisolone) in hemophagocytic lymphohistiocytosis, demonstrating promise particularly in adult HLH.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>HLH這種很凶悍的高發炎症候群，DEP療法在成人身上終於有充分的證據支持，太棒了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以兒童用etoposide很久了，成人卻一直沒好好的試過，這延遲也是滿無言的啦。</div></div>
+</div>
+</div>
+<details class="other-block">
+  <summary><b>9</b> more, judged not hematology-related (solid-tumor
+    oncology, general medicine, policy and news)</summary>
+  
+<div class="journal-section" id="o-annals-of-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Annals of Oncology</span>
+    <span class="journal-count">5</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-10</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.108" target="_blank" rel="noopener">Pembrolizumab with or without platinum-based chemotherapy as first-line treatment in advanced NSCLC expressing PD-L1 ≥50%: The PERSEE randomized phase III trial (GFPC 01-2020)</a>
+  </div>
+  <p class="article-authors">Descourt R, Mogenet A, Consigny M, Bernardi M et al.</p>
+  <p class="article-summary">The PERSEE trial compared pembrolizumab monotherapy versus pembrolizumab plus platinum-based chemotherapy as first-line treatment in metastatic NSCLC with PD-L1 ≥50%, providing a head-to-head comparison of these standard approaches.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有大型臨床試驗直接比較單藥免疫治療 vs 免疫加化療，醫師選擇現在更有根據了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>結果可能還是show兩個都差不多，那病人就得從「要不要接受化療的副作用」開始猜拳囉。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-10</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.104" target="_blank" rel="noopener">A randomised phase III trial of adjuvant treatment intensification with mFOLFIRINOX versus mFOLFOX6 in high-risk stage III colon cancer: Results of the international IROCAS study.</a>
+  </div>
+  <p class="article-authors">Bennouna J, André T, Martin E, Cremolini C et al.</p>
+  <p class="article-summary">The IROCAS trial evaluated whether intensified mFOLFIRINOX improves outcomes compared to mFOLFOX6 in high-risk stage III colon cancer (pT4 and/or pN2), testing whether more aggressive chemotherapy reduces recurrence risk.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>高危險群第三期大腸癌用更強的化療，如果IROCAS能證明有效，病人就有新的希望囉！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>結果要是FOLFIRINOX跟FOLFOX6差不多，那我們為什麼要讓病人多受點副作用呢？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-10</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.1280" target="_blank" rel="noopener">Clinical Complete Response with Dostarlimab Monotherapy in dMMR/MSI-H Locally Advanced Rectal Cancer: First Results from the Global AZUR-1 Trial</a>
+  </div>
+  <p class="article-authors">Cercek A, Bachet J, Folprecht G, Bando H et al.</p>
+  <p class="article-summary">The AZUR-1 trial reports that dostarlimab monotherapy achieves clinical complete response in dMMR/MSI-H locally advanced rectal cancer, potentially offering a less toxic alternative to multimodal treatment (chemoradiation and surgery).</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>只用dostarlimab單藥就能達成臨床完全緩解，dMMR/MSI-H直腸癌病人真的少受很多罪！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>不過等等，跳過化療放療手術聽起來超棒，但長期追蹤數據有沒有完整啊？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-10</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.1281" target="_blank" rel="noopener">Pembrolizumab plus lenvatinib with belzutifan or quavonlimab as first-line therapy for advanced renal-cell carcinoma: randomized open-label phase 3 LITESPARK-012 study</a>
+  </div>
+  <p class="article-authors">Rini B, Choueiri T, Voss M, Burotto M et al.</p>
+  <p class="article-summary">LITESPARK-012 evaluated the addition of belzutifan (HIF-2α inhibitor) or quavonlimab (anti-CTLA-4) to the standard first-line regimen of pembrolizumab plus lenvatinib in advanced clear-cell RCC.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>在已經是標準療法的pembrolizumab加lenvatinib基礎上再加藥，想要進一步提升療效，很有野心啊！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以病人要吃三種藥，或許三管齊下也可能三個毒性齊發，這筆帳怎麼算啊？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-10</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.109" target="_blank" rel="noopener">Final prespecified analysis of the phase 3 LITESPARK-011 study: belzutifan plus lenvatinib versus cabozantinib for advanced renal cell carcinoma after anti–PD-(L)1 therapy</a>
+  </div>
+  <p class="article-authors">Heng D, Schmidinger M, McDermott R, Park S et al.</p>
+  <p class="article-summary">LITESPARK-011 found that belzutifan plus lenvatinib significantly improved progression-free survival compared to cabozantinib in anti-PD-(L)1–treated advanced clear-cell RCC.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>抗PD-L1後復發的腎細胞癌，belzutifan加lenvatinib打敗cabozantinib，後線治療又多了新選擇！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>HIF-2α抑制劑現在越來越多試驗拿它來用，如果全部都有效，那cabozantinib是不是要退休了？</div></div>
+</div>
+</div>
+<div class="journal-section" id="o-lancet-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Lancet Oncology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-10</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00446-8" target="_blank" rel="noopener">Neoadjuvant short-course radiotherapy followed by camrelizumab and chemotherapy versus standard of care for locally advanced rectal cancer (UNION): a prespecified interim analysis of a multicentre, open-label, randomised, phase 3 trial</a>
+  </div>
+  <p class="article-authors">Tao K, Lin Z, Zhang P, Chi P et al.</p>
+  <p class="article-summary">The UNION trial is the first phase 3 study combining neoadjuvant short-course radiotherapy, immunotherapy (camrelizumab), and chemotherapy versus standard care for locally advanced rectal cancer, showing positive results on pathologic endpoints.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>把放療、免疫治療和化療全部包進新輔助療法，局部晚期直腸癌的病人有希望囉！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>三合一的新輔助療法聽起來不錯，但toxicity會不會讓病人想哭呢？</div></div>
+</div>
+</div>
+<div class="journal-section" id="o-nejm-hematology-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">NEJM Hematology-Oncology</span>
+    <span class="journal-count">3</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-10-25</span><span class="badge">DOI: 10.1056/NEJMoa2611335?</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2611335?rss=searchAndBrowse" target="_blank" rel="noopener">Osimertinib–Savolitinib in Advanced NSCLC after Progression during EGFR-TKI Therapy</a>
+  </div>
+  <p class="article-authors">Shun Lu, Nicolas Girard, James Chih-Hsin Yang, Frances A. Shepherd, Xiaorong Dong, Surein Arulananda, Giulio Metro, Hidetoshi Hayashi, Laura Bonanno, Yu Jung Kim, Zhe Liu, Myung-Ju Ahn, Yuping Sun, Thuong Vu Le, Silvia Novello, Sang-We Kim, Yanqiu Zhao, Phuong Nguyen, Mariana Brandão, Yongsheng Wang, Missak Haigentz, Daniel Misch, Mariano Provencio Pulla, Wen-Tsung Huang, Clarissa Baldotto, Marcelo Tatangelo, Colin R. Lindsay, Ryan J. Hartmaier, Rafal Lolo, Balakumar Swaminathan, Alexander Gont, Francis Maria Esposito, Yusuke Okuma, the SAFFRON Investigators*</p>
+  <p class="article-summary">In EGFR-mutated, MET-altered NSCLC that progressed on osimertinib, the combination of osimertinib plus savolitinib (MET inhibitor) improved survival compared to platinum–pemetrexed chemotherapy.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>雙標靶真的很狂，把MET抓起來以後病人活得更久，這就是精準醫療啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以我們現在又要測MET、又要測EGFR，下次是不是還要測一堆其他的基因才能活命啊？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-10-25</span><span class="badge">DOI: 10.1056/NEJMoa2605703?</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2605703?rss=searchAndBrowse" target="_blank" rel="noopener">Divarasib as Compared with Sotorasib or Adagrasib in KRAS G12C–Mutated NSCLC</a>
+  </div>
+  <p class="article-authors">Ferdinandos Skoulidis, Myung-Ju Ahn, Shirish Gadgeel, Sanjay Popat, Niels Reinmuth, Bianca van Veggel, Farastuk Bozorgmehr, Victoria J. Bray, Michael Duruisseaux, Wade T. Iams, Julien Mazieres, Laura Bonanno, Lore Decoster, Jiaxin Niu, Marcos Pantarotto, Carlos Henrique Andrade Teixeira, Sevim Uzun, Bo Wang, Bryan A. Chan, Enriqueta Felip, Molly S.C. Li, Hiroaki Akamatsu, Kristof Cuppens, Tae Min Kim, Martin Reck, Youyou Hu, Sarah M. Shagan, Mark T. Lin, Uyi Osaghae, Tien Hoang, Felice Wu, Raymond Meng, Michael S. Mathisen, Benjamin J. Solomon</p>
+  <p class="article-summary">Divarasib, a next-generation KRAS G12C inhibitor, demonstrated superior progression-free survival (9.8 months) compared to earlier KRAS inhibitors sotorasib and adagrasib (5.7 months) in previously treated NSCLC.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>新一代的KRAS抑制劑效果真的更讚，進展無疾病存活期幾乎翻倍欸，科技在進步！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>好啦sotorasib跟adagrasib現在變舊藥了，2年前大家還在拜它們，醫學就是這麼無情啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-10-25</span><span class="badge">DOI: 10.1056/NEJMoa2611280?</span><span class="badge">RSS</span></div>
+  <div class="article-title">
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2611280?rss=searchAndBrowse" target="_blank" rel="noopener">Sacituzumab Tirumotecan plus Pembrolizumab in PD-L1–Negative Advanced NSCLC</a>
+  </div>
+  <p class="article-authors">Fei Zhou, Xiangjiao Meng, Qingqing Ding, Peng Zhang, Wenhua Liang, Sanxing Guo, Yan Yu, Wenxiu Yao, Yun Fan, Xingxiang Pu, Chunling Liu, Jiuwei Cui, Peng Chen, Hua Zhong, Yongsheng Wang, Zhangzhou Huang, Zhi Xu, Xiaorong Dong, Tienan Yi, Ying Hu, Qiming Wang, Bolin Chen, Hui Wang, Longhua Sun, Lang He, Wei Zheng, Yina Wang, Xiaochen Zhang, Yu Yao, Yongsheng Li, Zhe Yang, Feng Ye, Xia Song, Ming Zhou, Li Yin, Yan Qing, Xiaoping Jin, Junyou Ge, Caicun Zhou</p>
+  <p class="article-summary">Sacituzumab tirumotecan (an ADC targeting TROP-2) combined with pembrolizumab significantly improved progression-free survival in PD-L1–negative advanced NSCLC compared to chemotherapy plus pembrolizumab.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>抗體藥物偶聯體加免疫檢查點抑制劑，PD-L1陰性病人也能受惠，真的很了不起！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以現在不管PD-L1陰不陰性，好像都有藥可以用，但健保會不會給付呢？嘻嘻。</div></div>
+</div>
+</div>
+</details>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-10-26 02:01 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · NEJM RSS · CrossRef API
+</footer>
+</body>
+</html>
