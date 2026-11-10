@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-11-10</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Collapsed non-heme tail ────────────────── */
+.other-block {
+  margin-top: 2.5rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 1.25rem;
+}
+.other-block > summary {
+  cursor: pointer;
+  font-size: .84rem;
+  color: var(--muted);
+  padding: .55rem .8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  list-style-position: inside;
+}
+.other-block > summary:hover { color: var(--accent2); border-color: var(--accent2); }
+.other-block > summary b { color: var(--accent2); }
+.other-block[open] > summary { margin-bottom: 1.25rem; }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-11-10 04:56 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>10</b> articles</span>
+  <span>📚 <b>7</b> journals</span>
+  <span>⏱ Past <b>28h</b></span>
+  <span>📉 <b>2</b> set aside</span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-annals-of-hematology">Annals of Hematology <span style="opacity:.6">(2)</span></a><a href="#j-annals-of-oncology">Annals of Oncology <span style="opacity:.6">(1)</span></a><a href="#j-blood">Blood <span style="opacity:.6">(2)</span></a><a href="#j-blood-cancer-discovery">Blood Cancer Discovery <span style="opacity:.6">(1)</span></a><a href="#j-british-journal-of-haematology">British Journal of Haematology <span style="opacity:.6">(2)</span></a><a href="#j-journal-of-clinical-oncology">Journal of Clinical Oncology <span style="opacity:.6">(1)</span></a><a href="#j-journal-of-thrombosis-and-haemostasis">Journal of Thrombosis and Haemostasis <span style="opacity:.6">(1)</span></a></div>
+</div>
+<div class="journal-section" id="j-annals-of-hematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Annals of Hematology</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-10</span><span class="badge">DOI: 10.1007/s00277-026-073</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1007/s00277-026-07341-1" target="_blank" rel="noopener">Clinical activity of luspatercept in patients with poor erythroid engraftment after allogeneic hematopoietic stem cell transplantation</a>
+  </div>
+  <p class="article-authors">Zhang L, Li S, Wang F, Zhan Y et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-09</span><span class="badge">DOI: 10.1007/s00277-026-072</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1007/s00277-026-07223-6" target="_blank" rel="noopener">In-hospital mortality, hemorrhagic complications, and sociodemographic disparities in acute promyelocytic leukemia: a nationwide analysis of the United States, 2016 to 2023</a>
+  </div>
+  <p class="article-authors">Sharma A, Ahmad A, Tan J, Mandal S et al.</p>
+  <p class="article-summary">Contemporary US hospital data reveals persistent in-hospital mortality from hemorrhage in APL despite curative therapy with ATRA and arsenic, with significant sociodemographic disparities in outcomes.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>急性前骨髓球性白血病理論上可以治好，但實際上院內死亡率還是這麼高，代表我們的照護還有很大進步空間呢！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>有這麼好的藥物擺在眼前，患者卻還在院內出血死亡，真的讓人不勝唏噓啊。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-annals-of-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Annals of Oncology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-10</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.099" target="_blank" rel="noopener">Age 35 in SOFT: prognostic boundary, treatment-effect modifier, or surrogate of clinical risk?</a>
+  </div>
+  <p class="article-authors">Kumar R, Costa L, Vrancken-Peeters M, Cazzaniga M et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+<div class="journal-section" id="j-blood">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-09</span><span class="badge">DOI: 10.1182/blood.20260352</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/blood.2026035207" target="_blank" rel="noopener">Terminal differentiation program of CD8 T cells guides immunotherapeutic options for CLL patients</a>
+  </div>
+  <p class="article-authors">Camerini E, Montironi C, Quik M, Dijkema M et al.</p>
+  <p class="article-summary">CD8 T cells from CLL patients show a terminal differentiation program rather than classic exhaustion, which may guide selection of immunotherapies and explain variable responses to CAR-T and checkpoint blockade.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有人把 CLL T 細胞的謎團講清楚了，這下我們對免疫治療的選擇就更有把握囉！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以我們之前一直在罵 T 細胞累到不行，其實人家只是長大成熟了，真是有點尷尬欸。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-09</span><span class="badge">DOI: 10.1182/blood.20260344</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/blood.2026034465" target="_blank" rel="noopener">Detection, Monitoring, and Discrimination of Amyloidogenic vs Innocent Light Chains in Systemic Amyloidoses</a>
+  </div>
+  <p class="article-authors">Palladini G, Milani P, Nuvolone M</p>
+  <p class="article-summary">Novel methods for detecting and distinguishing amyloidogenic light chains from innocent monoclonal light chains improve diagnosis and risk stratification in systemic light-chain amyloidosis.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>能分辨壞光鏈和好光鏈，AL 淀粉樣變性的診斷就不用瞎子摸象了，太棒了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>光鏈這麼多年來一直在那邊搞分不清楚，現在終於有人幫它們做 DNA 鑑定了。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-blood-cancer-discovery">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Cancer Discovery</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-09</span><span class="badge">DOI: 10.1158/2643-3230.bcd-</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1158/2643-3230.bcd-26-0182" target="_blank" rel="noopener">Preclinical characterization of the potent and selective MALT1 inhibitor safimaltib in B-cell lymphoma models</a>
+  </div>
+  <p class="article-authors">Philippar U, Fontan L, Xia M, Vloemans N et al.</p>
+  <p class="article-summary">Safimaltib, a selective allosteric MALT1 inhibitor, demonstrates potent activity against BCR-driven B-cell lymphomas by blocking downstream NF-κB signaling with improved selectivity.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>又一款狙擊 BCR 路徑的新武器上線，B 細胞淋巴瘤患者的治療選項又多了一個，讚欸！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>MALT1 被各種藥物盯上這麼多年，這次終於輪到 safimaltib 來表現一下了。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-british-journal-of-haematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">British Journal of Haematology</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11</span><span class="badge">DOI: 10.1111/bjh.20087</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.20087" target="_blank" rel="noopener">Issue Information</a>
+  </div>
+  
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-09</span><span class="badge">DOI: 10.1111/bjh.70871</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1111/bjh.70871" target="_blank" rel="noopener">Phagocytosis activity is retained by JMML macrophages and increased by CD47 inhibition</a>
+  </div>
+  <p class="article-authors">Wang J, Rajak J, Xiao H, Koleci N et al.</p>
+  <p class="article-summary">JMML macrophages retain phagocytic activity despite RAS-driven transformation, and CD47 inhibition further enhances their ability to clear leukemic myeloid cells, offering a therapeutic strategy.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>JMML 的巨噬細胞吞噬力還沒廢掉，加上 CD47 阻斷就更猛了，這個組合出擊應該很有看頭欸！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>兒童 JMML 一直都是罕見疾病的硬骨頭，現在終於有人想到用巨噬細胞來教訓它了，有夠創意。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-journal-of-clinical-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Clinical Oncology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-09</span><span class="badge">DOI: 10.1200/jco-26-00384</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1200/jco-26-00384" target="_blank" rel="noopener">Modeling Long-Term Progression-Free Survival in Newly Diagnosed Multiple Myeloma Treated With Daratumumab, Bortezomib, Lenalidomide, and Dexamethasone</a>
+  </div>
+  <p class="article-authors">Sonneveld P, Zweegman S, Facon T, Hungria V et al.</p>
+  <p class="article-summary">Long-term PFS modeling shows that daratumumab-based quadruplet therapy (DVRd) provides sustained benefit in newly diagnosed myeloma across both transplant-eligible and transplant-ineligible patients.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>多發性骨髓瘤的 PFS 終於開始往上衝了，DVRd 真的是把 VRd 打得滿地找牙呀！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>Median PFS 都還沒到，模型預測還要等，我們是不是得先等到下輩子才看得到啦。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-journal-of-thrombosis-and-haemostasis">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Thrombosis and Haemostasis</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11</span><span class="badge">DOI: 10.1016/j.jtha.2026.10</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.10.021" target="_blank" rel="noopener">Platelet NLRP3 signaling promotes thromboinflammation and organ injury in sepsis</a>
+  </div>
+  <p class="article-authors">Dai Y, Wang C, Fu P, Zhen S et al.</p>
+  <p class="article-summary">Platelet NLRP3 inflammasome activation drives thromboinflammation and organ injury in sepsis, identifying platelet NLRP3 as a potential therapeutic target.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>血小板居然也能啟動 NLRP3，控制這個就能減少敗血症的器官傷害，太聰明了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>敗血症這麼複雜的疾病，現在要我們去管血小板裡面的小火花，醫生真的累到一種新高度欸。</div></div>
+</div>
+</div>
+<details class="other-block">
+  <summary><b>2</b> more, judged not hematology-related (solid-tumor
+    oncology, general medicine, policy and news)</summary>
+  
+<div class="journal-section" id="o-annals-of-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Annals of Oncology</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-10</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.07.001" target="_blank" rel="noopener">Thymic radiation is associated with worse outcomes in patients with NSCLC</a>
+  </div>
+  <p class="article-authors">Prudente V, Bernatz S, Pai S, Atkins K et al.</p>
+  <p class="article-summary">Incidental thymic radiation during radiotherapy for non-small-cell lung cancer is associated with worse overall survival, suggesting the adult thymus plays an underappreciated role in immune homeostasis.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>原來胸腺在大人身上還這麼重要，以後放射線治療可得多留意它了，長知識！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>照射肺癌的時候不小心打壞胸腺，沒想到這隻隱藏角色對存活率的影響這麼大，真的有點冤啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-10</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.102" target="_blank" rel="noopener">Efficacy and safety of camrelizumab plus docetaxel and carboplatin as neoadjuvant therapy for stage II-III triple-negative breast cancer: the HELEN-Trio 011 randomized clinical trial</a>
+  </div>
+  <p class="article-authors">Jiao D, Sun X, Qiao J, Jia H et al.</p>
+  <p class="article-summary">Camrelizumab combined with docetaxel-carboplatin (anthracycline-free regimen) shows efficacy and improved safety as neoadjuvant therapy for stage II-III triple-negative breast cancer.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>三陰性乳癌終於有不用蒽環素的選項了，患者可以少承受一些毒性反應，這真是大福音！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又是一個化療加免疫檢查點的組合，看起來新藥開發就跟套餐一樣，什麼都可以搭著賣。</div></div>
+</div>
+</div>
+</details>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-11-10 04:56 UTC · AI summaries by Claude Haiku<br>
+  Sources: Nature RSS · NEJM RSS · CrossRef API
+</footer>
+</body>
+</html>
