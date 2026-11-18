@@ -19,7 +19,16 @@ multiple journals every day.
   pointer file, so OneDrive never syncs git internals. Do not "fix" that file.
 - **Schedule:** GitHub Actions cron `0 0 * * *` = 8 AM Taipei
 - **Pipeline:** fetch → dedup (DOI-based) → AI summarize → render HTML → commit
-  report back to repo → notify lcchema-hub via repository_dispatch
+  report back to repo. lcchema-hub picks up `manifests/latest.json` on its own;
+  the repository_dispatch step that used to follow was dead (401 every run) and
+  was removed on 2026-11-18.
+- **Model:** `CLAUDE_MODEL` in `generate_digest.py` (Claude Sonnet 5.5 at effort
+  `low` since 2026-11-18; Haiku 4.5 before). Calls go through the beta endpoint
+  for the server-side refusal fallback (`fallbacks="default"`).
+- **Test run:** Actions → Run workflow → tick `test_only` (or
+  `gh workflow run digest.yml --ref <branch> -f test_only=true`). It ignores the
+  ledger, uploads the HTML as an artifact, and commits nothing. Use it to try a
+  model or prompt change on a branch before merging.
 
 ## Fetch strategy
 - **CrossRef API** for ASCO / ASH / Wiley / OUP / Elsevier (bypasses Cloudflare)
@@ -74,10 +83,11 @@ shape before assuming there was nothing to demote.
 GitHub secrets used by `.github/workflows/digest.yml`:
 - `ANTHROPIC_API_KEY` — AI summaries
 - `ELSEVIER_API_KEY` — abstract backfill fallback for Elsevier DOIs
-- `HUB_DISPATCH_TOKEN` — repository_dispatch to lcchema-hub
 
-There is no mail path, and no `GMAIL_*` secret. Earlier versions of this file
-claimed otherwise.
+There is no mail path. `gh secret list` on 2026-11-18 still showed `GMAIL_USER`
+and `GMAIL_APP_PASSWORD` set on this repo (2026-04-29), unused by any workflow;
+earlier versions of this file said no such secret existed. `HUB_DISPATCH_TOKEN`
+was never set.
 
 ## Status
 **DEPLOYED and working** as of 2026-05-06. Daily run at 8 AM Taipei.

@@ -72,7 +72,14 @@ RSS_TIMEOUT     = 20
 CROSSREF_TIMEOUT= 60
 ELSEVIER_TIMEOUT= 25
 PUBMED_TIMEOUT  = 30
-CLAUDE_MODEL    = "claude-haiku-4-5-20251001"
+# Claude Sonnet 5.5 since 2026-11-18 (was Haiku 4.5). Thinking is adaptive and
+# always on unless `between_tools` is sent; it counts toward max_tokens, so the
+# limit has headroom over the ~5k-token JSON a 30-article chunk needs. Effort
+# `low` is Anthropic's starting point for classification and short summaries.
+CLAUDE_MODEL    = "claude-sonnet-5-5"
+CLAUDE_LABEL    = "Claude Sonnet 5.5"       # shown in the log and the report footer
+CLAUDE_EFFORT   = "low"
+CLAUDE_MAX_TOKENS = 16000                   # non-streaming; the SDK refuses > ~21k
 CHUNK_SIZE      = 30                        # articles per Claude call
 
 # CrossRef paging bounds. See fetch_crossref for why paging is needed at all.
@@ -476,7 +483,7 @@ Rules:
 
 
 def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
-    """Return {global_idx: {summary, hehe, nohehe}} using Anthropic Claude Haiku.
+    """Return {global_idx: {summary, hehe, nohehe, heme}} using CLAUDE_MODEL.
     Articles without abstracts are skipped entirely."""
     try:
         import anthropic  # type: ignore
@@ -499,13 +506,31 @@ def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
             lines.append(f"    Abstract: {a['abstract'][:350]}")
         for attempt in range(3):
             try:
-                resp = client.messages.create(
+                # Beta endpoint only for the server-side refusal fallback: a
+                # classifier false positive is retried on another model instead
+                # of costing the chunk its summaries.
+                resp = client.beta.messages.create(
                     model=CLAUDE_MODEL,
-                    max_tokens=8192,
+                    max_tokens=CLAUDE_MAX_TOKENS,
+                    output_config={"effort": CLAUDE_EFFORT},
+                    betas=["server-side-fallback-2026-07-01"],
+                    fallbacks="default",
                     system=_SUMMARY_SYSTEM,
                     messages=[{"role": "user", "content": "\n".join(lines)}],
                 )
-                raw = resp.content[0].text.strip()
+                if resp.stop_reason == "refusal":
+                    cat = getattr(getattr(resp, "stop_details", None), "category", None)
+                    print(f"  [WARN] AI summary chunk {chunk_no}: declined "
+                          f"(category={cat!r}); these articles keep no verdict.",
+                          file=sys.stderr)
+                    break
+                if resp.stop_reason == "max_tokens":
+                    print(f"  [WARN] AI summary chunk {chunk_no}: hit max_tokens "
+                          f"({CLAUDE_MAX_TOKENS}); the JSON is cut off.", file=sys.stderr)
+                # A response can open with thinking blocks (and, after a
+                # fallback, a `fallback` block), so read text by block type.
+                raw = "".join(getattr(b, "text", "") for b in resp.content
+                              if getattr(b, "type", None) == "text").strip()
                 raw = re.sub(r"^```[a-z]*\n?", "", raw)
                 raw = re.sub(r"\n?```$", "", raw)
                 parsed = json.loads(raw)
@@ -934,7 +959,7 @@ def render_html(articles: list[dict], summaries: dict[int, dict],
              + str(hours) + ' hours.</div>'
     )
 
-    ai_note = " · AI summaries by Claude Haiku" if has_ai else " · (no AI summaries)"
+    ai_note = f" · AI summaries by {CLAUDE_LABEL}" if has_ai else " · (no AI summaries)"
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -1187,7 +1212,7 @@ def main() -> None:
             print("\n[INFO] ANTHROPIC_API_KEY not set — skipping AI summaries.")
         else:
             with_abstract = sum(1 for a in all_articles if a.get("abstract"))
-            print(f"\n── AI summaries (Claude Haiku) ──────────────────────")
+            print(f"\n── AI summaries ({CLAUDE_LABEL}) ──────────────────────")
             print(f"  {with_abstract}/{len(all_articles)} articles have abstracts")
             summaries = ai_summarize(all_articles, anthropic_key)
             print(f"  Summarised {len(summaries)}/{with_abstract} articles")

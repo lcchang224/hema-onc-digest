@@ -4,6 +4,13 @@ on:
   schedule:
     - cron: '0 0 * * *'   # midnight UTC = 08:00 Taipei (UTC+8)
   workflow_dispatch:        # "Run workflow" button in GitHub Actions tab
+    inputs:
+      test_only:
+        description: >-
+          Test run: ignore the seen-DOI ledger, write to test-output/, upload it
+          as an artifact. Nothing is committed and the ledger is not updated.
+        type: boolean
+        default: false
 
 jobs:
   generate-digest:
@@ -21,19 +28,37 @@ jobs:
         with:
           python-version: '3.12'
 
+      # anthropic>=2.10: the AI call uses the beta `fallbacks` parameter.
       - name: Install dependencies
-        run: pip install httpx feedparser anthropic
+        run: pip install httpx feedparser "anthropic>=2.10,<3"
 
       - name: Generate digest
+        if: ${{ !inputs.test_only }}
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ELSEVIER_API_KEY: ${{ secrets.ELSEVIER_API_KEY }}
         run: python generate_digest.py --output ./reports
 
+      - name: Generate digest (test run)
+        if: ${{ inputs.test_only }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ELSEVIER_API_KEY: ${{ secrets.ELSEVIER_API_KEY }}
+        run: python generate_digest.py --no-ledger --output ./test-output
+
+      - name: Upload test output
+        if: ${{ inputs.test_only }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: digest-test-output
+          path: test-output/
+
       - name: Build reports index + latest.json
+        if: ${{ !inputs.test_only }}
         run: python build_index.py
 
       - name: Commit report to repo
+        if: ${{ !inputs.test_only }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -41,12 +66,10 @@ jobs:
           git diff --cached --quiet || git commit -m "digest: $(date -u '+%Y-%m-%d')"
           git push
 
-      - name: Notify lcchema-hub
-        env:
-          HUB_TOKEN: ${{ secrets.HUB_DISPATCH_TOKEN }}
-        run: |
-          curl -sS -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer $HUB_TOKEN" \
-            "https://api.github.com/repos/${{ github.repository_owner }}/lcchema-hub/dispatches" \
-            -d '{"event_type":"digest-published"}'
+# NOTE: a "Notify lcchema-hub" step (repository_dispatch, digest-published) was
+# removed here on 2026-11-18, for the reason hematology-uptodate removed its twin
+# on 2026-08-17 (see that repo's weekly-report.yml): lcchema-hub reads
+# manifests/latest.json client-side from raw.githubusercontent.com and has no
+# workflows, so nothing listens. HUB_DISPATCH_TOKEN was never set as a secret
+# here either (`gh secret list`, 2026-11-18), so every run got a 401 that
+# `curl -sS` without -f hid behind a green exit.
