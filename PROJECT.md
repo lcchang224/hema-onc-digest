@@ -107,6 +107,19 @@ depend on which day you run them. To re-measure coverage, run
 per-journal counts against the report `reports/` holds for the same date.
 
 ## Open questions / next steps
+- **Project radar is built but not deployed (2026-11-18).** It lives on the
+  local branch `project-radar` in the Windows git dir only, never pushed:
+  commit `b8a247e` is the code (no topics), `d3909bc` adds a draft topic list.
+  Waiting on Richard: this repo and its reports are public, so the topic labels
+  would be visible to anyone. Options put to him: field-level labels in public;
+  make the repo private (breaks the hub's client-side manifest fetch from
+  raw.githubusercontent.com, which is the path that works on hospital WiFi);
+  or keep radar hits out of the committed report. Test with the `test_only`
+  run on the branch before merging.
+- CrossRef answered `429 Too Many Requests` for 10 journals in the 2026-11-18
+  scheduled run (none in the six runs before it), and `fetch_crossref` has no
+  retry, so those journals' articles were dropped silently for the day. Not
+  fixed; a backoff-and-retry on 429 is the obvious change if it recurs.
 - Expect higher and lumpier daily volume now that batch deposits are no longer
   truncated (some journals deposit a whole issue at once). Watch the AI-summary
   token cost for a week or two. If it needs trimming, the lever is the journal
