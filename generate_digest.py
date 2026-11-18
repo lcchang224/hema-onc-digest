@@ -20,6 +20,7 @@ Usage:
 """
 
 import argparse
+import html
 import json
 import os
 import re
@@ -474,12 +475,30 @@ doctor in Hong Kong writes.
   in a group chat. Standard medical terms stay as-is (HR、PFS、OS、CR、MRD…).
 
 Reply with a valid JSON array, one object per article in the same order:
-  [{"idx": <int>, "summary": "...", "hehe": "...", "nohehe": "...", "heme": true}, ...]
+  [{"idx": <int>, "title_start": "...", "summary": "...", "hehe": "...", "nohehe": "...", "heme": true}, ...]
 
 Rules:
+- "idx" is the number in square brackets in front of the article.
+- "title_start" is the first four words of that article's title, copied exactly.
 - Cover EVERY article; do not skip any.
 - No markdown code fences.
 - Strictly valid JSON."""
+
+
+def _norm_words(s: str) -> list[str]:
+    s = re.sub(r"<[^>]+>", " ", html.unescape(str(s)))   # CrossRef titles carry <i>, <sup>
+    return re.findall(r"[a-z0-9]+", s.lower())
+
+
+def _title_matches(echo: str, title: str) -> bool:
+    """Whether the model's title_start echo belongs to this title.
+
+    Guards against summaries attached to the wrong article. On 2026-11-18 a
+    Sonnet 5.5 test run renumbered the articles 0..n instead of using the
+    bracketed numbers and shifted every summary after a gap by one; Haiku 4.5
+    had produced no such shift in 60 days of reports (1,471 summaries)."""
+    e, t = _norm_words(echo)[:3], _norm_words(title)[:3]
+    return bool(e) and e == t[:len(e)]
 
 
 def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
@@ -499,10 +518,13 @@ def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
     indexed = [(gidx, a) for gidx, a in enumerate(articles) if a.get("abstract")]
     chunks = [indexed[i:i + CHUNK_SIZE] for i in range(0, len(indexed), CHUNK_SIZE)]
 
+    unmatched = 0
     for chunk_no, chunk in enumerate(chunks):
+        # Number the chunk 1..n with no gaps, so the model's own count and the
+        # labels agree, and map each reply back through the chunk position.
         lines = []
-        for gidx, a in chunk:
-            lines.append(f"[{gidx}] {a['journal']} — {a['title']}")
+        for n, (gidx, a) in enumerate(chunk, start=1):
+            lines.append(f"[{n}] {a['journal']} — {a['title']}")
             lines.append(f"    Abstract: {a['abstract'][:350]}")
         for attempt in range(3):
             try:
@@ -535,7 +557,18 @@ def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
                 raw = re.sub(r"\n?```$", "", raw)
                 parsed = json.loads(raw)
                 for entry in parsed:
-                    results[entry["idx"]] = entry
+                    n = entry.get("idx") if isinstance(entry, dict) else None
+                    if isinstance(n, str) and n.strip().isdigit():
+                        n = int(n)
+                    if not isinstance(n, int) or not 1 <= n <= len(chunk):
+                        unmatched += 1
+                        continue
+                    gidx, a = chunk[n - 1]
+                    # A summary on the wrong paper is worse than none: drop it.
+                    if not _title_matches(entry.get("title_start", ""), a["title"]):
+                        unmatched += 1
+                        continue
+                    results[gidx] = entry
                 break
             except Exception as exc:
                 if "429" in str(exc) or "overloaded" in str(exc).lower() or "rate" in str(exc).lower():
@@ -548,6 +581,10 @@ def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
                     break
         time.sleep(2)
 
+    if unmatched:
+        print(f"  [WARN] {unmatched} AI repl{'y' if unmatched == 1 else 'ies'} dropped: "
+              f"number out of range or title_start did not match the article.",
+              file=sys.stderr)
     return results
 
 
@@ -1218,13 +1255,13 @@ def main() -> None:
             print(f"  Summarised {len(summaries)}/{with_abstract} articles")
 
     # ── Render & save ─────────────────────────────────────────────────────────
-    html = render_html(all_articles, summaries, run_at, hours)
+    page = render_html(all_articles, summaries, run_at, hours)
 
     out_dir = Path(args.output)
     out_dir.mkdir(parents=True, exist_ok=True)
     fname    = f"hema_onc_digest_{run_at.strftime('%Y-%m-%d')}.html"
     out_path = out_dir / fname
-    out_path.write_text(html, encoding="utf-8")
+    out_path.write_text(page, encoding="utf-8")
 
     if not args.no_ledger:
         save_seen_dois(seen_ledger, all_articles, run_at)
