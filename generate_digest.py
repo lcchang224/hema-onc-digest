@@ -487,6 +487,42 @@ Rules:
 - Strictly valid JSON."""
 
 
+_RADAR_KEY_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,30}$")
+
+
+def load_radar_topics(cfg: dict) -> list[dict]:
+    """Project-radar topics from the TOML `[radar] topics` list ([] = radar off)."""
+    topics = []
+    for t in cfg.get("radar", {}).get("topics", []):
+        key, label, desc = (str(t.get(k, "")).strip() for k in ("key", "label", "description"))
+        if not (_RADAR_KEY_RE.match(key) and label and desc):
+            sys.exit(f"Bad [radar] topic in config (need key/label/description): {t!r}")
+        if any(x["key"] == key for x in topics):
+            sys.exit(f"Duplicate [radar] topic key: {key}")
+        topics.append({"key": key, "label": label, "description": desc})
+    return topics
+
+
+def summary_system(topics: list[dict]) -> str:
+    """The system prompt, with the project-radar field added when topics exist."""
+    if not topics:
+        return _SUMMARY_SYSTEM
+    listing = "\n".join(f"  - {t['key']}: {t['description']}" for t in topics)
+    return _SUMMARY_SYSTEM + f"""
+
+PROJECT RADAR - add one more field to every object:
+  "radar": a list of topic keys from the list below, usually [].
+
+Topics:
+{listing}
+
+Put a key in "radar" only when someone working on exactly that topic would
+want to read this article for that work: the topic is the article's main
+subject, or its main finding changes how the topic is studied, diagnosed or
+treated. Sharing a disease, a drug class or a technique is not enough. Most
+articles get []. Use only the keys listed above."""
+
+
 def _norm_words(s: str) -> list[str]:
     s = re.sub(r"<[^>]+>", " ", html.unescape(str(s)))   # CrossRef titles carry <i>, <sup>
     return re.findall(r"[a-z0-9]+", s.lower())
@@ -503,9 +539,15 @@ def _title_matches(echo: str, title: str) -> bool:
     return bool(e) and e == t[:len(e)]
 
 
-def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
-    """Return {global_idx: {summary, hehe, nohehe, heme}} using CLAUDE_MODEL.
-    Articles without abstracts are skipped entirely."""
+def ai_summarize(articles: list[dict], api_key: str,
+                 topics: list[dict] | None = None) -> dict[int, dict]:
+    """Return {global_idx: {summary, hehe, nohehe, heme, radar}} using CLAUDE_MODEL.
+    Articles without abstracts are skipped entirely. `radar` (a list of topic
+    keys) is present only when radar topics are configured."""
+    topics = topics or []
+    topic_keys = {t["key"] for t in topics}
+    system_prompt = summary_system(topics)
+    radar_fields_seen = 0
     try:
         import anthropic  # type: ignore
     except ImportError:
@@ -539,7 +581,7 @@ def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
                     output_config={"effort": CLAUDE_EFFORT},
                     betas=["server-side-fallback-2026-07-01"],
                     fallbacks="default",
-                    system=_SUMMARY_SYSTEM,
+                    system=system_prompt,
                     messages=[{"role": "user", "content": "\n".join(lines)}],
                 )
                 if resp.stop_reason == "refusal":
@@ -570,6 +612,16 @@ def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
                     if not _title_matches(entry.get("title_start", ""), a["title"]):
                         unmatched += 1
                         continue
+                    if topics:
+                        # Additive and fail-quiet: anything but a list of
+                        # known keys leaves the article untagged.
+                        r = entry.get("radar")
+                        if isinstance(r, list):
+                            radar_fields_seen += 1
+                        entry["radar"] = ([k for k in dict.fromkeys(
+                                               x for x in r if isinstance(x, str))
+                                           if k in topic_keys]
+                                          if isinstance(r, list) else [])
                     results[gidx] = entry
                 break
             except Exception as exc:
@@ -587,6 +639,19 @@ def ai_summarize(articles: list[dict], api_key: str) -> dict[int, dict]:
         print(f"  [WARN] {unmatched} AI repl{'y' if unmatched == 1 else 'ies'} dropped: "
               f"number out of range or title_start did not match the article.",
               file=sys.stderr)
+    if topics and results:
+        if not radar_fields_seen:
+            # Zero hits is a normal day; zero radar *fields* means the reply
+            # shape broke and the radar is silently off.
+            print("  [WARN] Radar: no reply carried a 'radar' list; radar did not run.",
+                  file=sys.stderr)
+        else:
+            hits = defaultdict(int)
+            for e in results.values():
+                for k in e.get("radar", []):
+                    hits[k] += 1
+            print(f"  Radar: {sum(1 for e in results.values() if e.get('radar'))} "
+                  f"article(s) tagged {dict(hits) or ''}")
     return results
 
 
@@ -764,6 +829,29 @@ a:hover { text-decoration: underline; }
   white-space: nowrap;
 }
 
+.badge.radar {
+  background: var(--accent-light);
+  border-color: var(--accent2);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Project radar ──────────────────────────── */
+.radar {
+  background: var(--surface);
+  border: 1px solid var(--accent2);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.radar ul { list-style: none; display: grid; gap: .5rem; }
+.radar li { font-size: .9rem; line-height: 1.45; }
+.radar li a { color: var(--text); font-weight: 600; }
+.radar .radar-journal { color: var(--muted); font-size: .8rem; }
+.radar .radar-none { color: var(--muted); font-size: .85rem; }
+
 .article-title {
   font-weight: 600; font-size: .95rem;
   line-height: 1.45; margin-bottom: .25rem;
@@ -873,7 +961,14 @@ def _e(s: str) -> str:
 
 
 def render_html(articles: list[dict], summaries: dict[int, dict],
-                run_at: datetime, hours: int) -> str:
+                run_at: datetime, hours: int,
+                topics: list[dict] | None = None) -> str:
+    topics = topics or []
+    topic_label = {t["key"]: t["label"] for t in topics}
+
+    def _radar_keys(idx: int) -> list[str]:
+        return [k for k in summaries.get(idx, {}).get("radar", []) if k in topic_label]
+
     def _is_heme(idx: int) -> bool:
         """Whether an article belongs in the main section.
 
@@ -913,6 +1008,10 @@ def render_html(articles: list[dict], summaries: dict[int, dict],
             if a["source"] == "rss"
             else '<span class="badge">CrossRef</span>'
         )
+        radar_badges = "".join(
+            f'<span class="badge radar">🎯 {_e(topic_label[k])}</span>'
+            for k in _radar_keys(i)
+        )
 
         authors_html = (
             f'<p class="article-authors">{_e(a["authors"])}</p>'
@@ -940,8 +1039,8 @@ def render_html(articles: list[dict], summaries: dict[int, dict],
         url = a.get("url") or (f"https://doi.org/{a['doi']}" if a.get("doi") else "#")
 
         return f"""
-<div class="article-card">
-  <div class="article-meta">{pub_badge}{doi_badge}{src_badge}</div>
+<div class="article-card" id="a-{i}">
+  <div class="article-meta">{radar_badges}{pub_badge}{doi_badge}{src_badge}</div>
   <div class="article-title">
     <a href="{_e(url)}" target="_blank" rel="noopener">{_e(a["title"])}</a>
   </div>
@@ -991,8 +1090,32 @@ def render_html(articles: list[dict], summaries: dict[int, dict],
   {other_html}
 </details>""" if other_pairs else ""
 
+    # Project radar: shown whenever topics are configured and the AI ran, so an
+    # empty day reads "no hits" rather than looking like the radar is off.
+    radar_html = ""
+    if topics and has_ai:
+        def _chips(i: int) -> str:
+            return "".join(f'<span class="badge radar">🎯 {_e(topic_label[k])}</span> '
+                           for k in _radar_keys(i))
+        hits = [(i, a) for i, a in enumerate(articles) if _radar_keys(i)]
+        if hits:
+            items = "".join(
+                f'<li>{_chips(i)}<a href="#a-{i}">{_e(a["title"])}</a> '
+                f'<span class="radar-journal">· {_e(a["journal"])}'
+                f'{" · in the set-aside list below" if not _is_heme(i) else ""}</span></li>'
+                for i, a in hits
+            )
+            body = f"<ul>{items}</ul>"
+        else:
+            body = '<p class="radar-none">No article today bears directly on a radar topic.</p>'
+        radar_html = f"""
+<section class="radar">
+  <div class="toc-title">🎯 Project radar</div>
+  {body}
+</section>"""
+
     content = (
-        toc_html + main_html + other_block
+        radar_html + toc_html + main_html + other_block
         if (main_html or other_block)
         else '<div class="empty-state">🔍 No new articles found in the past '
              + str(hours) + ' hours.</div>'
@@ -1157,6 +1280,7 @@ def main() -> None:
         sys.exit(f"Config not found: {cfg_path}")
     with open(cfg_path, "rb") as fh:
         cfg = tomllib.load(fh)
+    radar_topics = load_radar_topics(cfg)
 
     # Honour TOML's filter_window_hours if --hours wasn't explicitly passed
     toml_hours = (cfg.get("rss", {})
@@ -1253,11 +1377,11 @@ def main() -> None:
             with_abstract = sum(1 for a in all_articles if a.get("abstract"))
             print(f"\n── AI summaries ({CLAUDE_LABEL}) ──────────────────────")
             print(f"  {with_abstract}/{len(all_articles)} articles have abstracts")
-            summaries = ai_summarize(all_articles, anthropic_key)
+            summaries = ai_summarize(all_articles, anthropic_key, radar_topics)
             print(f"  Summarised {len(summaries)}/{with_abstract} articles")
 
     # ── Render & save ─────────────────────────────────────────────────────────
-    page = render_html(all_articles, summaries, run_at, hours)
+    page = render_html(all_articles, summaries, run_at, hours, radar_topics)
 
     out_dir = Path(args.output)
     out_dir.mkdir(parents=True, exist_ok=True)

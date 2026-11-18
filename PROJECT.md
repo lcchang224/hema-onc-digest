@@ -65,6 +65,23 @@ So the worst failure mode is a filter that quietly does nothing, never one that
 hides papers. If the collapsed block is always empty, suspect the AI reply
 shape before assuming there was nothing to demote.
 
+## Project radar
+The same Claude call also returns a `radar` list per article: keys of the
+topics in the TOML's `[radar] topics` that the article bears on directly. Tagged
+articles are listed in a "Project radar" box at the top of the report and carry
+a 🎯 badge on their card. An empty topic list turns it off.
+
+- **The repo is public**, and so is every report committed to it. Topic labels
+  and descriptions must stay at field level: no hypotheses, study designs, grant
+  numbers, or anything about a patient.
+- Fail-quiet like the demotion: an unknown key or a malformed field leaves the
+  article untagged. Two signals keep that from going unseen: the box says "no
+  hits" on an empty day instead of disappearing, and the log warns when no
+  reply carried a `radar` field at all (the reply shape broke).
+- Every reply must echo its article's `title_start`, and a mismatch drops the
+  reply, so a tag can never land on the wrong paper (see the 2026-11-18 note in
+  `_title_matches`).
+
 ## Key files
 - `generate_digest.py` — main script (fetch → dedup → AI summarize → render HTML)
 - `daily_hema_onc_rss_digest.toml` — journal config (which feeds, which CrossRef endpoints)
