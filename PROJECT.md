@@ -124,15 +124,12 @@ depend on which day you run them. To re-measure coverage, run
 per-journal counts against the report `reports/` holds for the same date.
 
 ## Open questions / next steps
-- **Project radar is built but not deployed (2026-11-18).** It lives on the
-  local branch `project-radar` in the Windows git dir only, never pushed:
-  commit `b8a247e` is the code (no topics), `d3909bc` adds a draft topic list.
-  Waiting on Richard: this repo and its reports are public, so the topic labels
-  would be visible to anyone. Options put to him: field-level labels in public;
-  make the repo private (breaks the hub's client-side manifest fetch from
-  raw.githubusercontent.com, which is the path that works on hospital WiFi);
-  or keep radar hits out of the committed report. Test with the `test_only`
-  run on the branch before merging.
+- **Project radar deployed 2026-11-23**, with the nine field-level topics in the
+  TOML. Richard chose to keep the labels public (2026-11-23) over the two
+  alternatives: making the repo private (breaks the hub's client-side manifest
+  fetch from raw.githubusercontent.com, the path that works on hospital WiFi)
+  or keeping radar hits out of the committed report. Watch the first week for
+  over-tagging; the fix is a tighter `description`, not a looser rule.
 - CrossRef answered `429 Too Many Requests` for 10 journals in the 2026-11-18
   scheduled run (none in the six runs before it), and `fetch_crossref` has no
   retry, so those journals' articles were dropped silently for the day. Not
