@@ -473,6 +473,8 @@ doctor in Hong Kong writes.
   啦 喔 耶 欸 齁 囉 嘛 吧 啊
 - Keep the register conversational, the way Taiwanese colleagues actually talk
   in a group chat. Standard medical terms stay as-is (HR、PFS、OS、CR、MRD…).
+- Use full-width Chinese punctuation in the comments (，。！？), not the
+  half-width , . ! ?
 
 Reply with a valid JSON array, one object per article in the same order:
   [{"idx": <int>, "title_start": "...", "summary": "...", "hehe": "...", "nohehe": "...", "heme": true}, ...]
