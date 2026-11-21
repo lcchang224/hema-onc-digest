@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-11-21</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Collapsed non-heme tail ────────────────── */
+.other-block {
+  margin-top: 2.5rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 1.25rem;
+}
+.other-block > summary {
+  cursor: pointer;
+  font-size: .84rem;
+  color: var(--muted);
+  padding: .55rem .8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  list-style-position: inside;
+}
+.other-block > summary:hover { color: var(--accent2); border-color: var(--accent2); }
+.other-block > summary b { color: var(--accent2); }
+.other-block[open] > summary { margin-bottom: 1.25rem; }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-11-21 04:31 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>23</b> articles</span>
+  <span>📚 <b>3</b> journals</span>
+  <span>⏱ Past <b>28h</b></span>
+  
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-annals-of-hematology">Annals of Hematology <span style="opacity:.6">(3)</span></a><a href="#j-annals-of-oncology">Annals of Oncology <span style="opacity:.6">(14)</span></a><a href="#j-blood-advances">Blood Advances <span style="opacity:.6">(6)</span></a></div>
+</div>
+<div class="journal-section" id="j-annals-of-hematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Annals of Hematology</span>
+    <span class="journal-count">3</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-20</span><span class="badge">DOI: 10.1007/s00277-026-073</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1007/s00277-026-07374-6" target="_blank" rel="noopener">Major bleeding during ibrutinib therapy in chronic lymphocytic leukemia: acquired von Willebrand syndrome as a coexisting hemostatic abnormality</a>
+  </div>
+  <p class="article-authors">Ivanovic J, Vukovic V, Miljic P, Antic D</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-20</span><span class="badge">DOI: 10.1007/s00277-026-073</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1007/s00277-026-07370-w" target="_blank" rel="noopener">Efficacy and safety of brentuximab vedotin in relapsed or refractory diffuse large B-cell lymphoma: a systematic review and meta-analysis</a>
+  </div>
+  <p class="article-authors">Khan S, Khaliq S, Hanzala M, Khan Z et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-20</span><span class="badge">DOI: 10.1007/s00277-026-073</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1007/s00277-026-07364-8" target="_blank" rel="noopener">Efficacy and Safety of mitapivat in a subset of hereditary hemolytic anemias: a systematic review, meta-analysis, and GRADE assessment of randomized controlled trials</a>
+  </div>
+  <p class="article-authors">Ahmed H, Zulfiqar D, Abbasi M, Mehmood K et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+<div class="journal-section" id="j-annals-of-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Annals of Oncology</span>
+    <span class="journal-count">14</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.070" target="_blank" rel="noopener">LBA74 First-line (1L) trastuzumab deruxtecan (T-DXd) in patients (pts) with HER2-mutant (HER2m) NSCLC: Patient-reported outcomes (PROs) from DESTINY-Lung04 (DL-04)</a>
+  </div>
+  <p class="article-authors">Novello S, Rotow J, Tanaka K, Goto K et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.049" target="_blank" rel="noopener">LBA1 INTerpath-001: Phase 3 study of the mRNA-based individualized neoantigen therapy (INT) intismeran autogene (intismeran) plus pembrolizumab (pembro) vs pembro alone for adjuvant treatment of resected stage IIB-IV melanoma (MEL)</a>
+  </div>
+  <p class="article-authors">Long G, Khattak M, Gogas H, Schadendorf D et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.08.2363" target="_blank" rel="noopener">2072O Efficacy and safety of lifileucel and pembrolizumab in patients with immune check point inhibitor-naïve advanced melanoma: Final results from IOV-COM-202 study</a>
+  </div>
+  <p class="article-authors">Furness A, Gogas H, Doger de Spéville B, In G et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.063" target="_blank" rel="noopener">LBA66 Sacituzumab tirumotecan (sac-TMT) plus pembrolizumab (P) versus chemotherapy (chemo) plus pembrolizumab (P) as first-line (1L) treatment for PD-L1-negative advanced non-squamous (nsq) NSCLC: Randomized phase 3 OptiTROP-Lung06 study</a>
+  </div>
+  <p class="article-authors">Zhou C, Zhou F, Meng X, Ding Q et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.064" target="_blank" rel="noopener">LBA67 Final OS analysis of sacituzumab tirumotecan (sac-TMT) versus platinum-based chemotherapy in EGFR-mutated non-small cell lung cancer (NSCLC) after progression on EGFR-TKI: Phase III OptiTROP-Lung04 study</a>
+  </div>
+  <p class="article-authors">Zhang L, Fang W, Wu L, Meng X et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.038" target="_blank" rel="noopener">LBA45 Quality of life after primary TORS vs IMRT for patients with early-stage oropharyngeal squamous cell carcinoma (QoLATI/DAHANCA34): A multicentre, open-label, randomised phase 2 trial</a>
+  </div>
+  <p class="article-authors">Channir H, Rubek N, Friborg J, Madsen A et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.08.3722" target="_blank" rel="noopener">3469RO Questions to ask your oncologist: A global study by the common sense oncology (CSO) initiative</a>
+  </div>
+  <p class="article-authors">Booth C, Tregear M, Aggarwal A, Brundage M et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.027" target="_blank" rel="noopener">LBA11 Sacituzumab tirumotecan in previously treated advanced or recurrent endometrial cancer: Results from the phase 3 TroFuse-005/ENGOT-en23/GOG-3095 study</a>
+  </div>
+  <p class="article-authors">Lorusso D, Martin-Babau J, Backes F, Korach J et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.072" target="_blank" rel="noopener">LBA7 CLARITY-Gastric 01 (CG-01): A phase 3 study of sonesitatug vedotin (Sone-Ve) in second or later-line (2L+) advanced or metastatic Claudin 18.2 (CLDN18.2)-positive gastroesophageal carcinoma (GEC)</a>
+  </div>
+  <p class="article-authors">Xu R, Janjigian Y, Chen M, Lee J et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.073" target="_blank" rel="noopener">LBA77 Arcotatug tavatecan (IBI343/TAK-921) versus treatment of physician’s choice (TPC) in previously treated, advanced gastric or gastroesophageal junction adenocarcinoma (G/GEJA): First interim analysis of the randomized, open-label, phase 3, G-HOPE-001 study</a>
+  </div>
+  <p class="article-authors">Shitara K, Peng Z, Li C, Liu M et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.083" target="_blank" rel="noopener">LBA88 PErioperative PEmbrolizumab (P) plus metastasis-directed therapy (MDT) versus MDT alone in patients (pts) with oligometastatic renal cell carcinoma (omRCC): The randomized phase II PE-PE trial</a>
+  </div>
+  <p class="article-authors">Iacovelli R, Volta A, Bimbatti D, Buti S et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.10.078" target="_blank" rel="noopener">LBA82 Daraxonrasib, a RAS(ON) multi-selective inhibitor vs chemotherapy in previously treated metastatic pancreatic adenocarcinoma (mPDAC): Additional subgroup analyses from the ph3 RASolute 302 study</a>
+  </div>
+  <p class="article-authors">Wainberg Z, Wolpin B, Hendifar A, Borad M et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.08.1743" target="_blank" rel="noopener">1454O High MRD negativity rates and prolonged PFS with belantamab mafodotin plus daratumumab, lenalidomide, and dexamethasone in transplant ineligible newly-diagnosed myeloma: Results of the Bela-DRd study</a>
+  </div>
+  <p class="article-authors">Dimopoulos M, Gavriatopoulou M, Ntanasis-Stathopoulos I, Kanellias N et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.annonc.2026.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.annonc.2026.08.456" target="_blank" rel="noopener">363eP Prognostic prediction of colorectal cancer using machine learning on c-Jun N-terminal kinase (JNK) and hypoxia pathways</a>
+  </div>
+  <p class="article-authors">Tam S, Huang M, Man K, Law H</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+<div class="journal-section" id="j-blood-advances">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Blood Advances</span>
+    <span class="journal-count">6</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-20</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020859" target="_blank" rel="noopener">FLT3 Mutations in Myelodysplastic Syndromes and Chronic Myelomonocytic Leukemia: A Multi-Center Analysis</a>
+  </div>
+  <p class="article-authors">Rodríguez-Sevilla J, Chien K, Li Z, Jelloul F et al.</p>
+  <p class="article-summary">In a 115-patient multicenter cohort of FLT3-mutant MDS (n=63) and CMML (n=52), the authors characterised the clinicogenomic features and outcomes of these patients, where the prognostic role of FLT3 has been poorly defined compared with AML.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有人把 MDS 和 CMML 裡的 FLT3 好好整理一番了，多中心資料真的很有參考價值喔！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>FLT3 在 AML 已經夠紅了，現在連 MDS 和 CMML 也要來參一腳，是怕我們太閒嗎？</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-20</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026021020" target="_blank" rel="noopener">Base Editing of Hematopoietic Stem Cells Corrects Gain-of-Function Mutations in APDS</a>
+  </div>
+  <p class="article-authors">Orf K, Torrance R, Matti C, White N et al.</p>
+  <p class="article-summary">Base editing of hematopoietic stem cells was used to correct gain-of-function PIK3CD and PIK3R1 mutations that cause APDS1 and APDS2, rare inborn errors of immunity with severe infections and lymphoma risk.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>鹼基編輯直接修正 APDS 的致病突變，這根本是基因治療的未來啦，太酷了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又是一個罕見到我們一輩子可能只看到一兩個的疾病，不過技術確實很帥，這點不能否認啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-20</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026021619" target="_blank" rel="noopener">Systematic Review Supporting the American Society of Hematology Practice Guidelines on the Management of Myelofibrosis</a>
+  </div>
+  <p class="article-authors">Hasan B, Fleti F, Taki Aldin S, Moustafa A et al.</p>
+  <p class="article-summary">This systematic review underpins the ASH guideline on myelofibrosis management, addressing ten prioritised clinical questions amid substantial practice variation.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>ASH 的骨髓纖維化指引有系統性回顧當後盾，之後門診決策終於比較有依據囉！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>十個臨床問題整理成一篇，我們還是會在晨會吵要不要用 JAK 抑制劑吧。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-20</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026021494" target="_blank" rel="noopener">Increasing Donor Age Remains Associated with Adverse Transplant Outcomes in the Post-Transplant Cyclophosphamide Era</a>
+  </div>
+  <p class="article-authors">Xie Y, Shaw B, Logan B, Spellman S et al.</p>
+  <p class="article-summary">The study finds that older donor age remains associated with worse allogeneic HCT outcomes even with PTCy-based GVHD prophylaxis, in contrast to some recent reports suggesting the effect might disappear.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>就算有 PTCy，捐贈者年齡還是重要，選捐贈者時又多一個明確的依據了耶！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>原來 PTCy 不是萬靈丹，年輕捐贈者還是比較香，選供者的時候別偷懶喔。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-20</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026020796" target="_blank" rel="noopener">STI-8591: A Novel FLT3 Inhibitor Targeting Resistant FLT3 Mutations and central nervous system Leukemia</a>
+  </div>
+  <p class="article-authors">Zhang Y, Wang H, Wei W, Zhao D et al.</p>
+  <p class="article-summary">STI-8591 is a novel FLT3 inhibitor evaluated preclinically for activity against resistant FLT3 mutations and CNS leukemia in AML, a major challenge with current inhibitors.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>能對抗抗藥突變又能進到中樞神經，這個 FLT3 抑制劑看起來很有潛力欸！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又一個 FLT3 抑制劑，這次是不是真的能跨出小鼠實驗，我們拭目以待啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-20</span><span class="badge">DOI: 10.1182/bloodadvances.</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1182/bloodadvances.2026021957" target="_blank" rel="noopener">Navitoclax and Venetoclax with Chemotherapy for Relapsed/Refractory ALL in Children and Young Adults</a>
+  </div>
+  <p class="article-authors">Del Bufalo F, Lissat A, Rosignoli C, Carta R et al.</p>
+  <p class="article-summary">Navitoclax plus venetoclax combined with chemotherapy was tested as a BCL-family-targeted reinduction strategy for relapsed/refractory ALL in children and young adults, aiming to achieve remission and enable consolidation.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>對復發難治的 ALL 孩子們多了一個 BCL 家族標靶的新選擇，真的很有希望喔！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>Navitoclax 加 venetoclax 再加化療，血球低下的風險大概也是三重奏吧，輸血準備好囉。</div></div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-11-21 04:31 UTC · AI summaries by Claude Sonnet 5.5<br>
+  Sources: Nature RSS · NEJM RSS · CrossRef API
+</footer>
+</body>
+</html>
