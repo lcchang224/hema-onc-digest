@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Heme/Onc Digest · 2026-11-22</title>
+  <style>
+/* ── Reset ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ──────────────────────────── */
+:root {
+  --bg: #fbf6f1;
+  --surface: #ffffff;
+  --border: #e7d3c0;
+  --accent: #a04a1c;
+  --accent2: #bf6433;
+  --accent-light: #f5e8dc;
+  --text: #3b2618;
+  --muted: #a8856a;
+  --hehe-bg: #ecfdf5;
+  --hehe-bdr: #059669;
+  --nohehe-bg: #fff7ed;
+  --nohehe-bdr: #d97706;
+  --tag: #f0e3d4;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f140c;
+    --surface: #2c1d12;
+    --border: #5e3a22;
+    --accent: #d49374;
+    --accent2: #bf8362;
+    --accent-light: #2e1d12;
+    --text: #e8d4be;
+    --muted: #a8856a;
+    --hehe-bg: #03260f;
+    --hehe-bdr: #16a34a;
+    --nohehe-bg: #1a0e02;
+    --nohehe-bdr: #ca8a04;
+    --tag: #3a2818;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ─────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #a04a1c 0%, #bf6433 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(160,74,28,.3);
+}
+@media (prefers-color-scheme: dark) {
+  .site-header { background: linear-gradient(135deg, #5e3a22 0%, #7a4a2c 100%); }
+}
+.site-header h1 {
+  font-size: 1.05rem; font-weight: 700; flex: 1;
+  letter-spacing: -.01em;
+}
+.header-meta { font-size: .78rem; opacity: .88; white-space: nowrap; }
+
+/* ── Stats bar ──────────────────────────────── */
+.stats-bar {
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 1.5rem;
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--accent2);
+  font-weight: 500;
+}
+.stats-bar b { font-weight: 700; }
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── TOC / journal nav ──────────────────────── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.toc-title {
+  font-weight: 700; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.toc-links {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.toc-links a {
+  background: var(--tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .22rem .65rem;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.toc-links a:hover {
+  background: var(--accent-light);
+  color: var(--accent2);
+  text-decoration: none;
+  border-color: var(--accent2);
+}
+
+/* ── Journal section ────────────────────────── */
+.journal-section { margin-bottom: 2rem; }
+.journal-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.journal-icon { font-size: 1.15rem; line-height: 1; }
+.journal-title { font-weight: 700; font-size: .96rem; }
+.journal-count {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem; font-weight: 700;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  min-width: 1.4rem; text-align: center;
+}
+
+/* ── Article card ───────────────────────────── */
+.article-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: .95rem 1rem .9rem;
+  transition: box-shadow .15s;
+}
+.article-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.article-card:hover { box-shadow: var(--shadow-sm); }
+.article-card + .article-card { border-top: 1px solid var(--border); }
+
+.article-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.badge {
+  background: var(--tag);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08rem .38rem;
+  white-space: nowrap;
+}
+
+.article-title {
+  font-weight: 600; font-size: .95rem;
+  line-height: 1.45; margin-bottom: .25rem;
+}
+.article-title a { color: var(--text); }
+.article-title a:hover { color: var(--accent); }
+
+.article-authors {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+/* ── Summary block ──────────────────────────── */
+.article-summary {
+  font-size: .84rem; color: var(--muted);
+  border-left: 2.5px solid var(--border);
+  padding-left: .6rem;
+  margin: .45rem 0 .65rem;
+  line-height: 1.5;
+}
+
+/* ── 嘻嘻 / 不嘻嘻 ─────────────────────────── */
+.ai-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+@media (max-width: 540px) { .ai-box { grid-template-columns: 1fr; } }
+
+.comment-card {
+  border-radius: 7px;
+  padding: .55rem .7rem;
+  font-size: .81rem; line-height: 1.5;
+}
+.comment-card.hehe {
+  background: var(--hehe-bg);
+  border-left: 3px solid var(--hehe-bdr);
+}
+.comment-card.nohehe {
+  background: var(--nohehe-bg);
+  border-left: 3px solid var(--nohehe-bdr);
+}
+.comment-label {
+  display: block; font-weight: 700; font-size: .72rem;
+  margin-bottom: .18rem; letter-spacing: .03em;
+}
+.comment-card.hehe .comment-label { color: var(--hehe-bdr); }
+.comment-card.nohehe .comment-label { color: var(--nohehe-bdr); }
+
+/* ── Collapsed non-heme tail ────────────────── */
+.other-block {
+  margin-top: 2.5rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 1.25rem;
+}
+.other-block > summary {
+  cursor: pointer;
+  font-size: .84rem;
+  color: var(--muted);
+  padding: .55rem .8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  list-style-position: inside;
+}
+.other-block > summary:hover { color: var(--accent2); border-color: var(--accent2); }
+.other-block > summary b { color: var(--accent2); }
+.other-block[open] > summary { margin-bottom: 1.25rem; }
+
+/* ── Empty state ────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  color: var(--muted); font-size: 1rem;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: .76rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* ── Responsive tweaks ──────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: .85rem 1rem; }
+  .site-header h1 { font-size: .97rem; }
+  .stats-bar { padding: .5rem 1rem; gap: .85rem; }
+  .container { padding: 1rem .75rem 2.5rem; }
+  .article-card { padding: .8rem .75rem; }
+  .journal-header { padding: .55rem .75rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>🩸 Hematology &amp; Oncology Daily Digest</h1>
+  <span class="header-meta">2026-11-22 03:45 UTC</span>
+</header>
+
+<div class="stats-bar">
+  <span>📰 <b>44</b> articles</span>
+  <span>📚 <b>3</b> journals</span>
+  <span>⏱ Past <b>28h</b></span>
+  <span>📉 <b>2</b> set aside</span>
+  <span>🤖 AI-summarized</span>
+</div>
+
+<main class="container">
+
+<div class="toc">
+  <div class="toc-title">📚 Journals in this digest</div>
+  <div class="toc-links"><a href="#j-annals-of-hematology">Annals of Hematology <span style="opacity:.6">(4)</span></a><a href="#j-journal-of-thrombosis-and-haemostasis">Journal of Thrombosis and Haemostasis <span style="opacity:.6">(39)</span></a><a href="#j-lancet-oncology">Lancet Oncology <span style="opacity:.6">(1)</span></a></div>
+</div>
+<div class="journal-section" id="j-annals-of-hematology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Annals of Hematology</span>
+    <span class="journal-count">4</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-21</span><span class="badge">DOI: 10.1007/s00277-026-073</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1007/s00277-026-07369-3" target="_blank" rel="noopener">Isa-Kd in relapsed/refractory multiple myeloma (RRMM): beyond controlled clinical trials – a detailed real-world analysis</a>
+  </div>
+  <p class="article-authors">García-Cabrera I, Clavero E, Alcalá M, García-Sánchez R et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-21</span><span class="badge">DOI: 10.1007/s00277-026-073</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1007/s00277-026-07356-8" target="_blank" rel="noopener">Real‑world effectiveness of venetoclax‑rituximab in relapsed or refractory chronic lymphocytic leukemia in Belgium: results from the AREVEDECY study</a>
+  </div>
+  <p class="article-authors">Snauwaert S, Meers S, Maertens V, Poedts L et al.</p>
+  <p class="article-summary">A Belgian retrospective chart review (AREVEDECY) assessed real-world outcomes of fixed-duration venetoclax-rituximab in relapsed or refractory CLL, building on MURANO.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>真實世界的 VenR 數據跟試驗相呼應，CLL 病人有好消息囉！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>比利時的給付策略我們學不來啦，不過巧克力倒是可以多學一點。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-21</span><span class="badge">DOI: 10.1007/s00277-026-073</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1007/s00277-026-07359-5" target="_blank" rel="noopener">Feasibility of reduced-dose cyclophosphamide plus etoposide for peripheral blood stem cell mobilization in patients with multiple myeloma and lymphoma: a prospective pilot study</a>
+  </div>
+  <p class="article-authors">Zhang X, Yao Q, Zhang X, Zhou X et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11-21</span><span class="badge">DOI: 10.1007/s00277-026-073</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1007/s00277-026-07319-z" target="_blank" rel="noopener">Effect of single nucleotide polymorphisms in genes involved in VWF clearance and FVIII binding on FVIII pharmacokinetics in Chinese patients with hemophilia A</a>
+  </div>
+  <p class="article-authors">Zhang A, Weng Y, Huang Y, Zhang L et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+<div class="journal-section" id="j-journal-of-thrombosis-and-haemostasis">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Journal of Thrombosis and Haemostasis</span>
+    <span class="journal-count">39</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.07</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.07.010" target="_blank" rel="noopener">Can edoxaban and rivaroxaban be prescribed for breastfeeding mothers? The New Horizons clinical trial</a>
+  </div>
+  <p class="article-authors">Patel J, Butler A, Mackina G, Duffy S et al.</p>
+  <p class="article-summary">This phase 1 trial evaluates whether edoxaban and rivaroxaban pass into breast milk, to inform use in breastfeeding mothers needing postnatal thromboprophylaxis.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>不用再天天打針了，哺乳媽媽的福音啊，這個研究超貼心的！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>媽媽們終於可以少打針了，但寶寶的意見還是沒人問過喔。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.06</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.06.046" target="_blank" rel="noopener">Genetic associations with pulmonary embolism among those with a deep vein thrombosis: the International Network Against Venous Thrombosis Consortium</a>
+  </div>
+  <p class="article-authors">Lozano-Esparza S, Shakt G, Brody J, Martinez-Perez A et al.</p>
+  <p class="article-summary">A case-only genetic study from the INVENT Consortium looked for genetic factors that alter the risk of pulmonary embolism among patients with DVT.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>用基因來找出誰的血栓會跑去肺部，這個切入點好聰明喔！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以血栓為什麼想去旅行到肺部，還是沒有人能攔住牠啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.08.015" target="_blank" rel="noopener">Structural insights into the exosite-mediated activation of factor IX by factor XIa using cryogenic electron microscopy</a>
+  </div>
+  <p class="article-authors">Mohammed B, Deavila S, Friet T, Dattilio I</p>
+  <p class="article-summary">Cryo-EM structures reveal how exosites on factor XIa mediate activation of factor IX, clarifying the role of FXI in coagulation.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>冷凍電顯的畫面超美，FXIa 抑制劑的設計又多了一份根據！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>看完這篇我只確定一件事：我的結構生物學已經還給老師了啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.08.036" target="_blank" rel="noopener">“Monitoring unfractionated heparin: time to move beyond the activated partial thromboplastin time”: comment</a>
+  </div>
+  <p class="article-authors">Gouin-Thibault I, Connors J, Levy J, Cuker A et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.08.014" target="_blank" rel="noopener">Evaluation of early prophylactic corticosteroid administration on early safety and efficacy outcomes of adeno-associated virus gene therapy in the hemophilia dog model</a>
+  </div>
+  <p class="article-authors">Batty P, Swystun L, Handyside B, Menard A et al.</p>
+  <p class="article-summary">In the hemophilia dog model, the study tests whether early prophylactic corticosteroids improve the safety and efficacy of AAV gene therapy and reduce liver transaminitis.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>狗狗模型幫忙解決基因治療的肝發炎問題，真的很有貢獻耶！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>商業上都已經撤市了，還在研究類固醇，這真是有點馬後炮欸。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.006" target="_blank" rel="noopener">Every step counts: incremental mobility and venous thromboembolism risk among adult general medicine inpatients</a>
+  </div>
+  <p class="article-authors">Hoyer E, Brotman D, Young D, Lau B et al.</p>
+  <p class="article-summary">Among general medicine inpatients, higher levels of mobility measured by JH-HLM were associated with lower VTE risk, suggesting mobility is a graded rather than binary risk factor.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>多走一步就多一分保護，下床走路真的是最便宜的預防藥啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>原來叫病人下床走走也能發論文，我查房時天天都在講欸。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/s1538-7836(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1538-7836(26)00696-3" target="_blank" rel="noopener">Announcement</a>
+  </div>
+  
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.032" target="_blank" rel="noopener">“Use of factor concentrates for the management of perioperative bleeding: guidance from the ISTH SSC Subcommittee on Perioperative and Critical Care Thrombosis and Hemostasis”: reply</a>
+  </div>
+  <p class="article-authors">Levy J, Shaw J, Siegal D, Frere C et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.001" target="_blank" rel="noopener">Platelet spleen tyrosine kinase promotes solid tumor metastasis via thromboxane A2-mediated immunosuppression</a>
+  </div>
+  <p class="article-authors">Sándor L, Kovács G, Mócsai A, Győri D</p>
+  <p class="article-summary">Platelet Syk promotes solid tumor metastasis through thromboxane A2-mediated immunosuppression, linking platelet activation to cancer progression.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>血小板居然幫腫瘤轉移，這個機轉很有意思，值得追蹤喔！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>血小板：我只是想止血而已，沒想到被說成幫兇啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.08.026" target="_blank" rel="noopener">“Being stung by the Taipan-high rates of false positivity for lupus anticoagulant using Taipan snake venom time in patients on warfarin with a low probability of antiphospholipid syndrome”: comment</a>
+  </div>
+  <p class="article-authors">Efthymiou M, Singh D, Mackie I, Willis R et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.024" target="_blank" rel="noopener">Diagnosis and management of subsegmental pulmonary embolism</a>
+  </div>
+  <p class="article-authors">Wang T, Le Gal G, Carrier M</p>
+  <p class="article-summary">This review discusses diagnosis and management of subsegmental PE, which makes up 5 to 10 percent of PE diagnoses, noting that an RCT on anticoagulation is ongoing.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>終於有人整理這個灰色地帶了，臨床上遇到超需要的啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>結論大概又是看情況吧，我們早就習慣了齁。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.003" target="_blank" rel="noopener">Mapping the mutational landscape for streptokinase binding to plasminogen</a>
+  </div>
+  <p class="article-authors">Baid S, Holding M, Laurin T, Siemieniak D et al.</p>
+  <p class="article-summary">A mutational scan maps how streptokinase binds plasminogen, informing understanding of this bacterial virulence factor and its thrombolytic use.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>把鏈激酶的突變地圖畫出來，細菌也被我們摸得一清二楚耶！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>細菌的毒力因子研究得這麼細，細菌大概也想不到吧。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.008" target="_blank" rel="noopener">Genomic inquiry into venous embolic phenomena—toward precision medicine with precise clinical questions</a>
+  </div>
+  <p class="article-authors">Short S, Key N, Raffield L</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.041" target="_blank" rel="noopener">Beyond New Horizons: what comes next for direct oral anticoagulants in lactation</a>
+  </div>
+  <p class="article-authors">Grinsztejn E, Samuelson Bannow B</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.023" target="_blank" rel="noopener">Long-term outcomes after heparin versus low-dose thrombolysis in patients with intermediate-high-risk pulmonary embolism – a secondary analysis of the low dose thrombolysis, ultrasound assisted thrombolysis or heparin for intermediate high risk pulmonary embolism randomized controlled trial</a>
+  </div>
+  <p class="article-authors">Sonne-Holm E, Bang L, Carlsen J, Winther-Jensen M et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.033" target="_blank" rel="noopener">Safety and emergency dose-response evaluation of lyophilized synthetic platelets in a rat model of traumatic hemorrhage</a>
+  </div>
+  <p class="article-authors">Luc N, Disharoon D, Hernandez S, Didar Singh Sekhon U et al.</p>
+  <p class="article-summary">Lyophilized synthetic platelets were tested for safety and dose-response in a rat model of traumatic hemorrhage.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>人工血小板如果成功，血庫缺貨的時候就有救了耶！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>老鼠止血了，但人類還有好長一段路要走啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/s1538-7836(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1538-7836(26)00695-1" target="_blank" rel="noopener">Issue Information</a>
+  </div>
+  
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.08.037" target="_blank" rel="noopener">Reproductive safety of direct oral anticoagulants after maternal exposure in early pregnancy: a comparative European Network of Teratology Information Services cohort study</a>
+  </div>
+  <p class="article-authors">Dao K, Beck E, Pizzoglio-Billaudaz V, Cottin J et al.</p>
+  <p class="article-summary">A prospective European teratology cohort evaluated the risk of major birth defects and pregnancy loss after first-trimester DOAC exposure.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>不小心懷孕時吃到 DOAC 的媽媽有更多資訊可以參考，很有幫助喔！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>樣本數應該不大，但總比什麼都沒有好啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.012" target="_blank" rel="noopener">Immunosuppression in adeno-associated virus gene therapy for hemophilia A: what are we treating?</a>
+  </div>
+  <p class="article-authors">Miesbach W, La Mura V</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.08.035" target="_blank" rel="noopener">Assessment of documentation and reporting methods for annual bleeding rate in hemophilia clinical trials: communication from the ISTH SSC Subcommittee on Factor VIII, Factor IX, and Rare Coagulation Disorders</a>
+  </div>
+  <p class="article-authors">Croteau S, Castaman G, Fijnvandraat K, Shapiro S et al.</p>
+  <p class="article-summary">An ISTH SSC communication assessing how annual bleeding rate is documented and reported in hemophilia trials, highlighting variability in definitions and methods.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>統一出血率的定義真的很重要，之後比較試驗才不會雞同鴨講喔！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>原來連數出血次數都能吵成這樣，學術界真的很講究欸。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.016" target="_blank" rel="noopener">Venous thromboembolism and suicide: a Danish nationwide case-control study</a>
+  </div>
+  <p class="article-authors">Sørensen H, Darvalics B, Horváth-Puhó E, Hjorth C et al.</p>
+  <p class="article-summary">A Danish nationwide case-control study examined the association between VTE and suicide risk.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>關心血栓病人的心理健康，這個角度很溫暖，值得大家注意！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>丹麥的登錄資料又一次碾壓全世界，羨慕啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.021" target="_blank" rel="noopener">Structural analysis of the primary specificity of thrombin</a>
+  </div>
+  <p class="article-authors">Friet T, Mikhail G, Mohammed B, Pelc L et al.</p>
+  <p class="article-summary">This structural analysis explores how thrombin accommodates both Arg and Phe at the P1 position, explaining its dual trypsin-like and chymotrypsin-like specificity.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>凝血酶的雙重性格被解析了，基礎研究的魅力就在這裡啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>凝血酶：我就是這麼百變，不服來戰喔。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.042" target="_blank" rel="noopener">Obituary: Professor Björn Wiman</a>
+  </div>
+  <p class="article-authors">Wallén H, Collen D, Lindahl T</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.031" target="_blank" rel="noopener">Biomarker changes after surgical left atrial appendage occlusion: a substudy of the Left Atrial Appendage Occlusion Study III</a>
+  </div>
+  <p class="article-authors">Lauw M, Eikelboom J, Yi Q, Belley-Cote E et al.</p>
+  <p class="article-summary">A LAAOS III substudy explored whether surgical left atrial appendage occlusion changes circulating biomarkers of coagulation activation.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>從生物標記去看 LAAO 的機轉，這個設計很有巧思耶！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>把耳朵夾掉之後血液會變怎樣，我猜大概沒差太多吧。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.037" target="_blank" rel="noopener">Thrombin generation in critically ill adults: a systematic review of venous thromboembolism and pharmacological thromboprophylaxis</a>
+  </div>
+  <p class="article-authors">Zhang C, Durr K, Carrier M, Siegal D et al.</p>
+  <p class="article-summary">A systematic review of thrombin generation assays in critically ill adults, looking at VTE and pharmacologic thromboprophylaxis.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>凝血酶生成試驗有機會幫助重症預防血栓，期待後續發展喔！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又一個實驗室指標，臨床上用不用得到就看緣分囉。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.015" target="_blank" rel="noopener">“Use of factor concentrates for the management of perioperative bleeding: guidance from the ISTH SSC subcommittee on perioperative and critical care thrombosis and hemostasis”: comment</a>
+  </div>
+  <p class="article-authors">Saner F, Bezinover D</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.010" target="_blank" rel="noopener">“Monitoring unfractionated heparin: time to move beyond the activated partial thromboplastin time”: reply</a>
+  </div>
+  <p class="article-authors">Wichaiyo S</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.009" target="_blank" rel="noopener">External validation of the VTE-PREDICT in patients with provoked venous thromboembolism and enduring risk factors: insights from the HI-PRO trial</a>
+  </div>
+  <p class="article-authors">Pfeferman M, Rashedi S, Pandey A, Krishnathasan D et al.</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.013" target="_blank" rel="noopener">Dock, pivot, cleave: a structural view of factor IX activation by factor XIa</a>
+  </div>
+  <p class="article-authors">Biswas A, Singh S, Oldenburg J</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.030" target="_blank" rel="noopener">Impact of C-terminal amidation on platelet activation by protease–activated receptors 1 and 4 activating peptides: communication from the ISTH SSC Subcommittee on Platelets in Health and Disease</a>
+  </div>
+  <p class="article-authors">Boukhatem I, Blais J, van der Wal D, Baloch H et al.</p>
+  <p class="article-summary">This ISTH SSC communication compares platelet activation by PAR1 and PAR4 activating peptides with amidated versus free acid C-termini.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>小小一個端點差異都被整理出來，做血小板實驗的人超需要啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>原來差一個醯胺基就會影響結果，難怪我的實驗做不出來。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.08</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.08.034" target="_blank" rel="noopener">Recommendations for harmonizing definition, recording, and reporting of the annual bleeding rate in hemophilia: communication from the ISTH SSC Subcommittee on Factor VIII, Factor IX and Rare Coagulation Disorders</a>
+  </div>
+  <p class="article-authors">Srivastava A, Croteau S, Castaman G, Escobar M et al.</p>
+  <p class="article-summary">ISTH SSC recommendations propose harmonized definitions, recording and reporting of annual bleeding rate in hemophilia.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>有了統一標準，之後的血友病試驗比較起來就輕鬆多了耶！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>標準統一是好事，但每家藥廠會不會乖乖遵守就不知道囉。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.026" target="_blank" rel="noopener">Coagulation dynamics during coronary angiography in patients receiving chronic direct oral anticoagulants: insights from the randomized POPular MEASURE study</a>
+  </div>
+  <p class="article-authors">Verburg A, Bor W, Nagy M, Spronk H et al.</p>
+  <p class="article-summary">In the randomized POPular MEASURE study, researchers investigated whether omitting UFH affects thrombin generation during coronary angiography in patients on chronic DOACs.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>機轉層面的隨機試驗，直接回答臨床常見的疑問，很實用喔！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>心導管室的肝素到底要不要打，大家又有新的話題可以吵啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.005" target="_blank" rel="noopener">Incidence, risk factors, and outcomes of thromboembolism in patients with melanoma receiving immune checkpoint inhibitors, chemotherapy, or targeted therapy: a Surveillance, Epidemiology, and End Results-Medicare analysis</a>
+  </div>
+  <p class="article-authors">Sussman T, Vu L, Koroukian S, Khorana A</p>
+  <p class="article-summary">A SEER-Medicare analysis assessed VTE and arterial thromboembolism incidence and survival impact in melanoma patients receiving ICIs, chemotherapy, or targeted therapy.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>癌症相關血栓的大型資料分析，免疫治療時代更需要注意喔！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>黑色素瘤在台灣不常見，但血栓可是天天遇到欸。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.014" target="_blank" rel="noopener">“Being stung by the Taipan: high rates of false positivity for lupus anticoagulant using Taipan snake venom time in patients on warfarin with a low probability of antiphospholipid syndrome”: reply</a>
+  </div>
+  <p class="article-authors">Platton S, McCormick Á, Bariana T, Doyle A</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.039" target="_blank" rel="noopener">Fragility analysis should complement statistical reporting in thrombosis trials: lessons from reduced-dose direct oral anticoagulants for cancer-associated venous thromboembolism</a>
+  </div>
+  <p class="article-authors">Chow R, Talwar S, Beniwal M, Abdulrehman J et al.</p>
+  <p class="article-summary">The authors argue fragility analysis should complement standard statistics in thrombosis trials, using reduced-dose DOACs for cancer-associated VTE as an example.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>提醒我們 P 值不是全部，這個觀點很誠實又很重要耶！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>原來顯著的結果換幾個病人就不顯著了，P 值看起來好脆弱啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.022" target="_blank" rel="noopener">Venous thrombosis and air pollution: a systematic review and meta-analysis of 1.4 million adult patients</a>
+  </div>
+  <p class="article-authors">Fang Y, Gu Y, Li G, He K et al.</p>
+  <p class="article-summary">A systematic review and meta-analysis of 1.4 million adults examined the association between ambient air pollution and venous thrombosis.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>空污跟血栓的關係被整理出來了，台灣的公共衛生也值得參考喔！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>所以連呼吸都可能增加血栓風險，今天還是戴口罩吧。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.020" target="_blank" rel="noopener">Perioperative management of patients on factor XI or factor XIa inhibitors</a>
+  </div>
+  <p class="article-authors">Spyropoulos A, Douketis J</p>
+  <p class="article-summary">This review covers perioperative management of patients taking factor XI or XIa inhibitors, a new class of anticoagulants that may preserve hemostasis.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>FXI 抑制劑可能讓手術前後處理變簡單，真的很期待上市啦！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>新藥還沒上市就先寫圍手術期指引，我們真是未雨綢繆欸。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.002" target="_blank" rel="noopener">ADAMTS-13 fusion constructs with dual activity against von Willebrand factor: a novel strategy for immune-mediated thrombotic thrombocytopenic purpura</a>
+  </div>
+  <p class="article-authors">Xue Y, Roest M, Humphreys S, van der Vorm L et al.</p>
+  <p class="article-summary">Novel ADAMTS-13 fusion constructs with dual activity against von Willebrand factor are proposed as a new strategy for immune-mediated TTP.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>雙功能的 ADAMTS-13 設計很聰明，iTTP 病人也許有新選擇了耶！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>又是一個融合蛋白，從實驗室到病床大概還要很久啦。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-12</span><span class="badge">DOI: 10.1016/j.jtha.2026.09</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/j.jtha.2026.09.040" target="_blank" rel="noopener">KRAS mutation and venous thromboembolism risk in colorectal cancer: a Danish population-based cohort study</a>
+  </div>
+  <p class="article-authors">Wheler J, Troelsen F, Vágó E, Horváth-Puhó E et al.</p>
+  <p class="article-summary">A Danish population-based cohort study examined whether KRAS mutations are associated with VTE risk in colorectal cancer patients.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>把腫瘤基因跟血栓連起來看，這個切入點很有趣喔！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>大腸癌加血栓，又多一個要擔心的事情，我的頭好痛啦。</div></div>
+</div>
+</div>
+<div class="journal-section" id="j-lancet-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Lancet Oncology</span>
+    <span class="journal-count">1</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00520-6" target="_blank" rel="noopener">Pelvic nodal SBRT: from feasibility to therapeutic value</a>
+  </div>
+  <p class="article-authors">Poon D</p>
+  <p class="article-summary" style="font-style:italic;opacity:.55">No abstract available — AI summary skipped.</p>
+  
+</div>
+</div>
+<details class="other-block">
+  <summary><b>2</b> more, judged not hematology-related (solid-tumor
+    oncology, general medicine, policy and news)</summary>
+  
+<div class="journal-section" id="o-lancet-oncology">
+  <div class="journal-header">
+    <span class="journal-icon">📋</span>
+    <span class="journal-title">Lancet Oncology</span>
+    <span class="journal-count">2</span>
+  </div>
+  
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00465-1" target="_blank" rel="noopener">Prostate and pelvic nodal stereotactic body radiotherapy (SBRT) versus prostate-only SBRT for high-risk, localised prostate cancer (PACE-NODES): early adverse event results from an international, open-label, phase 3, randomised controlled trial</a>
+  </div>
+  <p class="article-authors">Pathmanathan A, Jain S, Cafferty F, Leaning D et al.</p>
+  <p class="article-summary">PACE-NODES compares prostate plus pelvic nodal SBRT with prostate-only SBRT in high-risk localised prostate cancer. This early report focuses on adverse events.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>早期毒性資料出爐囉，大家期待已久的 PACE-NODES 終於有新消息，辛苦研究團隊了！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>攝護腺癌的放療試驗，跟我們血液科的骨髓一點關係都沒有啦，看看就好齁。</div></div>
+</div>
+<div class="article-card">
+  <div class="article-meta"><span class="badge">📅 2026-11</span><span class="badge">DOI: 10.1016/s1470-2045(26)</span><span class="badge">CrossRef</span></div>
+  <div class="article-title">
+    <a href="https://doi.org/10.1016/s1470-2045(26)00445-6" target="_blank" rel="noopener">Organ-preserving multimodal therapy for patients with high-risk upper tract urothelial carcinoma in China (DISTINCT-I): a single-arm, phase 2 trial</a>
+  </div>
+  <p class="article-authors">Huang J, Hu H, Ng C, Xia L et al.</p>
+  <p class="article-summary">This single-arm phase 2 trial tested a response-adapted kidney-sparing strategy with disitamab vedotin plus tislelizumab in high-risk upper tract urothelial carcinoma. The aim is to avoid radical nephroureterectomy.</p>
+  <div class="ai-box"><div class="comment-card hehe"><span class="comment-label">嘻嘻 😄</span>保留腎臟又能治療，ADC 加免疫治療的組合很有創意耶！</div><div class="comment-card nohehe"><span class="comment-label">不嘻嘻 🙄</span>泌尿道上皮癌的試驗，血液科同仁可以先跳過，省下時間喝杯手搖飲吧。</div></div>
+</div>
+</div>
+</details>
+</main>
+
+<footer class="site-footer">
+  Generated 2026-11-22 03:45 UTC · AI summaries by Claude Sonnet 5.5<br>
+  Sources: Nature RSS · NEJM RSS · CrossRef API
+</footer>
+</body>
+</html>
