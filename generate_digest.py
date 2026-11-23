@@ -87,6 +87,8 @@ CHUNK_SIZE      = 30                        # articles per Claude call
 CROSSREF_PAGE_ROWS = 200                    # rows=1000 times out on deep paging
 CROSSREF_MAX_PAGES = 8                      # safety bound: 1600 works per journal
 CROSSREF_PUB_FLOOR = 14                     # days: oldest publication date accepted
+CROSSREF_MIN_GAP   = 0.25                   # seconds between CrossRef requests
+CROSSREF_RETRIES   = 4                      # retries on 429/503 (waits 2,4,8,16 s)
 
 SEEN_DOIS_FILE  = _SCRIPT_DIR / "manifests" / "seen_dois.json"
 SEEN_DOIS_TTL   = 21                        # days to remember a DOI
@@ -179,6 +181,35 @@ def _crossref_pub_dt(item: dict):
     return pub_dt, "-".join(str(p).zfill(2) for p in parts)
 
 
+_crossref_last_call = 0.0
+
+
+def _crossref_get(client, params: dict, journal_name: str):
+    """One CrossRef request, paced and retried on 429/503.
+
+    CrossRef answered 429 for 7-13 journals in every scheduled run from
+    2026-11-18 to 2026-11-23, Blood and JCO among them. A single 429 used to
+    drop the journal for the day, because paging requests went out back to back
+    and nothing retried. Requests are now spaced CROSSREF_MIN_GAP apart and a
+    429/503 waits (Retry-After if given, else 2, 4, 8, 16 s) before retrying."""
+    global _crossref_last_call
+    for attempt in range(CROSSREF_RETRIES + 1):
+        gap = CROSSREF_MIN_GAP - (time.monotonic() - _crossref_last_call)
+        if gap > 0:
+            time.sleep(gap)
+        _crossref_last_call = time.monotonic()
+        resp = client.get(CROSSREF_BASE, params=params)
+        if resp.status_code not in (429, 503) or attempt == CROSSREF_RETRIES:
+            resp.raise_for_status()
+            return resp
+        after = resp.headers.get("Retry-After", "").strip()
+        delay = min(float(after) if after.isdigit() else 2.0 ** (attempt + 1), 60.0)
+        print(f"  [retry] CrossRef '{journal_name}': HTTP {resp.status_code}, "
+              f"waiting {delay:.0f}s (retry {attempt + 1}/{CROSSREF_RETRIES})",
+              file=sys.stderr)
+        time.sleep(delay)
+
+
 def _crossref_page(client, filt: str, cutoff: datetime, email: str,
                    journal_name: str) -> tuple[list[dict], bool]:
     """Page a CrossRef filter, index-date descending, until the index date
@@ -196,8 +227,7 @@ def _crossref_page(client, filt: str, cutoff: datetime, email: str,
             "mailto": email,
             "select": "DOI,title,author,published,abstract,URL,indexed,type",
         }
-        resp = client.get(CROSSREF_BASE, params=params)
-        resp.raise_for_status()
+        resp = _crossref_get(client, params, journal_name)
         message = resp.json().get("message", {})
         page = message.get("items", [])
         if not page:
