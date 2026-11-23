@@ -11,6 +11,12 @@ on:
           as an artifact. Nothing is committed and the ledger is not updated.
         type: boolean
         default: false
+      hours:
+        description: >-
+          Test run only: lookback window in hours (blank = the normal window).
+          Use 72-96 on a Monday, when the normal window covers only Sunday.
+        type: string
+        default: ''
 
 jobs:
   generate-digest:
@@ -44,7 +50,8 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ELSEVIER_API_KEY: ${{ secrets.ELSEVIER_API_KEY }}
-        run: python generate_digest.py --no-ledger --output ./test-output
+          HOURS: ${{ inputs.hours }}
+        run: python generate_digest.py --no-ledger --output ./test-output ${HOURS:+--hours "$HOURS"}
 
       - name: Upload test output
         if: ${{ inputs.test_only }}

@@ -28,7 +28,8 @@ multiple journals every day.
 - **Test run:** Actions → Run workflow → tick `test_only` (or
   `gh workflow run digest.yml --ref <branch> -f test_only=true`). It ignores the
   ledger, uploads the HTML as an artifact, and commits nothing. Use it to try a
-  model or prompt change on a branch before merging.
+  model or prompt change on a branch before merging. On a Monday the normal
+  window holds only Sunday's few articles; add `-f hours=96`.
 
 ## Fetch strategy
 - **CrossRef API** for ASCO / ASH / Wiley / OUP / Elsevier (bypasses Cloudflare)
@@ -130,10 +131,13 @@ per-journal counts against the report `reports/` holds for the same date.
   fetch from raw.githubusercontent.com, the path that works on hospital WiFi)
   or keeping radar hits out of the committed report. Watch the first week for
   over-tagging; the fix is a tighter `description`, not a looser rule.
-- CrossRef answered `429 Too Many Requests` for 10 journals in the 2026-11-18
-  scheduled run (none in the six runs before it), and `fetch_crossref` has no
-  retry, so those journals' articles were dropped silently for the day. Not
-  fixed; a backoff-and-retry on 429 is the obvious change if it recurs.
+- CrossRef answered `429 Too Many Requests` for 7-13 journals in every
+  scheduled run from 2026-11-18 to 2026-11-23 (Blood and JCO among them), and
+  each 429 dropped that journal for the day. Fixed 2026-11-23 in
+  `_crossref_get`: requests are spaced and a 429/503 is retried with backoff.
+  If `[WARN] CrossRef ... 429` still appears after four retries, CrossRef's
+  limit has tightened further; check its current published rate limits before
+  raising `CROSSREF_MIN_GAP`.
 - Expect higher and lumpier daily volume now that batch deposits are no longer
   truncated (some journals deposit a whole issue at once). Watch the AI-summary
   token cost for a week or two. If it needs trimming, the lever is the journal
